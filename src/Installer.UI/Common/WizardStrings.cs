@@ -32,6 +32,16 @@ namespace Installer.UI.Common
             Add(t, "Wizard.Retry", "重试", "Retry");
 
             Add(t, "Wizard.StepInfo", "第 {0} 步，共 {1} 步", "Step {0} of {1}");
+            Add(t, "Progress.Subtitle", "安装程序正在解压并写入文件，请不要关闭窗口或关机。",
+                "Setup is extracting files. Do not close the window or power off.");
+            Add(t, "Progress.CapFiles", "已解压文件", "Files extracted");
+            Add(t, "Progress.CapSize", "已写入大小", "Data written");
+            Add(t, "Progress.CapElapsed", "已用时间", "Elapsed");
+            Add(t, "Progress.CapRemaining", "预计剩余", "Remaining");
+            Add(t, "Progress.Step1", "准备安装目录", "Prepare install folder");
+            Add(t, "Progress.Step2", "解压程序文件", "Extract program files");
+            Add(t, "Progress.Step3", "创建快捷方式", "Create shortcuts");
+            Add(t, "Progress.Step4", "写入注册表与卸载信息", "Write registry & uninstall info");
             Add(t, "Path.Subtitle", "确认安装目录，并勾选安装时需要一并完成的操作。",
                 "Confirm the install folder and pick the tasks to perform.");
             Add(t, "Options.Desktop.Desc", "在桌面创建启动图标", "Create a launch icon on the desktop");

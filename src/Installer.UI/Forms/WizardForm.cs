@@ -301,8 +301,20 @@ namespace Installer.UI.Forms
 
                 case WizardPage.Installing:
                     ShowView(_progressView);
+                    _progressView.ApplyAccent(_accent);
                     _progressView.Title = _presenter.Text("Progress.Title");
+                    _progressView.Subtitle = _presenter.Text("Progress.Subtitle");
                     _progressView.StepText = _presenter.Text("Progress.Preparing");
+                    _progressView.CurrentFileText = string.Empty;
+                    _progressView.SetStatCaptions(
+                        _presenter.Text("Progress.CapFiles"), _presenter.Text("Progress.CapSize"),
+                        _presenter.Text("Progress.CapElapsed"), _presenter.Text("Progress.CapRemaining"));
+                    _progressView.SetStats("—", "—", "00:00", "—");
+                    _progressView.SetSteps(new[]
+                    {
+                        _presenter.Text("Progress.Step1"), _presenter.Text("Progress.Step2"),
+                        _presenter.Text("Progress.Step3"), _presenter.Text("Progress.Step4"),
+                    }, 0);
                     _progressView.SetPercent(0);
                     break;
 
@@ -448,7 +460,8 @@ namespace Installer.UI.Forms
             }
 
             // 安装中：主按钮变成"取消"，用 Error 色提示
-            btnPrimary.Type = _presenter.PrimaryIsCancel ? AntdUI.TTypeMini.Error : AntdUI.TTypeMini.Primary;
+            // 安装/卸载进行中时主按钮是「安装中…」的静态状态，不该用红色警告色
+            btnPrimary.Type = AntdUI.TTypeMini.Primary;
 
             bool busy = page == WizardPage.Installing || page == WizardPage.Uninstalling;
             btnPrimary.Enabled = busy || _presenter.PrimaryEnabled;
@@ -605,8 +618,16 @@ namespace Installer.UI.Forms
             if (!string.IsNullOrEmpty(p.Message))
             {
                 _progressView.StepText = p.Message;
-                _progressView.AppendLog(p.Message);
+                _progressView.CurrentFileText = p.Message;
             }
+
+            // 步骤列表按进度推进：0~25 / 25~50 / 50~75 / 75~100
+            var stage = Math.Min(3, Math.Max(0, p.Percent / 25));
+            _progressView.SetSteps(new[]
+            {
+                _presenter.Text("Progress.Step1"), _presenter.Text("Progress.Step2"),
+                _presenter.Text("Progress.Step3"), _presenter.Text("Progress.Step4"),
+            }, stage);
 
             if (p.IsRollingBack)
             {
@@ -757,14 +778,30 @@ namespace Installer.UI.Forms
                     _progressView.SetIndeterminate(false);
                     _progressView.SetPercent(42);
                     _progressView.StepText = @"正在解压文件 3/5：bin\App.exe";
-                    _progressView.AppendLog("步骤 3/9：extract");
-                    _progressView.AppendLog("已解压 3 个条目。");
+                    _progressView.CurrentFileText = @"正在写入：bin\CqVideo\ffmpeg.dll";
+                    _progressView.SetStats("123 / 199", "56.4 MB / 90.6 MB", "00:12", "约 8 秒");
+                    _progressView.SetSteps(new[]
+                    {
+                        _presenter.Text("Progress.Step1") + " —— 已完成",
+                        _presenter.Text("Progress.Step2") + " —— 进行中 42%",
+                        _presenter.Text("Progress.Step3") + " —— 等待中",
+                        _presenter.Text("Progress.Step4") + " —— 等待中",
+                    }, 1);
                     break;
 
                 case WizardPage.Uninstalling:
                     _progressView.SetIndeterminate(false);
                     _progressView.SetPercent(60);
                     _progressView.StepText = "正在删除程序文件…";
+                    _progressView.CurrentFileText = @"正在删除：bin\lib.dll";
+                    _progressView.SetStats("123 / 199", "56.4 MB / 90.6 MB", "00:06", "约 4 秒");
+                    _progressView.SetSteps(new[]
+                    {
+                        "结束关联进程 —— 已完成",
+                        "删除程序文件 —— 进行中 60%",
+                        "移除桌面与开始菜单快捷方式 —— 等待中",
+                        "清理注册表与卸载信息 —— 等待中",
+                    }, 1);
                     break;
             }
         }
