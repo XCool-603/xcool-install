@@ -123,7 +123,7 @@ namespace Installer.Builder.Views
             this.chkRunAfter.AutoSize = true;
             this.chkRunAfter.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(41)))), ((int)(((byte)(55)))));
             this.chkRunAfter.Location = new System.Drawing.Point(484, 4);
-            this.chkRunAfter.Margin = new System.Windows.Forms.Padding(0, 8, 0, 6);
+            this.chkRunAfter.Margin = new System.Windows.Forms.Padding(0, 4, 0, 4);
             this.chkRunAfter.Name = "chkRunAfter";
             this.chkRunAfter.Size = new System.Drawing.Size(150, 23);
             this.chkRunAfter.TabIndex = 3;

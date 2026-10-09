@@ -250,6 +250,7 @@ namespace Installer.Builder.Forms
             //
             // footerLayout —— 底部栏 88 + 状态栏 27，上方 1px 分隔线
             //
+            this.footerLayout.BackColor = System.Drawing.Color.White;
             this.footerLayout.ColumnCount = 1;
             this.footerLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.footerLayout.Controls.Add(this.divider, 0, 0);
