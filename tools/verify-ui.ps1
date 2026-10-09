@@ -214,6 +214,31 @@ if ((Test-Path $advLicense) -and (Test-Path $advInstall)) {
 }
 
 # ─────────────────────────────────────────────────────────────
+Write-Host "== 5. 事件处理必须有订阅" -ForegroundColor Cyan
+# 重写 Designer 时很容易漏掉 "this.btn.Click += ..."，
+# 编译不报错、按钮却点了没反应。这里静态扫一遍。
+$proj = Join-Path $root 'src\Installer.Builder'
+$srcFiles = Get-ChildItem -Recurse -File -Filter '*.cs' -LiteralPath $proj |
+    Where-Object { $_.FullName -notmatch '\\(bin|obj)\\' -and $_.Name -notlike '*.Designer.cs' }
+
+$unwired = @()
+foreach ($sf in $srcFiles) {
+    $code = [System.IO.File]::ReadAllText($sf.FullName, [System.Text.UTF8Encoding]::new($false))
+    $handlers = [regex]::Matches($code, '(?:private|protected|public)\s+void\s+(\w+)\s*\(\s*object\s+sender') |
+        ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique
+    if (-not $handlers) { continue }
+
+    $dpath = $sf.FullName -replace '\.cs$', '.Designer.cs'
+    $dtxt = if (Test-Path $dpath) { [System.IO.File]::ReadAllText($dpath, [System.Text.UTF8Encoding]::new($false)) } else { '' }
+
+    foreach ($h in $handlers) {
+        $wired = ($dtxt -match [regex]::Escape($h)) -or ($code -match ('\+=\s*' + [regex]::Escape($h)))
+        if (-not $wired) { $unwired += "$($sf.Name):$h" }
+    }
+}
+Check ($unwired.Count -eq 0) '所有事件处理方法都已订阅' ($unwired -join ', ')
+
+# ─────────────────────────────────────────────────────────────
 Write-Host ""
 if ($fail -eq 0) {
     Write-Host "全部 $pass 项通过。" -ForegroundColor Green

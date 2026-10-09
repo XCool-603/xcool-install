@@ -134,6 +134,7 @@ namespace Installer.Builder.Forms
             this.btnOk.Size = new System.Drawing.Size(100, 40);
             this.btnOk.TabIndex = 0;
             this.btnOk.Text = "确定";
+            this.btnOk.Click += new System.EventHandler(this.BtnOkClick);
             this.btnOk.Type = AntdUI.TTypeMini.Primary;
             //
             // btnCancel
@@ -147,6 +148,7 @@ namespace Installer.Builder.Forms
             this.btnCancel.Size = new System.Drawing.Size(100, 40);
             this.btnCancel.TabIndex = 1;
             this.btnCancel.Text = "取消";
+            this.btnCancel.Click += new System.EventHandler(this.BtnCancelClick);
             //
             // AdvancedForm
             //
