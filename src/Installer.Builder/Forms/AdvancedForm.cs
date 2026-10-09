@@ -26,6 +26,12 @@ namespace Installer.Builder.Forms
             _presenter = presenter;
             InitializeComponent();
 
+            // 让两个视图撑满 TabPage 并保持白底，视觉上就是一张卡片
+            _licenseView.Dock = System.Windows.Forms.DockStyle.Fill;
+            _licenseView.BackColor = System.Drawing.Color.White;
+            _installView.Dock = System.Windows.Forms.DockStyle.Fill;
+            _installView.BackColor = System.Drawing.Color.White;
+
             var licensePage = new AntdUI.TabPage { Text = "许可协议" };
             licensePage.Controls.Add(_licenseView);
 

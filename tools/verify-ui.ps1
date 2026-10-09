@@ -182,6 +182,38 @@ if ($ref) {
 }
 
 # ─────────────────────────────────────────────────────────────
+Write-Host "== 4. 高级设置对话框" -ForegroundColor Cyan
+
+$advLicense = Join-Path $emptyDir '高级选项-许可协议.png'
+$advInstall = Join-Path $emptyDir '高级选项-安装细节.png'
+Check (Test-Path $advLicense) '高级设置（许可协议）渲染成功' $advLicense
+Check (Test-Path $advInstall) '高级设置（安装细节）渲染成功' $advInstall
+
+if ((Test-Path $advLicense) -and (Test-Path $advInstall)) {
+    $al = New-Object System.Drawing.Bitmap($advLicense)
+    $ai = New-Object System.Drawing.Bitmap($advInstall)
+
+    # 标题栏必须是白底（和主界面一致，不能是系统原生灰）
+    Check ((Hex $ai.GetPixel(350, 25)) -eq '#FFFFFF') '高级设置标题栏白底' "实际 $(Hex $ai.GetPixel(350, 25))"
+
+    # 内容区必须是白卡片（不能是整片页面灰）
+    Check ((Hex $ai.GetPixel(350, 200)) -eq '#FFFFFF') '高级设置内容区白卡片' "实际 $(Hex $ai.GetPixel(350, 200))"
+
+    # 页脚必须白底
+    Check ((Hex $ai.GetPixel(350, 540)) -eq '#FFFFFF') '高级设置页脚白底' "实际 $(Hex $ai.GetPixel(350, 540))"
+
+    # 页面背景（卡片外）应是 #F5F7FA
+    Check ((Hex $ai.GetPixel(8, 200)) -eq '#F5F7FA') '高级设置页面背景' "实际 $(Hex $ai.GetPixel(8, 200))"
+
+    # 不能出现系统原生标题栏（经典标题栏是浅蓝渐变 #A0C8F0 一类）
+    $top = Hex $ai.GetPixel(350, 8)
+    Check ($top -eq '#FFFFFF') '高级设置没有系统原生标题栏' "顶部像素 $top"
+
+    $al.Dispose()
+    $ai.Dispose()
+}
+
+# ─────────────────────────────────────────────────────────────
 Write-Host ""
 if ($fail -eq 0) {
     Write-Host "全部 $pass 项通过。" -ForegroundColor Green

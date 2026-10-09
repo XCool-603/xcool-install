@@ -73,7 +73,8 @@ namespace Installer.Builder.Views
             //
             // lblScope
             //
-            this.lblScope.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblScope.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblScope.Margin = new System.Windows.Forms.Padding(0, 12, 12, 0);
             this.lblScope.AutoSize = true;
             this.lblScope.Location = new System.Drawing.Point(15, 27);
             this.lblScope.Name = "lblScope";
@@ -83,6 +84,7 @@ namespace Installer.Builder.Views
             //
             // cboScope
             //
+            this.cboScope.AutoSize = false;
             this.cboScope.Dock = System.Windows.Forms.DockStyle.Fill;
             this.cboScope.Location = new System.Drawing.Point(147, 13);
             this.cboScope.Name = "cboScope";
@@ -91,7 +93,8 @@ namespace Installer.Builder.Views
             //
             // lblDir
             //
-            this.lblDir.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblDir.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblDir.Margin = new System.Windows.Forms.Padding(0, 12, 12, 0);
             this.lblDir.AutoSize = true;
             this.lblDir.Location = new System.Drawing.Point(15, 75);
             this.lblDir.Name = "lblDir";
@@ -101,6 +104,7 @@ namespace Installer.Builder.Views
             //
             // txtDir
             //
+            this.txtDir.AutoSize = false;
             this.txtDir.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtDir.Location = new System.Drawing.Point(147, 61);
             this.txtDir.Name = "txtDir";
@@ -110,7 +114,8 @@ namespace Installer.Builder.Views
             //
             // lblIcon
             //
-            this.lblIcon.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblIcon.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblIcon.Margin = new System.Windows.Forms.Padding(0, 12, 12, 0);
             this.lblIcon.AutoSize = true;
             this.lblIcon.Location = new System.Drawing.Point(15, 123);
             this.lblIcon.Name = "lblIcon";
@@ -135,6 +140,7 @@ namespace Installer.Builder.Views
             //
             // txtIcon
             //
+            this.txtIcon.AutoSize = false;
             this.txtIcon.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtIcon.Location = new System.Drawing.Point(0, 0);
             this.txtIcon.Margin = new System.Windows.Forms.Padding(0);
@@ -156,7 +162,8 @@ namespace Installer.Builder.Views
             //
             // lblCom
             //
-            this.lblCom.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblCom.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblCom.Margin = new System.Windows.Forms.Padding(0, 12, 12, 0);
             this.lblCom.AutoSize = true;
             this.lblCom.Location = new System.Drawing.Point(15, 242);
             this.lblCom.Name = "lblCom";
@@ -166,6 +173,7 @@ namespace Installer.Builder.Views
             //
             // txtCom
             //
+            this.txtCom.AutoSize = false;
             this.txtCom.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtCom.Location = new System.Drawing.Point(147, 157);
             this.txtCom.Multiline = true;
@@ -176,7 +184,7 @@ namespace Installer.Builder.Views
             //
             // lblComHint
             //
-            this.lblComHint.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblComHint.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
             this.lblComHint.AutoSize = true;
             this.lblComHint.Location = new System.Drawing.Point(147, 394);
             this.lblComHint.Name = "lblComHint";

@@ -71,7 +71,8 @@ namespace Installer.Builder.Views
             //
             // lblZh
             //
-            this.lblZh.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblZh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblZh.Margin = new System.Windows.Forms.Padding(0, 12, 12, 0);
             this.lblZh.AutoSize = true;
             this.lblZh.Location = new System.Drawing.Point(15, 141);
             this.lblZh.Name = "lblZh";
@@ -81,6 +82,7 @@ namespace Installer.Builder.Views
             //
             // txtZh
             //
+            this.txtZh.AutoSize = false;
             this.txtZh.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtZh.Location = new System.Drawing.Point(75, 55);
             this.txtZh.Multiline = true;
@@ -90,7 +92,8 @@ namespace Installer.Builder.Views
             //
             // lblEn
             //
-            this.lblEn.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblEn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblEn.Margin = new System.Windows.Forms.Padding(0, 12, 12, 0);
             this.lblEn.AutoSize = true;
             this.lblEn.Location = new System.Drawing.Point(15, 339);
             this.lblEn.Name = "lblEn";
@@ -100,6 +103,7 @@ namespace Installer.Builder.Views
             //
             // txtEn
             //
+            this.txtEn.AutoSize = false;
             this.txtEn.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtEn.Location = new System.Drawing.Point(75, 253);
             this.txtEn.Multiline = true;
