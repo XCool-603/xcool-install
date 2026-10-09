@@ -161,6 +161,7 @@ namespace Installer.UI.Forms
             this.btnPrimary.TabIndex = 0;
             this.btnPrimary.Text = "下一步";
             this.btnPrimary.Type = AntdUI.TTypeMini.Primary;
+            this.btnPrimary.Click += new System.EventHandler(this.BtnPrimaryClick);
             //
             // btnBack —— 上一步
             //
@@ -173,6 +174,7 @@ namespace Installer.UI.Forms
             this.btnBack.Size = new System.Drawing.Size(100, 40);
             this.btnBack.TabIndex = 1;
             this.btnBack.Text = "上一步";
+            this.btnBack.Click += new System.EventHandler(this.BtnBackClick);
             //
             // btnCancel —— 取消
             //
@@ -185,6 +187,7 @@ namespace Installer.UI.Forms
             this.btnCancel.Size = new System.Drawing.Size(100, 40);
             this.btnCancel.TabIndex = 2;
             this.btnCancel.Text = "取消";
+            this.btnCancel.Click += new System.EventHandler(this.BtnCancelClick);
             //
             // WizardForm
             //

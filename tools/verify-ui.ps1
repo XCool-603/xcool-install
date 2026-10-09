@@ -1,4 +1,4 @@
-﻿# 制作端界面 —— 与 Calicat 设计稿的自动对比
+﻿ 制作端界面 —— 与 Calicat 设计稿的自动对比
 #
 # 用法：powershell -ExecutionPolicy Bypass -File tools\verify-ui.ps1
 #
@@ -217,9 +217,12 @@ if ((Test-Path $advLicense) -and (Test-Path $advInstall)) {
 Write-Host "== 5. 事件处理必须有订阅" -ForegroundColor Cyan
 # 重写 Designer 时很容易漏掉 "this.btn.Click += ..."，
 # 编译不报错、按钮却点了没反应。这里静态扫一遍。
-$proj = Join-Path $root 'src\Installer.Builder'
-$srcFiles = Get-ChildItem -Recurse -File -Filter '*.cs' -LiteralPath $proj |
-    Where-Object { $_.FullName -notmatch '\\(bin|obj)\\' -and $_.Name -notlike '*.Designer.cs' }
+$proj = @((Join-Path $root 'src\Installer.Builder'), (Join-Path $root 'src\Installer.UI'))
+$srcFiles = @()
+foreach ($projItem in $proj) {
+    $srcFiles += Get-ChildItem -Recurse -File -Filter '*.cs' -LiteralPath $projItem |
+        Where-Object { $_.FullName -notmatch '\\(bin|obj)\\' -and $_.Name -notlike '*.Designer.cs' }
+}
 
 $unwired = @()
 foreach ($sf in $srcFiles) {
