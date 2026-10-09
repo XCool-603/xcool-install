@@ -28,6 +28,7 @@ namespace Installer.Builder.Views
         {
             InitializeComponent();
             btnBrowse.Click += (sender, e) => Pick();
+            btnChange.Click += (sender, e) => Pick();
             AllowDrop = true;
             DragEnter += OnDragEnter;
             DragDrop += OnDragDrop;
@@ -61,6 +62,21 @@ namespace Installer.Builder.Views
             {
                 _folder = (value ?? string.Empty).Trim();
                 ApplyFolderState();
+            }
+        }
+
+        /// <summary>空态拖拽区高度（竖排：图标 / 提示 / 副提示 / 按钮）。</summary>
+        public const float DropZoneExpanded = 140F;
+
+        /// <summary>已选态拖拽区高度（横排：路径 + 更换按钮）。</summary>
+        public const float DropZoneCollapsed = 64F;
+
+        /// <summary>设置拖拽区高度（由宿主在收缩动画里逐帧调用）。</summary>
+        public void SetDropZoneHeight(float height)
+        {
+            if (rootLayout.RowStyles.Count > 1)
+            {
+                rootLayout.RowStyles[1].Height = height;
             }
         }
 
@@ -103,6 +119,12 @@ namespace Installer.Builder.Views
         {
             if (string.IsNullOrWhiteSpace(_folder))
             {
+                // 空态：竖排提示 + 虚线框
+                dropLayout.Visible = true;
+                pickedLayout.Visible = false;
+                dropPanel.BorderStyle = System.Drawing.Drawing2D.DashStyle.Dash;
+                dropPanel.BackColor = System.Drawing.Color.FromArgb(250, 251, 253);
+
                 lblDropText.Text = T("Step.Folder.Hint", "把文件夹拖到这里");
                 lblDropSub.Text = T("Step.Folder.Sub", "或者点下面的按钮");
                 btnBrowse.Text = T("Step.Folder.Pick", "选择文件夹");
@@ -113,12 +135,22 @@ namespace Installer.Builder.Views
                 return;
             }
 
-            lblDropText.Text = _folder;
-            lblDropSub.Text = Directory.Exists(_folder) ? string.Empty : T("Files.Missing", "（文件夹不存在）");
-            btnBrowse.Text = T("Step.Folder.Change", "更换文件夹");
+            // 已选态：横排「路径 + 更换文件夹」+ 实线框（比空态矮，把空间让给下面的字段）
+            dropLayout.Visible = false;
+            pickedLayout.Visible = true;
+            dropPanel.BorderStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+            dropPanel.BackColor = System.Drawing.Color.White;
+
+            lblPickedPath.Text = _folder;
+            btnChange.Text = T("Step.Folder.Change", "更换文件夹");
 
             RefreshCount();
             PopulateEntries(EntryPoint);
+
+            if (!Directory.Exists(_folder))
+            {
+                lblFiles.Text = T("Files.Missing", "（文件夹不存在）");
+            }
         }
 
         private string T(string key, string fallback)

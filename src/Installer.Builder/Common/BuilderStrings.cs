@@ -86,6 +86,7 @@ namespace Installer.Builder.Common
             Add(t, "Output.Label", "将生成：", "Will create:");
             Add(t, "Output.Change", "更换位置…", "Change...");
             Add(t, "Output.Empty", "（选好文件夹后自动确定）", "(determined once a folder is chosen)");
+            Add(t, "Output.Estimate", "安装后约 {0}", "about {0} installed");
 
             Add(t, "Btn.Preview", "预览向导", "Preview");
             Add(t, "Btn.Build", "生成安装包", "Build installer");

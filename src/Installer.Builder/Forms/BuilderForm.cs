@@ -234,6 +234,53 @@ namespace Installer.Builder.Forms
             // 用户没有固定过输出路径 → 自动推导
             _presenter.Document.Project.Build.OutputPath = null;
             outputBar.OutputPath = _presenter.ResolveOutputPath();
+
+            UpdateFolderDependentState();
+        }
+
+        /// <summary>
+        /// 按"有没有选文件夹"刷新依赖它的界面：
+        /// ②③ 卡片淡化、主按钮可用性、预计安装后大小。
+        /// </summary>
+        private void UpdateFolderDependentState()
+        {
+            var hasFolder = !string.IsNullOrWhiteSpace(folderStep.Folder);
+
+            // 未选文件夹时第 2、3 步淡化 —— AntdUI 的禁用态就是"变淡"
+            card2.Enabled = hasFolder;
+            card3.Enabled = hasFolder;
+
+            outputBar.CanBuild = hasFolder;
+
+            // 拖拽区收缩：空态 140 / 已选 92；卡片行高跟着走
+            var dropHeight = hasFolder
+                ? Views.FolderStepView.DropZoneCollapsed
+                : Views.FolderStepView.DropZoneExpanded;
+
+            folderStep.SetDropZoneHeight(dropHeight);
+            SetCard1RowHeight(dropHeight + 158F);   // 30 标签 + 26 统计 + 46 入口 + 16 间距 + 40 内边距
+
+            int count;
+            long bytes;
+            BuilderPresenter.MeasureSource(folderStep.Folder, out count, out bytes);
+
+            outputBar.SetEstimatedSize(count == 0
+                ? string.Empty
+                : string.Format(CultureInfo.CurrentCulture,
+                    _presenter.S("Output.Estimate"), FormatSize(bytes)));
+        }
+
+        /// <summary>
+        /// 设置第一张卡片（第 1 步）的行高。
+        /// 拖拽区在空态/已选态之间收缩，卡片高度必须跟着走 ——
+        /// TableLayoutPanel 的 Absolute 行高不会自动适配内容。
+        /// </summary>
+        private void SetCard1RowHeight(float height)
+        {
+            if (bodyLayout.RowStyles.Count > 0)
+            {
+                bodyLayout.RowStyles[0].Height = height;
+            }
         }
 
         private void UpdateStatus(string message)

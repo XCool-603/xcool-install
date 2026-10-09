@@ -32,6 +32,7 @@ namespace Installer.Builder.Views
             this.pathLayout = new System.Windows.Forms.TableLayoutPanel();
             this.lblPrefix = new AntdUI.Label();
             this.lblPath = new AntdUI.Label();
+            this.lblSize = new AntdUI.Label();
             this.btnChange = new AntdUI.Button();
             this.buttonLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.btnPreview = new AntdUI.Button();
@@ -58,13 +59,15 @@ namespace Installer.Builder.Views
             //
             // pathLayout
             //
-            this.pathLayout.ColumnCount = 3;
+            this.pathLayout.ColumnCount = 4;
             this.pathLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 70F));
             this.pathLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.pathLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
             this.pathLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 110F));
             this.pathLayout.Controls.Add(this.lblPrefix, 0, 0);
             this.pathLayout.Controls.Add(this.lblPath, 1, 0);
-            this.pathLayout.Controls.Add(this.btnChange, 2, 0);
+            this.pathLayout.Controls.Add(this.lblSize, 2, 0);
+            this.pathLayout.Controls.Add(this.btnChange, 3, 0);
             this.pathLayout.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pathLayout.Location = new System.Drawing.Point(0, 0);
             this.pathLayout.Margin = new System.Windows.Forms.Padding(0);
@@ -80,6 +83,7 @@ namespace Installer.Builder.Views
             this.lblPrefix.AutoSize = true;
             this.lblPrefix.Location = new System.Drawing.Point(0, 9);
             this.lblPrefix.Margin = new System.Windows.Forms.Padding(0, 0, 0, 0);
+            this.lblPrefix.Font = new System.Drawing.Font("微软雅黑", 9F);
             this.lblPrefix.Name = "lblPrefix";
             this.lblPrefix.Size = new System.Drawing.Size(60, 17);
             this.lblPrefix.TabIndex = 0;
@@ -92,18 +96,34 @@ namespace Installer.Builder.Views
             this.lblPath.AutoEllipsis = true;
             this.lblPath.Location = new System.Drawing.Point(70, 6);
             this.lblPath.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
+            this.lblPath.Font = new System.Drawing.Font("微软雅黑", 9.75F);
             this.lblPath.Name = "lblPath";
             this.lblPath.Size = new System.Drawing.Size(568, 24);
             this.lblPath.TabIndex = 1;
             this.lblPath.Text = "（选好文件夹后自动确定）";
+            //
+            // lblSize
+            //
+            this.lblSize.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblSize.AutoSize = true;
+            this.lblSize.Font = new System.Drawing.Font("微软雅黑", 9F);
+            this.lblSize.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(156)))), ((int)(((byte)(163)))), ((int)(((byte)(175)))));
+            this.lblSize.Location = new System.Drawing.Point(640, 9);
+            this.lblSize.Margin = new System.Windows.Forms.Padding(12, 0, 0, 0);
+            this.lblSize.Name = "lblSize";
+            this.lblSize.Size = new System.Drawing.Size(100, 17);
+            this.lblSize.TabIndex = 2;
+            this.lblSize.Text = "";
             //
             // btnChange
             //
             this.btnChange.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnChange.Location = new System.Drawing.Point(650, 2);
             this.btnChange.Margin = new System.Windows.Forms.Padding(0, 2, 0, 2);
+            this.btnChange.BorderWidth = 1F;
+            this.btnChange.DefaultBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(229)))), ((int)(((byte)(232)))), ((int)(((byte)(239)))));
             this.btnChange.Name = "btnChange";
-            this.btnChange.Radius = 6;
+            this.btnChange.Radius = 8;
             this.btnChange.Size = new System.Drawing.Size(110, 32);
             this.btnChange.TabIndex = 2;
             this.btnChange.Text = "更换位置…";
@@ -125,8 +145,8 @@ namespace Installer.Builder.Views
             this.btnPreview.Location = new System.Drawing.Point(636, 11);
             this.btnPreview.Margin = new System.Windows.Forms.Padding(12, 11, 0, 11);
             this.btnPreview.Name = "btnPreview";
-            this.btnPreview.Radius = 6;
-            this.btnPreview.Size = new System.Drawing.Size(124, 40);
+            this.btnPreview.Radius = 8;
+            this.btnPreview.Size = new System.Drawing.Size(100, 40);
             this.btnPreview.TabIndex = 0;
             this.btnPreview.Text = "预览向导";
             this.btnPreview.Click += new System.EventHandler(this.OnPreview);
@@ -136,8 +156,8 @@ namespace Installer.Builder.Views
             this.btnBuild.Location = new System.Drawing.Point(476, 11);
             this.btnBuild.Margin = new System.Windows.Forms.Padding(12, 11, 0, 11);
             this.btnBuild.Name = "btnBuild";
-            this.btnBuild.Radius = 6;
-            this.btnBuild.Size = new System.Drawing.Size(148, 40);
+            this.btnBuild.Radius = 8;
+            this.btnBuild.Size = new System.Drawing.Size(140, 44);
             this.btnBuild.TabIndex = 1;
             this.btnBuild.Text = "生成安装包";
             this.btnBuild.Type = AntdUI.TTypeMini.Primary;
@@ -166,6 +186,7 @@ namespace Installer.Builder.Views
         private System.Windows.Forms.TableLayoutPanel pathLayout;
         private AntdUI.Label lblPrefix;
         private AntdUI.Label lblPath;
+        private AntdUI.Label lblSize;
         private AntdUI.Button btnChange;
         private System.Windows.Forms.FlowLayoutPanel buttonLayout;
         private AntdUI.Button btnPreview;

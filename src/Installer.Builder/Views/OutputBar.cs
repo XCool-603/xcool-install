@@ -37,6 +37,32 @@ namespace Installer.Builder.Views
 
         private string _outputPath;
 
+        /// <summary>设置"安装后约需 X"（显示在路径右侧）。</summary>
+        public void SetEstimatedSize(string text)
+        {
+            lblSize.Text = text ?? string.Empty;
+        }
+
+        /// <summary>
+        /// 主按钮是否可用（没选文件夹时不可用）。
+        /// 注意：AntdUI 的禁用态对比度很低（实测约 55，正常 120~250），
+        /// 这是刻意的"灰掉"效果 —— 设计稿要求如此。
+        /// </summary>
+        public bool CanBuild
+        {
+            get { return _canBuild; }
+            set
+            {
+                _canBuild = value;
+                if (!btnBuild.Loading)
+                {
+                    btnBuild.Enabled = value;
+                }
+            }
+        }
+
+        private bool _canBuild = true;
+
         /// <summary>是否正在生成。</summary>
         public bool Building
         {

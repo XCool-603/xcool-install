@@ -43,6 +43,7 @@ namespace Installer.Builder.Forms
             this.card3 = new AntdUI.Panel();
             this.shortcutStep = new Installer.Builder.Views.ShortcutStepView();
             this.btnAdvanced = new AntdUI.Button();
+            this.divider = new System.Windows.Forms.Panel();
             this.outputBar = new Installer.Builder.Views.OutputBar();
             this.statusLayout = new System.Windows.Forms.TableLayoutPanel();
             this.lblStatus = new AntdUI.Label();
@@ -64,19 +65,21 @@ namespace Installer.Builder.Forms
             this.rootLayout.Controls.Add(this.pageHeader, 0, 0);
             this.rootLayout.Controls.Add(this.headerLayout, 0, 1);
             this.rootLayout.Controls.Add(this.bodyLayout, 0, 2);
-            this.rootLayout.Controls.Add(this.outputBar, 0, 3);
-            this.rootLayout.Controls.Add(this.statusLayout, 0, 4);
+            this.rootLayout.Controls.Add(this.divider, 0, 3);
+            this.rootLayout.Controls.Add(this.outputBar, 0, 4);
+            this.rootLayout.Controls.Add(this.statusLayout, 0, 5);
             this.rootLayout.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rootLayout.Location = new System.Drawing.Point(0, 0);
             this.rootLayout.Name = "rootLayout";
             this.rootLayout.Padding = new System.Windows.Forms.Padding(24, 20, 24, 8);
-            this.rootLayout.RowCount = 5;
+            this.rootLayout.RowCount = 6;
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 52F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 44F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 1F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 94F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 34F));
-            this.rootLayout.Size = new System.Drawing.Size(920, 928);
+            this.rootLayout.Size = new System.Drawing.Size(920, 936);
             this.rootLayout.TabIndex = 0;
             //
             // pageHeader —— AntdUI 的自绘标题栏（配合 FormBorderStyle.None）
@@ -171,7 +174,7 @@ namespace Installer.Builder.Forms
             this.bodyLayout.Margin = new System.Windows.Forms.Padding(0);
             this.bodyLayout.Name = "bodyLayout";
             this.bodyLayout.RowCount = 5;
-            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 300F));
+            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 298F));
             this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 196F));
             this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 132F));
             this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 48F));
@@ -270,6 +273,16 @@ namespace Installer.Builder.Forms
             this.btnAdvanced.TabIndex = 3;
             this.btnAdvanced.Text = "高级选项…";
             //
+            // divider —— 底部操作栏上方的 1px 分隔线
+            //
+            this.divider.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(229)))), ((int)(((byte)(232)))), ((int)(((byte)(239)))));
+            this.divider.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.divider.Location = new System.Drawing.Point(24, 756);
+            this.divider.Margin = new System.Windows.Forms.Padding(0);
+            this.divider.Name = "divider";
+            this.divider.Size = new System.Drawing.Size(872, 1);
+            this.divider.TabIndex = 3;
+            //
             // outputBar
             //
             this.outputBar.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -324,7 +337,7 @@ namespace Installer.Builder.Forms
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(247)))), ((int)(((byte)(250)))));
-            this.ClientSize = new System.Drawing.Size(920, 928);
+            this.ClientSize = new System.Drawing.Size(920, 936);
             this.Controls.Add(this.rootLayout);
             this.Font = new System.Drawing.Font("微软雅黑", 9.75F);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
@@ -364,6 +377,7 @@ namespace Installer.Builder.Forms
         private AntdUI.Panel card3;
         private Installer.Builder.Views.ShortcutStepView shortcutStep;
         private AntdUI.Button btnAdvanced;
+        private System.Windows.Forms.Panel divider;
         private Installer.Builder.Views.OutputBar outputBar;
         private System.Windows.Forms.TableLayoutPanel statusLayout;
         private AntdUI.Label lblStatus;
