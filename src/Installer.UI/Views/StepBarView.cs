@@ -35,7 +35,7 @@ namespace Installer.UI.Views
                      | ControlStyles.ResizeRedraw, true);
 
             BackColor = WizardTheme.CardBack;
-            Font = WizardTheme.ValueFont;
+            Font = WizardTheme.BodyFont;
             Height = WizardTheme.StepBarHeight;
         }
 
@@ -77,20 +77,26 @@ namespace Installer.UI.Views
         {
             base.OnPaint(e);
 
+            var g = e.Graphics;
+
+            // UserPaint + AllPaintingInWmPaint 下必须自己填背景，否则透出父容器的灰
+            using (var bg = new SolidBrush(BackColor))
+            {
+                g.FillRectangle(bg, ClientRectangle);
+            }
+
             if (_steps.Length == 0)
             {
                 return;
             }
-
-            var g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            const int pad = 24;
+            const int pad = 20;
             const int dot = 20;
             const int dotGap = 8;
-            const int lineGap = 12;
-            const int minLine = 16;
+            const int lineGap = 8;
+            const int minLine = 8;
 
             // ① 量出每段「圆 + 文字」的宽度
             var textWidths = new int[_steps.Length];

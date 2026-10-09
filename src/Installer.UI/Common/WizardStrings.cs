@@ -25,13 +25,18 @@ namespace Installer.UI.Common
             Add(t, "Wizard.Cancel", "取消", "Cancel");
             Add(t, "Wizard.Install", "立即安装", "Install");
             Add(t, "Wizard.Finish", "完成", "Finish");
+            Add(t, "Wizard.InstallKind", "安装向导", "Setup wizard");
+            Add(t, "Wizard.UninstallKind", "卸载向导", "Uninstall wizard");
+            Add(t, "Wizard.Version", "版本", "version");
             Add(t, "Wizard.Close", "关闭", "Close");
             Add(t, "Wizard.Retry", "重试", "Retry");
 
+            Add(t, "Wizard.StepWelcome", "欢迎", "Welcome");
             Add(t, "Step.License", "许可协议", "License");
             Add(t, "Step.Path", "安装位置", "Location");
             Add(t, "Step.Options", "选项", "Options");
-            Add(t, "Step.Install", "安装", "Install");
+            Add(t, "Wizard.StepSettings", "安装设置", "Setup");
+            Add(t, "Step.Install", "正在安装", "Installing");
 
             Add(t, "Welcome.Title", "欢迎使用", "Welcome");
             Add(t, "Welcome.Body",

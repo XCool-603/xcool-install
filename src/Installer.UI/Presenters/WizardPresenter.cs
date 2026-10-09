@@ -195,12 +195,12 @@ namespace Installer.UI.Presenters
                 switch (Current)
                 {
                     case WizardPage.Welcome:
-                        return -1;
-                    case WizardPage.License:
                         return 0;
-                    case WizardPage.Path:
+                    case WizardPage.License:
                         return 1;
+                    case WizardPage.Path:
                     case WizardPage.Options:
+                        // 设计稿把「安装位置」与「附加任务」合成一步「安装设置」
                         return 2;
                     case WizardPage.Installing:
                         return 3;

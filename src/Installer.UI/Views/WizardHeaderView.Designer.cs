@@ -54,6 +54,7 @@ namespace Installer.UI.Views
             //
             // layout
             //
+            this.layout.BackColor = System.Drawing.Color.Transparent;
             this.layout.ColumnCount = 2;
             this.layout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 76F));
             this.layout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));

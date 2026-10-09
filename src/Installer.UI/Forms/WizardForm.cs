@@ -87,27 +87,35 @@ namespace Installer.UI.Forms
         // 外观（全部来自清单，不硬编码）
         // ─────────────────────────────────────────────────────────────
 
+        /// <summary>当前主色（安装 = 蓝，卸载 = 红）。</summary>
+        private Color _accent = WizardTheme.Primary;
+
         private void ApplyAppearance()
         {
             Text = _presenter.ProductName + " " + _presenter.ProductVersion;
 
-            lblProduct.Text = _presenter.ProductName;
-            lblVersion.Text = _presenter.ProductVersion;
+            // 品牌区：产品名 + 「安装向导 · 版本 x」/「卸载向导 · 版本 x」
+            var uninstall = _presenter.Current == WizardPage.UninstallConfirm
+                            || _presenter.Current == WizardPage.Uninstalling
+                            || _presenter.Current == WizardPage.Uninstalled;
+
+            headerView.ApplyText(_presenter.Text, _presenter.ProductName, _presenter.ProductVersion, uninstall);
 
             var ui = _manifest.Ui;
+            var accent = WizardTheme.Primary;
+
             if (ui != null && !string.IsNullOrEmpty(ui.AccentColor))
             {
-                Color accent;
-                if (TryParseColor(ui.AccentColor, out accent))
+                Color parsed;
+                if (TryParseColor(ui.AccentColor, out parsed))
                 {
-                    pnlHeader.BackColor = accent;
+                    accent = parsed;
                 }
             }
 
-            if (ui != null && string.IsNullOrEmpty(ui.AccentColor))
-            {
-                pnlHeader.BackColor = Color.FromArgb(6, 157, 231);
-            }
+            headerView.ApplyAccent(accent);
+            stepBar.Accent = accent;
+            _accent = accent;
 
             if (ui != null && !string.IsNullOrEmpty(ui.Theme) &&
                 string.Equals(ui.Theme, "dark", StringComparison.OrdinalIgnoreCase))
@@ -238,7 +246,6 @@ namespace Installer.UI.Forms
                     ShowView(_welcomeView);
                     _welcomeView.Title = _presenter.Text("Welcome.Title") + " " + _presenter.ProductName;
                     _welcomeView.Body = _presenter.Text("Welcome.Body");
-                    _welcomeView.Logo = picLogo.Image;
                     break;
 
                 case WizardPage.License:
@@ -385,10 +392,10 @@ namespace Installer.UI.Forms
             btnBack.Visible = _presenter.CanGoBack;
             btnCancel.Visible = !_presenter.PrimaryIsCancel;
 
-            steps.Visible = _presenter.ShowSteps;
+            stepBar.Visible = _presenter.ShowSteps;
             if (_presenter.ShowSteps)
             {
-                steps.Current = Math.Min(_presenter.StepIndex, steps.Items.Count - 1);
+                stepBar.Current = Math.Min(_presenter.StepIndex, Math.Max(0, stepBar.Steps.Length - 1));
             }
 
             // 安装中：主按钮变成"取消"，用 Error 色提示
@@ -401,7 +408,7 @@ namespace Installer.UI.Forms
         /// <summary>步骤指示器的文案 key（顺序与 Designer 里的占位条目一致）。</summary>
         private static readonly string[] StepKeys =
         {
-            "Step.License", "Step.Path", "Step.Options", "Step.Install", "Wizard.Finish",
+            "Wizard.StepWelcome", "Step.License", "Wizard.StepSettings", "Step.Install", "Wizard.Finish",
         };
 
         /// <summary>
@@ -411,13 +418,13 @@ namespace Installer.UI.Forms
         /// </summary>
         private void LocalizeSteps()
         {
-            for (var i = 0; i < steps.Items.Count; i++)
+            var titles = new string[StepKeys.Length];
+            for (var i = 0; i < StepKeys.Length; i++)
             {
-                if (i < StepKeys.Length)
-                {
-                    steps.Items[i].Title = _presenter.Text(StepKeys[i]);
-                }
+                titles[i] = _presenter.Text(StepKeys[i]);
             }
+
+            stepBar.Steps = titles;
         }
 
         // ─────────────────────────────────────────────────────────────

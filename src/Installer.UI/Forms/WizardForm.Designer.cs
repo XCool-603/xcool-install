@@ -20,7 +20,7 @@ namespace Installer.UI.Forms
             base.Dispose(disposing);
         }
 
-        #region Windows 窗体设计器生成的代码
+        #region Windows Form Designer generated code
 
         /// <summary>
         /// 设计器支持所需的方法 - 不要修改
@@ -28,243 +28,197 @@ namespace Installer.UI.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            this.rootLayout = new System.Windows.Forms.TableLayoutPanel();
-            this.pnlHeader = new System.Windows.Forms.Panel();
-            this.headerLayout = new System.Windows.Forms.TableLayoutPanel();
-            this.picLogo = new System.Windows.Forms.PictureBox();
-            this.lblProduct = new AntdUI.Label();
-            this.lblVersion = new AntdUI.Label();
+            this.card = new AntdUI.Panel();
+            this.cardLayout = new System.Windows.Forms.TableLayoutPanel();
+            this.headerView = new Installer.UI.Views.WizardHeaderView();
+            this.stepBar = new Installer.UI.Views.StepBarView();
             this.pnlContent = new System.Windows.Forms.Panel();
-            this.pnlFooter = new System.Windows.Forms.Panel();
             this.footerLayout = new System.Windows.Forms.TableLayoutPanel();
-            this.steps = new AntdUI.Steps();
+            this.lblStepInfo = new AntdUI.Label();
             this.buttonFlow = new System.Windows.Forms.FlowLayoutPanel();
             this.btnPrimary = new AntdUI.Button();
-            this.btnCancel = new AntdUI.Button();
             this.btnBack = new AntdUI.Button();
-            this.rootLayout.SuspendLayout();
-            this.pnlHeader.SuspendLayout();
-            this.headerLayout.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picLogo)).BeginInit();
-            this.pnlFooter.SuspendLayout();
+            this.btnCancel = new AntdUI.Button();
+            this.card.SuspendLayout();
+            this.cardLayout.SuspendLayout();
             this.footerLayout.SuspendLayout();
             this.buttonFlow.SuspendLayout();
             this.SuspendLayout();
             //
-            // rootLayout
+            // card —— 白圆角卡片，浮在灰底上
             //
-            this.rootLayout.ColumnCount = 1;
-            this.rootLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.rootLayout.Controls.Add(this.pnlHeader, 0, 0);
-            this.rootLayout.Controls.Add(this.pnlContent, 0, 1);
-            this.rootLayout.Controls.Add(this.pnlFooter, 0, 2);
-            this.rootLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.rootLayout.Location = new System.Drawing.Point(0, 0);
-            this.rootLayout.Name = "rootLayout";
-            this.rootLayout.RowCount = 3;
-            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 64F));
-            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 104F));
-            this.rootLayout.Size = new System.Drawing.Size(720, 520);
-            this.rootLayout.TabIndex = 0;
+            this.card.Back = System.Drawing.Color.White;
+            this.card.Controls.Add(this.cardLayout);
+            this.card.Location = new System.Drawing.Point(20, 20);
+            this.card.Margin = new System.Windows.Forms.Padding(0);
+            this.card.Name = "card";
+            this.card.Radius = 16;
+            this.card.Shadow = 12;
+            this.card.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
+            this.card.ShadowOpacity = 0.18F;
+            this.card.Size = new System.Drawing.Size(648, 680);
+            this.card.TabIndex = 0;
             //
-            // pnlHeader
+            // cardLayout —— 品牌头 / 步骤条 / 内容 / 底栏
             //
-            this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(6)))), ((int)(((byte)(157)))), ((int)(((byte)(231)))));
-            this.pnlHeader.Controls.Add(this.headerLayout);
-            this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlHeader.Location = new System.Drawing.Point(0, 0);
-            this.pnlHeader.Margin = new System.Windows.Forms.Padding(0);
-            this.pnlHeader.Name = "pnlHeader";
-            this.pnlHeader.Size = new System.Drawing.Size(720, 64);
-            this.pnlHeader.TabIndex = 0;
+            this.cardLayout.BackColor = System.Drawing.Color.White;
+            this.cardLayout.ColumnCount = 1;
+            this.cardLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.cardLayout.Controls.Add(this.headerView, 0, 0);
+            this.cardLayout.Controls.Add(this.stepBar, 0, 1);
+            this.cardLayout.Controls.Add(this.pnlContent, 0, 2);
+            this.cardLayout.Controls.Add(this.footerLayout, 0, 3);
+            this.cardLayout.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.cardLayout.Location = new System.Drawing.Point(0, 0);
+            this.cardLayout.Margin = new System.Windows.Forms.Padding(0);
+            this.cardLayout.Name = "cardLayout";
+            this.cardLayout.RowCount = 4;
+            this.cardLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 104F));
+            this.cardLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this.cardLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.cardLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 72F));
+            this.cardLayout.Size = new System.Drawing.Size(648, 680);
+            this.cardLayout.TabIndex = 0;
             //
-            // headerLayout
+            // headerView —— 蓝色品牌区
             //
-            this.headerLayout.ColumnCount = 3;
-            this.headerLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 56F));
-            this.headerLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.headerLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
-            this.headerLayout.Controls.Add(this.picLogo, 0, 0);
-            this.headerLayout.Controls.Add(this.lblProduct, 1, 0);
-            this.headerLayout.Controls.Add(this.lblVersion, 2, 0);
-            this.headerLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.headerLayout.Location = new System.Drawing.Point(0, 0);
-            this.headerLayout.Name = "headerLayout";
-            this.headerLayout.Padding = new System.Windows.Forms.Padding(16, 8, 16, 8);
-            this.headerLayout.RowCount = 1;
-            this.headerLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.headerLayout.Size = new System.Drawing.Size(720, 64);
-            this.headerLayout.TabIndex = 0;
+            this.headerView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.headerView.Location = new System.Drawing.Point(0, 0);
+            this.headerView.Margin = new System.Windows.Forms.Padding(0);
+            this.headerView.Name = "headerView";
+            this.headerView.Size = new System.Drawing.Size(648, 104);
+            this.headerView.TabIndex = 0;
             //
-            // picLogo
+            // stepBar —— 步骤条
             //
-            this.picLogo.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.picLogo.Location = new System.Drawing.Point(19, 12);
-            this.picLogo.Name = "picLogo";
-            this.picLogo.Size = new System.Drawing.Size(40, 40);
-            this.picLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.picLogo.TabIndex = 0;
-            this.picLogo.TabStop = false;
+            this.stepBar.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.stepBar.Location = new System.Drawing.Point(0, 104);
+            this.stepBar.Margin = new System.Windows.Forms.Padding(0);
+            this.stepBar.Name = "stepBar";
+            this.stepBar.Size = new System.Drawing.Size(648, 40);
+            this.stepBar.TabIndex = 1;
             //
-            // lblProduct
+            // pnlContent —— 页面宿主
             //
-            this.lblProduct.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblProduct.AutoSize = true;
-            this.lblProduct.Font = new System.Drawing.Font("微软雅黑", 13F, System.Drawing.FontStyle.Bold);
-            this.lblProduct.ForeColor = System.Drawing.Color.White;
-            this.lblProduct.Location = new System.Drawing.Point(75, 20);
-            this.lblProduct.Name = "lblProduct";
-            this.lblProduct.Size = new System.Drawing.Size(120, 24);
-            this.lblProduct.TabIndex = 1;
-            this.lblProduct.Text = "产品名称";
-            //
-            // lblVersion
-            //
-            this.lblVersion.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.lblVersion.AutoSize = true;
-            this.lblVersion.Font = new System.Drawing.Font("微软雅黑", 9F);
-            this.lblVersion.ForeColor = System.Drawing.Color.White;
-            this.lblVersion.Location = new System.Drawing.Point(640, 24);
-            this.lblVersion.Name = "lblVersion";
-            this.lblVersion.Size = new System.Drawing.Size(60, 17);
-            this.lblVersion.TabIndex = 2;
-            this.lblVersion.Text = "1.0.0";
-            //
-            // pnlContent
-            //
-            this.pnlContent.BackColor = System.Drawing.Color.White;
             this.pnlContent.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlContent.Location = new System.Drawing.Point(0, 64);
+            this.pnlContent.Location = new System.Drawing.Point(0, 144);
             this.pnlContent.Margin = new System.Windows.Forms.Padding(0);
             this.pnlContent.Name = "pnlContent";
-            this.pnlContent.Size = new System.Drawing.Size(720, 352);
-            this.pnlContent.TabIndex = 1;
-            //
-            // pnlFooter
-            //
-            this.pnlFooter.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
-            this.pnlFooter.Controls.Add(this.footerLayout);
-            this.pnlFooter.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlFooter.Location = new System.Drawing.Point(0, 416);
-            this.pnlFooter.Margin = new System.Windows.Forms.Padding(0);
-            this.pnlFooter.Name = "pnlFooter";
-            this.pnlFooter.Size = new System.Drawing.Size(720, 104);
-            this.pnlFooter.TabIndex = 2;
+            this.pnlContent.Padding = new System.Windows.Forms.Padding(24, 20, 24, 0);
+            this.pnlContent.Size = new System.Drawing.Size(648, 464);
+            this.pnlContent.TabIndex = 2;
             //
             // footerLayout
             //
-            this.footerLayout.ColumnCount = 1;
+            this.footerLayout.ColumnCount = 2;
             this.footerLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.footerLayout.Controls.Add(this.steps, 0, 0);
-            this.footerLayout.Controls.Add(this.buttonFlow, 0, 1);
+            this.footerLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 330F));
+            this.footerLayout.Controls.Add(this.lblStepInfo, 0, 0);
+            this.footerLayout.Controls.Add(this.buttonFlow, 1, 0);
             this.footerLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.footerLayout.Location = new System.Drawing.Point(0, 0);
+            this.footerLayout.Location = new System.Drawing.Point(0, 608);
+            this.footerLayout.Margin = new System.Windows.Forms.Padding(0);
             this.footerLayout.Name = "footerLayout";
-            this.footerLayout.RowCount = 2;
-            this.footerLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 48F));
+            this.footerLayout.RowCount = 1;
             this.footerLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.footerLayout.Size = new System.Drawing.Size(720, 104);
-            this.footerLayout.TabIndex = 0;
+            this.footerLayout.Size = new System.Drawing.Size(648, 72);
+            this.footerLayout.TabIndex = 3;
             //
-            // steps
+            // lblStepInfo —— 「第 N 步，共 M 步」
             //
-            this.steps.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.steps.Items.Add(new AntdUI.StepsItem() { ID = "license", Title = "许可协议" });
-            this.steps.Items.Add(new AntdUI.StepsItem() { ID = "path", Title = "安装位置" });
-            this.steps.Items.Add(new AntdUI.StepsItem() { ID = "options", Title = "选项" });
-            this.steps.Items.Add(new AntdUI.StepsItem() { ID = "install", Title = "安装" });
-            this.steps.Items.Add(new AntdUI.StepsItem() { ID = "finish", Title = "完成" });
-            this.steps.Location = new System.Drawing.Point(16, 3);
-            this.steps.Name = "steps";
-            this.steps.Size = new System.Drawing.Size(688, 42);
-            this.steps.TabIndex = 0;
+            this.lblStepInfo.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblStepInfo.AutoSize = true;
+            this.lblStepInfo.Font = new System.Drawing.Font("微软雅黑", 11F);
+            this.lblStepInfo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(156)))), ((int)(((byte)(163)))), ((int)(((byte)(175)))));
+            this.lblStepInfo.Location = new System.Drawing.Point(24, 27);
+            this.lblStepInfo.Margin = new System.Windows.Forms.Padding(24, 0, 0, 0);
+            this.lblStepInfo.Name = "lblStepInfo";
+            this.lblStepInfo.Size = new System.Drawing.Size(120, 19);
+            this.lblStepInfo.TabIndex = 0;
+            this.lblStepInfo.Text = "第 1 步，共 5 步";
             //
-            // buttonFlow
+            // buttonFlow —— 右对齐按钮组
             //
+            this.buttonFlow.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.buttonFlow.Controls.Add(this.btnPrimary);
-            this.buttonFlow.Controls.Add(this.btnCancel);
             this.buttonFlow.Controls.Add(this.btnBack);
-            this.buttonFlow.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.buttonFlow.Controls.Add(this.btnCancel);
             this.buttonFlow.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.buttonFlow.Location = new System.Drawing.Point(16, 51);
+            this.buttonFlow.Location = new System.Drawing.Point(378, 16);
+            this.buttonFlow.Margin = new System.Windows.Forms.Padding(0);
             this.buttonFlow.Name = "buttonFlow";
-            this.buttonFlow.Padding = new System.Windows.Forms.Padding(0, 8, 0, 0);
-            this.buttonFlow.Size = new System.Drawing.Size(688, 50);
+            this.buttonFlow.Size = new System.Drawing.Size(246, 40);
             this.buttonFlow.TabIndex = 1;
+            this.buttonFlow.WrapContents = false;
             //
-            // btnPrimary
+            // btnPrimary —— 下一步 / 安装 / 完成 / 卸载
             //
-            this.btnPrimary.Font = new System.Drawing.Font("微软雅黑", 9F);
-            this.btnPrimary.Location = new System.Drawing.Point(568, 11);
+            this.btnPrimary.Location = new System.Drawing.Point(0, 0);
+            this.btnPrimary.Margin = new System.Windows.Forms.Padding(12, 0, 0, 0);
             this.btnPrimary.Name = "btnPrimary";
-            this.btnPrimary.Radius = 6;
-            this.btnPrimary.Size = new System.Drawing.Size(120, 36);
+            this.btnPrimary.Radius = 8;
+            this.btnPrimary.Size = new System.Drawing.Size(120, 40);
             this.btnPrimary.TabIndex = 0;
             this.btnPrimary.Text = "下一步";
             this.btnPrimary.Type = AntdUI.TTypeMini.Primary;
-            this.btnPrimary.Click += new System.EventHandler(this.BtnPrimaryClick);
             //
-            // btnCancel
+            // btnBack —— 上一步
             //
-            this.btnCancel.Font = new System.Drawing.Font("微软雅黑", 9F);
-            this.btnCancel.Location = new System.Drawing.Point(442, 11);
-            this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Radius = 6;
-            this.btnCancel.Size = new System.Drawing.Size(120, 36);
-            this.btnCancel.TabIndex = 1;
-            this.btnCancel.Text = "取消";
-            this.btnCancel.Click += new System.EventHandler(this.BtnCancelClick);
-            //
-            // btnBack
-            //
-            this.btnBack.Font = new System.Drawing.Font("微软雅黑", 9F);
-            this.btnBack.Location = new System.Drawing.Point(316, 11);
+            this.btnBack.BorderWidth = 1F;
+            this.btnBack.DefaultBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(229)))), ((int)(((byte)(232)))), ((int)(((byte)(239)))));
+            this.btnBack.Location = new System.Drawing.Point(126, 0);
+            this.btnBack.Margin = new System.Windows.Forms.Padding(12, 0, 0, 0);
             this.btnBack.Name = "btnBack";
-            this.btnBack.Radius = 6;
-            this.btnBack.Size = new System.Drawing.Size(120, 36);
-            this.btnBack.TabIndex = 2;
+            this.btnBack.Radius = 8;
+            this.btnBack.Size = new System.Drawing.Size(100, 40);
+            this.btnBack.TabIndex = 1;
             this.btnBack.Text = "上一步";
-            this.btnBack.Click += new System.EventHandler(this.BtnBackClick);
+            //
+            // btnCancel —— 取消
+            //
+            this.btnCancel.BorderWidth = 1F;
+            this.btnCancel.DefaultBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(229)))), ((int)(((byte)(232)))), ((int)(((byte)(239)))));
+            this.btnCancel.Location = new System.Drawing.Point(238, 0);
+            this.btnCancel.Margin = new System.Windows.Forms.Padding(12, 0, 0, 0);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Radius = 8;
+            this.btnCancel.Size = new System.Drawing.Size(100, 40);
+            this.btnCancel.TabIndex = 2;
+            this.btnCancel.Text = "取消";
             //
             // WizardForm
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(720, 520);
-            this.Controls.Add(this.rootLayout);
-            this.Font = new System.Drawing.Font("微软雅黑", 9F);
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(237)))), ((int)(((byte)(239)))), ((int)(((byte)(242)))));
+            this.ClientSize = new System.Drawing.Size(688, 720);
+            this.Controls.Add(this.card);
+            this.Font = new System.Drawing.Font("微软雅黑", 12F);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.MinimumSize = new System.Drawing.Size(688, 720);
             this.Name = "WizardForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "安装向导";
-            this.rootLayout.ResumeLayout(false);
-            this.pnlHeader.ResumeLayout(false);
-            this.headerLayout.ResumeLayout(false);
-            this.headerLayout.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picLogo)).EndInit();
-            this.pnlFooter.ResumeLayout(false);
+            this.card.ResumeLayout(false);
+            this.cardLayout.ResumeLayout(false);
             this.footerLayout.ResumeLayout(false);
+            this.footerLayout.PerformLayout();
             this.buttonFlow.ResumeLayout(false);
             this.ResumeLayout(false);
         }
 
         #endregion
 
-        private System.Windows.Forms.TableLayoutPanel rootLayout;
-        private System.Windows.Forms.Panel pnlHeader;
-        private System.Windows.Forms.TableLayoutPanel headerLayout;
-        private System.Windows.Forms.PictureBox picLogo;
-        private AntdUI.Label lblProduct;
-        private AntdUI.Label lblVersion;
+        private AntdUI.Panel card;
+        private System.Windows.Forms.TableLayoutPanel cardLayout;
+        private Installer.UI.Views.WizardHeaderView headerView;
+        private Installer.UI.Views.StepBarView stepBar;
         private System.Windows.Forms.Panel pnlContent;
-        private System.Windows.Forms.Panel pnlFooter;
         private System.Windows.Forms.TableLayoutPanel footerLayout;
-        private AntdUI.Steps steps;
+        private AntdUI.Label lblStepInfo;
         private System.Windows.Forms.FlowLayoutPanel buttonFlow;
         private AntdUI.Button btnPrimary;
-        private AntdUI.Button btnCancel;
         private AntdUI.Button btnBack;
+        private AntdUI.Button btnCancel;
     }
 }
