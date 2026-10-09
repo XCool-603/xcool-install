@@ -71,7 +71,7 @@ namespace Installer.Builder.Forms
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 94F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.rootLayout.Size = new System.Drawing.Size(884, 744);
+            this.rootLayout.Size = new System.Drawing.Size(884, 812);
             this.rootLayout.TabIndex = 0;
             //
             // headerLayout
@@ -156,12 +156,12 @@ namespace Installer.Builder.Forms
             this.bodyLayout.Margin = new System.Windows.Forms.Padding(0);
             this.bodyLayout.Name = "bodyLayout";
             this.bodyLayout.RowCount = 5;
-            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 264F));
-            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 158F));
-            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 96F));
+            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 272F));
+            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 166F));
+            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 112F));
             this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 48F));
             this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.bodyLayout.Size = new System.Drawing.Size(840, 560);
+            this.bodyLayout.Size = new System.Drawing.Size(840, 616);
             this.bodyLayout.TabIndex = 1;
             //
             // card1
@@ -176,7 +176,7 @@ namespace Installer.Builder.Forms
             this.card1.Name = "card1";
             this.card1.Padding = new System.Windows.Forms.Padding(14);
             this.card1.Radius = 10;
-            this.card1.Size = new System.Drawing.Size(840, 254);
+            this.card1.Size = new System.Drawing.Size(840, 262);
             this.card1.TabIndex = 0;
             //
             // folderStep
@@ -185,7 +185,7 @@ namespace Installer.Builder.Forms
             this.folderStep.Location = new System.Drawing.Point(14, 14);
             this.folderStep.Margin = new System.Windows.Forms.Padding(0);
             this.folderStep.Name = "folderStep";
-            this.folderStep.Size = new System.Drawing.Size(812, 226);
+            this.folderStep.Size = new System.Drawing.Size(812, 234);
             this.folderStep.TabIndex = 0;
             //
             // card2
@@ -195,12 +195,12 @@ namespace Installer.Builder.Forms
             this.card2.BorderWidth = 1F;
             this.card2.Controls.Add(this.infoStep);
             this.card2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.card2.Location = new System.Drawing.Point(0, 264);
+            this.card2.Location = new System.Drawing.Point(0, 272);
             this.card2.Margin = new System.Windows.Forms.Padding(0, 0, 0, 10);
             this.card2.Name = "card2";
             this.card2.Padding = new System.Windows.Forms.Padding(14);
             this.card2.Radius = 10;
-            this.card2.Size = new System.Drawing.Size(840, 148);
+            this.card2.Size = new System.Drawing.Size(840, 156);
             this.card2.TabIndex = 1;
             //
             // infoStep
@@ -209,7 +209,7 @@ namespace Installer.Builder.Forms
             this.infoStep.Location = new System.Drawing.Point(14, 14);
             this.infoStep.Margin = new System.Windows.Forms.Padding(0);
             this.infoStep.Name = "infoStep";
-            this.infoStep.Size = new System.Drawing.Size(812, 120);
+            this.infoStep.Size = new System.Drawing.Size(812, 128);
             this.infoStep.TabIndex = 0;
             //
             // card3
@@ -219,12 +219,12 @@ namespace Installer.Builder.Forms
             this.card3.BorderWidth = 1F;
             this.card3.Controls.Add(this.shortcutStep);
             this.card3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.card3.Location = new System.Drawing.Point(0, 422);
+            this.card3.Location = new System.Drawing.Point(0, 438);
             this.card3.Margin = new System.Windows.Forms.Padding(0, 0, 0, 10);
             this.card3.Name = "card3";
             this.card3.Padding = new System.Windows.Forms.Padding(14);
             this.card3.Radius = 10;
-            this.card3.Size = new System.Drawing.Size(840, 86);
+            this.card3.Size = new System.Drawing.Size(840, 102);
             this.card3.TabIndex = 2;
             //
             // shortcutStep
@@ -233,13 +233,13 @@ namespace Installer.Builder.Forms
             this.shortcutStep.Location = new System.Drawing.Point(14, 14);
             this.shortcutStep.Margin = new System.Windows.Forms.Padding(0);
             this.shortcutStep.Name = "shortcutStep";
-            this.shortcutStep.Size = new System.Drawing.Size(812, 58);
+            this.shortcutStep.Size = new System.Drawing.Size(812, 74);
             this.shortcutStep.TabIndex = 0;
             //
             // btnAdvanced
             //
             this.btnAdvanced.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.btnAdvanced.Location = new System.Drawing.Point(0, 526);
+            this.btnAdvanced.Location = new System.Drawing.Point(0, 556);
             this.btnAdvanced.Margin = new System.Windows.Forms.Padding(0, 8, 0, 8);
             this.btnAdvanced.Name = "btnAdvanced";
             this.btnAdvanced.Radius = 6;
@@ -250,7 +250,7 @@ namespace Installer.Builder.Forms
             // outputBar
             //
             this.outputBar.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.outputBar.Location = new System.Drawing.Point(22, 632);
+            this.outputBar.Location = new System.Drawing.Point(22, 688);
             this.outputBar.Margin = new System.Windows.Forms.Padding(0);
             this.outputBar.Name = "outputBar";
             this.outputBar.Size = new System.Drawing.Size(840, 94);
@@ -260,7 +260,7 @@ namespace Installer.Builder.Forms
             //
             this.lblStatus.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblStatus.AutoSize = true;
-            this.lblStatus.Location = new System.Drawing.Point(22, 714);
+            this.lblStatus.Location = new System.Drawing.Point(22, 782);
             this.lblStatus.Margin = new System.Windows.Forms.Padding(0);
             this.lblStatus.Name = "lblStatus";
             this.lblStatus.Size = new System.Drawing.Size(200, 17);
@@ -272,10 +272,10 @@ namespace Installer.Builder.Forms
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(247)))), ((int)(((byte)(250)))));
-            this.ClientSize = new System.Drawing.Size(884, 744);
+            this.ClientSize = new System.Drawing.Size(884, 812);
             this.Controls.Add(this.rootLayout);
             this.Font = new System.Drawing.Font("微软雅黑", 9F);
-            this.MinimumSize = new System.Drawing.Size(800, 700);
+            this.MinimumSize = new System.Drawing.Size(820, 780);
             this.Name = "BuilderForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "安装包制作助手";

@@ -58,6 +58,13 @@ namespace Installer.Builder.Views
             chkRunAfter.Text = text.Get("Shortcut.RunAfter");
         }
 
+        /// <summary>诊断用：打印四个复选框的实际状态。</summary>
+        public string DebugChecked()
+        {
+            return string.Format("desktop={0} startmenu={1} autostart={2} runafter={3}",
+                chkDesktop.Checked, chkStartMenu.Checked, chkAutostart.Checked, chkRunAfter.Checked);
+        }
+
         private void OnCheckedChanged(object sender, AntdUI.BoolEventArgs e)
         {
             var handler = Changed;

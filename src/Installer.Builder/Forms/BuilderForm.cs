@@ -34,6 +34,12 @@ namespace Installer.Builder.Forms
 
         private bool _building;
 
+        /// <summary>
+        /// 渲染/截图模式。这个模式下**绝不能写自动记忆** ——
+        /// 否则开发时跑一次 --render-ui 就会把用户记住的工程覆盖掉。
+        /// </summary>
+        private bool _rendering;
+
         /// <summary>构造。</summary>
         public BuilderForm()
         {
@@ -62,6 +68,7 @@ namespace Installer.Builder.Forms
         {
             folderStep.Changed += () =>
             {
+                if (_initializing) return;
                 MarkDirty();
                 UpdateOutputPath();
                 UpdateStatus(string.IsNullOrWhiteSpace(folderStep.Folder)
@@ -77,11 +84,12 @@ namespace Installer.Builder.Forms
 
             infoStep.Changed += () =>
             {
+                if (_initializing) return;
                 MarkDirty();
                 UpdateOutputPath();
             };
 
-            shortcutStep.Changed += MarkDirty;
+            shortcutStep.Changed += () => { if (!_initializing) MarkDirty(); };
 
             outputBar.OutputChanged += () =>
             {
@@ -99,6 +107,11 @@ namespace Installer.Builder.Forms
             // 关窗口时把工程记下来，下次打开还是同一个 productCode
             FormClosing += (sender, e) =>
             {
+                if (_rendering)
+                {
+                    return;   // 截图模式不碰用户的工程
+                }
+
                 try
                 {
                     ReadFromViews();
@@ -148,6 +161,25 @@ namespace Installer.Builder.Forms
 
         /// <summary>把工程里的值显示到界面。</summary>
         private void WriteToViews()
+        {
+            // **模型 → 视图是单向的**：这期间任何控件事件都不能反过来写模型。
+            // 不加这个保护的后果：设置 infoStep 的文本框会触发 TextChanged →
+            // UpdateOutputPath → ReadFromViews → 用"还没同步的"快捷方式复选框
+            // 覆盖清单，把快捷方式悄悄清空。
+            var wasInitializing = _initializing;
+            _initializing = true;
+
+            try
+            {
+                WriteToViewsCore();
+            }
+            finally
+            {
+                _initializing = wasInitializing;
+            }
+        }
+
+        private void WriteToViewsCore()
         {
             var m = _presenter.Document.Project.Manifest;
             var b = _presenter.Document.Project.Build ?? new ProjectBuildSettings();
@@ -528,9 +560,25 @@ namespace Installer.Builder.Forms
         /// <summary>截图模式：不显示窗口，直接渲染。</summary>
         public void PrepareForRendering()
         {
+            _rendering = true;
+
+            // 截图必须可复现，也不能受"用户上次的工程"影响 → 从干净的默认工程开始
+            _presenter.NewProject();
+            WriteToViews();
+            UpdateOutputPath();
+
             ShowInTaskbar = false;
             StartPosition = FormStartPosition.Manual;
             Location = new Point(-4000, -4000);
+        }
+
+        /// <summary>诊断用。</summary>
+        public string DebugState()
+        {
+            var m = _presenter.Document.Project.Manifest;
+            return "manifest.shortcuts=[" +
+                   string.Join(",", m.Shortcuts.Select(s => s.Location).ToArray()) + "]  " +
+                   shortcutStep.DebugChecked();
         }
 
         /// <summary>截图模式：预置一个文件夹（用来验证依赖文件夹的界面，比如启动程序下拉框）。</summary>
