@@ -268,23 +268,35 @@ namespace Installer.UI.Forms
                 case WizardPage.Path:
                     ShowView(_pathView);
                     _pathView.Title = _presenter.Text("Path.Title");
+                    _pathView.Subtitle = _presenter.Text("Path.Subtitle");
                     _pathView.PathLabel = _presenter.Text("Path.Label");
+                    _pathView.TaskLabel = _presenter.Text("Options.Title");
                     _pathView.BrowseText = _presenter.Text("Path.Browse");
                     _pathView.InstallPath = _presenter.Options.InstallDir;
                     _pathView.SpaceText = BuildSpaceText();
+
+                    _pathView.ApplyTaskText(
+                        _presenter.Text("Options.Desktop"), _presenter.Text("Options.StartMenu"),
+                        _presenter.Text("Options.Autostart"), _presenter.Text("Options.RunAfter"),
+                        _presenter.Text("Options.Desktop.Desc"), _presenter.Text("Options.StartMenu.Desc"),
+                        _presenter.Text("Options.Autostart.Desc"), _presenter.Text("Options.RunAfter.Desc"));
+
+                    _pathView.AllUsersText = _presenter.Text("Options.AllUsers");
+                    _pathView.AllUsersHint = _presenter.Text("Options.AllUsers.Hint");
+                    _pathView.AllUsers = _presenter.Options.AllUsers;
+
+                    _pathView.DesktopShortcut = _presenter.Options.DesktopShortcut;
+                    _pathView.StartMenuShortcut = _presenter.Options.StartMenuShortcut;
+                    _pathView.Autostart = _presenter.Options.Autostart;
+                    _pathView.RunAfterInstall = _presenter.Options.RunAfterInstall;
+
+                    _pathView.InfoText = BuildSettingsInfo();
                     break;
 
                 case WizardPage.Options:
-                    ShowView(_optionsView);
-                    _optionsView.Title = _presenter.Text("Options.Title");
-                    _optionsView.DesktopText = _presenter.Text("Options.Desktop");
-                    _optionsView.StartMenuText = _presenter.Text("Options.StartMenu");
-                    _optionsView.AutostartText = _presenter.Text("Options.Autostart");
-                    _optionsView.RunAfterText = _presenter.Text("Options.RunAfter");
-                    _optionsView.DesktopShortcut = _presenter.Options.DesktopShortcut;
-                    _optionsView.StartMenuShortcut = _presenter.Options.StartMenuShortcut;
-                    _optionsView.Autostart = _presenter.Options.Autostart;
-                    _optionsView.RunAfterInstall = _presenter.Options.RunAfterInstall;
+                    // 设计稿把「安装位置」与「附加任务」合成一页，Options 已不再进入。
+                    // 保留分支只为兼容旧状态（永远不会走到）。
+                    ShowView(_pathView);
                     break;
 
                 case WizardPage.Installing:
@@ -316,6 +328,23 @@ namespace Installer.UI.Forms
             }
 
             UpdateButtons();
+        }
+
+        /// <summary>浅蓝信息条：「将安装到 X · 已选择 N 项附加任务」。</summary>
+        private string BuildSettingsInfo()
+        {
+            var count = 0;
+            var o = _presenter.Options;
+            if (o.DesktopShortcut) { count++; }
+            if (o.StartMenuShortcut) { count++; }
+            if (o.Autostart) { count++; }
+            if (o.RunAfterInstall) { count++; }
+
+            return string.Format(
+                System.Globalization.CultureInfo.CurrentCulture,
+                _presenter.Text("Options.InfoFormat"),
+                o.InstallDir,
+                count);
         }
 
         private string BuildSpaceText()

@@ -32,6 +32,17 @@ namespace Installer.UI.Common
             Add(t, "Wizard.Retry", "重试", "Retry");
 
             Add(t, "Wizard.StepInfo", "第 {0} 步，共 {1} 步", "Step {0} of {1}");
+            Add(t, "Path.Subtitle", "确认安装目录，并勾选安装时需要一并完成的操作。",
+                "Confirm the install folder and pick the tasks to perform.");
+            Add(t, "Options.Desktop.Desc", "在桌面创建启动图标", "Create a launch icon on the desktop");
+            Add(t, "Options.StartMenu.Desc", "在开始菜单添加启动项", "Add a launch entry to the Start menu");
+            Add(t, "Options.Autostart.Desc", "登录系统后自动运行", "Run automatically after you sign in");
+            Add(t, "Options.RunAfter.Desc", "点「完成」后立即启动", "Launch right after you click Finish");
+            Add(t, "Options.AllUsers", "为所有用户安装", "Install for all users");
+            Add(t, "Options.AllUsers.Hint", "需要对当前电脑的管理员权限，取消勾选则只为你自己安装。",
+                "Requires administrator rights; uncheck to install for yourself only.");
+            Add(t, "Options.InfoFormat", "将安装到 {0} · 已选择 {1} 项附加任务",
+                "Will install to {0} · {1} additional tasks selected");
             Add(t, "Wizard.StepWelcome", "欢迎", "Welcome");
             Add(t, "License.Subtitle", "请仔细阅读下面的许可协议。安装「{0}」前，你需要接受本协议的全部条款。",
                 "Please read the license agreement below. You must accept it before installing {0}.");
@@ -57,14 +68,14 @@ namespace Installer.UI.Common
             Add(t, "License.Accept", "我已阅读并接受许可协议", "I accept the terms of the license agreement");
             Add(t, "License.MustAccept", "请先接受许可协议。", "You must accept the license agreement first.");
 
-            Add(t, "Path.Title", "选择安装位置", "Choose install location");
-            Add(t, "Path.Label", "安装到：", "Install to:");
+            Add(t, "Path.Title", "选择安装位置与附加任务", "Choose location & tasks");
+            Add(t, "Path.Label", "安装位置", "Install location");
             Add(t, "Path.Browse", "浏览…", "Browse...");
             Add(t, "Path.Space", "可用空间：{0}，需要约：{1}",
                 "Free space: {0}, required: {1}");
             Add(t, "Path.Empty", "安装路径不能为空。", "Install path cannot be empty.");
 
-            Add(t, "Options.Title", "安装选项", "Options");
+            Add(t, "Options.Title", "附加任务", "Additional tasks");
             Add(t, "Options.Desktop", "创建桌面快捷方式", "Create a desktop shortcut");
             Add(t, "Options.StartMenu", "创建开始菜单快捷方式", "Create a Start Menu shortcut");
             Add(t, "Options.Autostart", "开机自动启动", "Start with Windows");

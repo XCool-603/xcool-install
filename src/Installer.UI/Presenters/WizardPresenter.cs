@@ -94,7 +94,9 @@ namespace Installer.UI.Presenters
             {
                 switch (Current)
                 {
+                    case WizardPage.Path:
                     case WizardPage.Options:
+                        // 设计稿把「安装位置」与「附加任务」合成一页，所以这一页的主按钮直接是「安装」
                         return "Wizard.Install";
                     case WizardPage.Installing:
                     case WizardPage.Uninstalling:
@@ -252,7 +254,8 @@ namespace Installer.UI.Presenters
                         return false;
                     }
 
-                    Current = _hasOptions ? WizardPage.Options : WizardPage.Installing;
+                    // 设计稿把「安装位置」与「附加任务」合成一页，所以不再经过 Options
+                    Current = WizardPage.Installing;
                     return true;
 
                 case WizardPage.Options:

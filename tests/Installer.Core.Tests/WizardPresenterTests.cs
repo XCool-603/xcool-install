@@ -98,12 +98,13 @@ namespace Installer.Core.Tests
         }
 
         [Fact]
-        public void 有选项时_路径页之后是选项页()
+        public void 有选项时_路径页之后直接进安装页()
         {
+            // 设计稿把「安装位置」与「附加任务」合成一页，所以不再经过 Options
             var p = NewPresenter(withShortcuts: true);
             p.Primary();                        // → Path
-            p.Primary();                        // → Options
-            Assert.Equal(WizardPage.Options, p.Current);
+            p.Primary();                        // → Installing
+            Assert.Equal(WizardPage.Installing, p.Current);
         }
 
         [Fact]
@@ -122,11 +123,8 @@ namespace Installer.Core.Tests
             p.Primary();                        // → License
             p.Options.AcceptLicense = true;     // 不接受就出不去许可页
             p.Primary();                        // → Path
-            p.Primary();                        // → Options
-            Assert.Equal(WizardPage.Options, p.Current);
-
-            p.Back();
             Assert.Equal(WizardPage.Path, p.Current);
+
             p.Back();
             Assert.Equal(WizardPage.License, p.Current);
             p.Back();
@@ -167,7 +165,6 @@ namespace Installer.Core.Tests
 
             p.Options.AcceptLicense = true;
             p.Primary();                        // → Path
-            p.Primary();                        // → Options
             Assert.Equal("Wizard.Install", p.PrimaryKey);
 
             p.Primary();                        // → Installing
@@ -184,7 +181,7 @@ namespace Installer.Core.Tests
 
             Assert.Equal(zh, en);
             Assert.Equal(
-                new[] { "Welcome", "License", "Path", "Options", "Installing" },
+                new[] { "Welcome", "License", "Path", "Installing", "Installing" },
                 zh.ToArray());
         }
 
@@ -219,8 +216,8 @@ namespace Installer.Core.Tests
             en.Primary();
 
             Assert.Equal(zh.PrimaryKey, en.PrimaryKey);
-            Assert.Equal("下一步", zh.Text(zh.PrimaryKey));
-            Assert.Equal("Next", en.Text(en.PrimaryKey));
+            Assert.Equal("立即安装", zh.Text(zh.PrimaryKey));
+            Assert.Equal("Install", en.Text(en.PrimaryKey));
         }
 
         [Fact]

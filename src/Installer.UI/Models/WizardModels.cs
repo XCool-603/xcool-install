@@ -57,6 +57,9 @@ namespace Installer.UI.Models
 
         /// <summary>安装完成后是否立即运行。</summary>
         public bool RunAfterInstall { get; set; }
+
+        /// <summary>是否为所有用户安装（对应 perMachine）。</summary>
+        public bool AllUsers { get; set; }
     }
 
     /// <summary>
