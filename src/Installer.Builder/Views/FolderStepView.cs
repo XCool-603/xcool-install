@@ -136,7 +136,8 @@ namespace Installer.Builder.Views
                 btnBrowse.Text = T("Step.Folder.Pick", "选择文件夹");
                 lblPickedStats.Text = string.Empty;
                 lblEntryHint.Text = string.Empty;
-                cboEntry.Enabled = false;
+                // 不要用 Enabled=false —— AntdUI 的禁用态会把下拉框画成一条 14px 灰扁条。
+                // 没选文件夹时列表本来就是空的，保持可用外观即可。
                 ResetEntrySelection();
                 return;
             }
@@ -209,7 +210,6 @@ namespace Installer.Builder.Views
 
                 if (exes.Count == 0)
                 {
-                    cboEntry.Enabled = false;
                     lblEntryHint.Text = T("Field.EntryPoint.None", "（这个文件夹里没有 .exe）");
                     return;
                 }

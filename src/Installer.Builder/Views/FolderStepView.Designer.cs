@@ -267,7 +267,9 @@ namespace Installer.Builder.Views
             //
             // cboEntry
             //
+            this.cboEntry.AutoSize = false;
             this.cboEntry.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.cboEntry.PlaceholderText = "选择启动程序";
             this.cboEntry.Location = new System.Drawing.Point(76, 6);
             this.cboEntry.Margin = new System.Windows.Forms.Padding(0, 6, 12, 6);
             this.cboEntry.Name = "cboEntry";

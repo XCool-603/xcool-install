@@ -95,6 +95,7 @@ namespace Installer.Builder.Views
             //
             // txtNameZh
             //
+            this.txtNameZh.AutoSize = false;
             this.txtNameZh.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtNameZh.Location = new System.Drawing.Point(76, 36);
             this.txtNameZh.Margin = new System.Windows.Forms.Padding(0, 6, 12, 6);
@@ -116,6 +117,7 @@ namespace Installer.Builder.Views
             //
             // txtNameEn
             //
+            this.txtNameEn.AutoSize = false;
             this.txtNameEn.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtNameEn.Location = new System.Drawing.Point(456, 36);
             this.txtNameEn.Margin = new System.Windows.Forms.Padding(0, 6, 0, 6);
@@ -137,6 +139,7 @@ namespace Installer.Builder.Views
             //
             // txtVersion
             //
+            this.txtVersion.AutoSize = false;
             this.txtVersion.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtVersion.Location = new System.Drawing.Point(76, 88);
             this.txtVersion.Margin = new System.Windows.Forms.Padding(0, 6, 12, 6);
@@ -158,6 +161,7 @@ namespace Installer.Builder.Views
             //
             // txtPublisher
             //
+            this.txtPublisher.AutoSize = false;
             this.txtPublisher.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtPublisher.Location = new System.Drawing.Point(456, 88);
             this.txtPublisher.Margin = new System.Windows.Forms.Padding(0, 6, 0, 6);

@@ -144,9 +144,9 @@ namespace Installer.Builder.Forms
             this.contentLayout.Name = "contentLayout";
             this.contentLayout.Padding = new System.Windows.Forms.Padding(24, 20, 24, 0);
             this.contentLayout.RowCount = 5;
-            this.contentLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 354F));
+            this.contentLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 350F));
             this.contentLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 194F));
-            this.contentLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 126F));
+            this.contentLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 130F));
             this.contentLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 44F));
             this.contentLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.contentLayout.Size = new System.Drawing.Size(920, 738);
@@ -161,7 +161,7 @@ namespace Installer.Builder.Forms
             this.card1.Location = new System.Drawing.Point(24, 20);
             this.card1.Margin = new System.Windows.Forms.Padding(0, 0, 0, 16);
             this.card1.Name = "card1";
-            this.card1.Padding = new System.Windows.Forms.Padding(20);
+            this.card1.Padding = new System.Windows.Forms.Padding(12);
             this.card1.Radius = 14;
             this.card1.Shadow = 8;
             this.card1.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
@@ -188,7 +188,7 @@ namespace Installer.Builder.Forms
             this.card2.Location = new System.Drawing.Point(24, 374);
             this.card2.Margin = new System.Windows.Forms.Padding(0, 0, 0, 16);
             this.card2.Name = "card2";
-            this.card2.Padding = new System.Windows.Forms.Padding(20);
+            this.card2.Padding = new System.Windows.Forms.Padding(12);
             this.card2.Radius = 14;
             this.card2.Shadow = 8;
             this.card2.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
@@ -215,7 +215,7 @@ namespace Installer.Builder.Forms
             this.card3.Location = new System.Drawing.Point(24, 568);
             this.card3.Margin = new System.Windows.Forms.Padding(0, 0, 0, 12);
             this.card3.Name = "card3";
-            this.card3.Padding = new System.Windows.Forms.Padding(20);
+            this.card3.Padding = new System.Windows.Forms.Padding(12);
             this.card3.Radius = 14;
             this.card3.Shadow = 8;
             this.card3.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));

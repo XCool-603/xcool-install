@@ -49,6 +49,7 @@ namespace Installer.Builder.Views
             this.rootLayout.Controls.Add(this.pathLayout, 0, 0);
             this.rootLayout.Controls.Add(this.buttonLayout, 0, 1);
             this.rootLayout.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.rootLayout.Padding = new System.Windows.Forms.Padding(24, 0, 24, 0);
             this.rootLayout.Location = new System.Drawing.Point(0, 0);
             this.rootLayout.Name = "rootLayout";
             this.rootLayout.RowCount = 2;

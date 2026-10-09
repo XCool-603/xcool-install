@@ -626,6 +626,31 @@ namespace Installer.Builder.Forms
         }
 
         /// <summary>截图模式：不显示窗口，直接渲染。</summary>
+        /// <summary>把关键控件的运行时边界写出来（排查布局问题时用）。</summary>
+        public void DumpBounds(string dir)
+        {
+            var sb = new System.Text.StringBuilder();
+            Dump(this, sb, 0);
+
+            System.IO.Directory.CreateDirectory(dir);
+            System.IO.File.WriteAllText(System.IO.Path.Combine(dir, "bounds.txt"), sb.ToString());
+        }
+
+        private static void Dump(System.Windows.Forms.Control c, System.Text.StringBuilder sb, int depth)
+        {
+            sb.Append(new string(' ', depth * 2))
+              .Append(c.GetType().Name).Append(" [").Append(c.Name).Append("] ")
+              .Append("Bounds=").Append(c.Bounds)
+              .Append(" Margin=").Append(c.Margin)
+              .Append(" Dock=").Append(c.Dock)
+              .AppendLine();
+
+            foreach (System.Windows.Forms.Control child in c.Controls)
+            {
+                Dump(child, sb, depth + 1);
+            }
+        }
+
         public void PrepareForRendering()
         {
             _rendering = true;

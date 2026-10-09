@@ -33,6 +33,7 @@ namespace Installer.Builder
 
                     form.Show();
                     Application.DoEvents();
+                    form.DumpBounds(renderDir);
                     form.RenderToPng(renderDir);
                     form.Close();
                 }
