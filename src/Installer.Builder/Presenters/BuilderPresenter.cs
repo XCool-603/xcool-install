@@ -376,6 +376,58 @@ namespace Installer.Builder.Presenters
             return new PackageBuilder().Build(options, progress);
         }
 
+        /// <summary>
+        /// 从文件夹名猜一个产品名。
+        ///
+        /// 用户选了 `D:\空中小火车`，产品名就该是"空中小火车" —— 省掉一次输入。
+        /// 如果文件夹是构建输出目录（bin / Debug / publish / dist…），就往上找一级。
+        /// </summary>
+        public static string SuggestProductName(string sourceDir)
+        {
+            if (string.IsNullOrWhiteSpace(sourceDir))
+            {
+                return null;
+            }
+
+            var dir = sourceDir.TrimEnd('\\', '/');
+
+            // 构建输出目录的名字没有信息量，往上找
+            for (var i = 0; i < 4 && !string.IsNullOrEmpty(dir); i++)
+            {
+                var name = Path.GetFileName(dir);
+                if (string.IsNullOrEmpty(name))
+                {
+                    break;
+                }
+
+                if (!IsBuildOutputName(name))
+                {
+                    return name;
+                }
+
+                var parent = Path.GetDirectoryName(dir);
+                if (string.IsNullOrEmpty(parent))
+                {
+                    break;
+                }
+
+                dir = parent;
+            }
+
+            return null;
+        }
+
+        private static bool IsBuildOutputName(string name)
+        {
+            var names = new[]
+            {
+                "bin", "obj", "debug", "release", "publish", "output", "out",
+                "dist", "build", "x86", "x64", "anycpu", "net48", "net6.0", "net8.0",
+            };
+
+            return names.Any(n => string.Equals(n, name, StringComparison.OrdinalIgnoreCase));
+        }
+
         /// <summary>在打包文件夹里猜一个入口程序。</summary>
         public static string GuessEntryPoint(string sourceDir)
         {

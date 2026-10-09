@@ -14,6 +14,7 @@ namespace Installer.Builder.Views
         public ShortcutStepView()
         {
             InitializeComponent();
+            ForeColor = System.Drawing.Color.FromArgb(31, 41, 55);
         }
 
         /// <summary>选项变化。</summary>
@@ -50,6 +51,7 @@ namespace Installer.Builder.Views
         /// <summary>刷新文案。</summary>
         public void ApplyText(IStringTable text)
         {
+            lblStep.Text = text.Get("Step.Shortcuts");
             chkDesktop.Text = text.Get("Shortcut.Desktop");
             chkStartMenu.Text = text.Get("Shortcut.StartMenu");
             chkAutostart.Text = text.Get("Shortcut.Autostart");

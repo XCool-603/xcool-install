@@ -10,15 +10,18 @@ using Installer.Builder.Presenters;
 namespace Installer.Builder.Views
 {
     /// <summary>
-    /// 第 1 步：选择要打包的文件夹 + 选启动程序。支持拖拽。
+    /// 第 1 步：选择要打包的文件夹 + 选启动程序。
     ///
-    /// **启动程序放在这里而不是"高级选项"里** —— 一个文件夹里有两个 exe 是常事，
-    /// 为了改这一项专门进一次高级选项太折腾。
+    /// 设计要点：
+    /// ① **一个大拖拽卡片**是整屏的视觉焦点，而不是一行输入框；
+    /// ② 启动程序直接在这里选（一个文件夹里有两个 exe 是常事）；
+    /// ③ 选好文件夹后由宿主把文件夹名填进产品名（见 <see cref="FolderChosen"/>）。
     /// </summary>
     public partial class FolderStepView : UserControl
     {
         private IStringTable _text;
         private bool _populating;
+        private string _folder = string.Empty;
 
         /// <summary>构造。</summary>
         public FolderStepView()
@@ -28,7 +31,6 @@ namespace Installer.Builder.Views
             AllowDrop = true;
             DragEnter += OnDragEnter;
             DragDrop += OnDragDrop;
-            txtSource.TextChanged += (sender, e) => OnFolderChanged();
             cboEntry.SelectedIndexChanged += (sender, e) =>
             {
                 if (!_populating)
@@ -36,19 +38,27 @@ namespace Installer.Builder.Views
                     Raise();
                 }
             };
+
+            // 整个卡片都可以拖
+            dropPanel.AllowDrop = true;
+            dropPanel.DragEnter += OnDragEnter;
+            dropPanel.DragDrop += OnDragDrop;
         }
 
         /// <summary>文件夹或启动程序变化。</summary>
         public event Action Changed;
 
+        /// <summary>用户**主动**选了一个新文件夹（拖拽或浏览），用于自动填产品名。</summary>
+        public event Action<string> FolderChosen;
+
         /// <summary>当前文件夹。</summary>
         public string Folder
         {
-            get { return txtSource.Text.Trim(); }
+            get { return _folder; }
             set
             {
-                txtSource.Text = value ?? string.Empty;
-                RefreshCount();
+                _folder = (value ?? string.Empty).Trim();
+                ApplyFolderState();
             }
         }
 
@@ -57,7 +67,6 @@ namespace Installer.Builder.Views
         {
             get
             {
-                // AntdUI.Select 没有 SelectedItem，用 SelectedValue（就是 SelectItem.Tag）
                 return cboEntry.SelectedValue == null
                     ? null
                     : Convert.ToString(cboEntry.SelectedValue, CultureInfo.InvariantCulture);
@@ -72,55 +81,76 @@ namespace Installer.Builder.Views
         public void ApplyText(IStringTable text)
         {
             _text = text;
-
-            btnBrowse.Text = string.IsNullOrWhiteSpace(Folder)
-                ? text.Get("Step.Folder.Pick")
-                : text.Get("Step.Folder.Change");
-            txtSource.PlaceholderText = text.Get("Step.Folder.Hint");
+            lblStep.Text = text.Get("Step.Folder");
             lblEntry.Text = text.Get("Field.EntryPoint");
+            ApplyFolderState();
+        }
+
+        // ─────────────────────────────────────────────────────────────
+
+        /// <summary>根据"有没有选文件夹"切换卡片外观。</summary>
+        private void ApplyFolderState()
+        {
+            if (string.IsNullOrWhiteSpace(_folder))
+            {
+                lblDropIcon.Text = "📁";
+                lblDropText.Text = T("Step.Folder.Hint", "把文件夹拖到这里");
+                lblDropSub.Text = T("Step.Folder.Sub", "或者点下面的按钮");
+                btnBrowse.Text = T("Step.Folder.Pick", "选择文件夹");
+                lblFiles.Text = string.Empty;
+                lblEntryHint.Text = string.Empty;
+                cboEntry.Enabled = false;
+                cboEntry.Items.Clear();
+                return;
+            }
+
+            lblDropIcon.Text = "📦";
+            lblDropText.Text = _folder;
+            lblDropSub.Text = Directory.Exists(_folder) ? string.Empty : T("Files.Missing", "（文件夹不存在）");
+            btnBrowse.Text = T("Step.Folder.Change", "更换文件夹");
 
             RefreshCount();
             PopulateEntries(EntryPoint);
         }
 
+        private string T(string key, string fallback)
+        {
+            if (_text == null)
+            {
+                return fallback;
+            }
+
+            var v = _text.Get(key);
+            return string.IsNullOrEmpty(v) ? fallback : v;
+        }
+
         /// <summary>重新统计文件数并刷新提示。</summary>
         public void RefreshCount()
         {
-            var dir = Folder;
-
-            if (string.IsNullOrWhiteSpace(dir))
+            if (string.IsNullOrWhiteSpace(_folder))
             {
-                lblFiles.Text = _text == null ? string.Empty : _text.Get("Files.None");
+                lblFiles.Text = string.Empty;
                 return;
             }
 
             int count;
             long bytes;
-            BuilderPresenter.MeasureSource(dir, out count, out bytes);
+            BuilderPresenter.MeasureSource(_folder, out count, out bytes);
 
             if (count == 0)
             {
-                lblFiles.Text = _text == null ? string.Empty : _text.Get("Files.Empty");
+                lblFiles.Text = T("Files.Empty", "这个文件夹是空的");
                 return;
             }
 
-            var template = _text == null ? null : _text.Get("Files.Count");
-            lblFiles.Text = string.Format(CultureInfo.CurrentCulture,
-                string.IsNullOrEmpty(template) ? "{0} / {1}" : template,
-                count, FormatSize(bytes));
-        }
-
-        private void OnFolderChanged()
-        {
-            RefreshCount();
-            PopulateEntries(null);
-            Raise();
+            var template = T("Files.Count", "共 {0} 个文件，{1}");
+            lblFiles.Text = string.Format(CultureInfo.CurrentCulture, template, count, FormatSize(bytes));
         }
 
         /// <summary>把文件夹里的 exe 列出来给用户选。</summary>
         private void PopulateEntries(string keep)
         {
-            var exes = BuilderPresenter.FindExecutables(Folder);
+            var exes = BuilderPresenter.FindExecutables(_folder);
 
             _populating = true;
             try
@@ -130,7 +160,7 @@ namespace Installer.Builder.Views
                 if (exes.Count == 0)
                 {
                     cboEntry.Enabled = false;
-                    lblEntryHint.Text = _text == null ? string.Empty : _text.Get("Field.EntryPoint.None");
+                    lblEntryHint.Text = T("Field.EntryPoint.None", "（这个文件夹里没有 .exe）");
                     return;
                 }
 
@@ -140,11 +170,10 @@ namespace Installer.Builder.Views
                     cboEntry.Items.Add(new AntdUI.SelectItem(e, e));
                 }
 
-                // 尽量保住用户原来的选择；没有就用猜的
                 var target = keep;
                 if (string.IsNullOrWhiteSpace(target) || !exes.Contains(target))
                 {
-                    target = BuilderPresenter.GuessEntryPoint(Folder);
+                    target = BuilderPresenter.GuessEntryPoint(_folder);
                 }
 
                 var index = exes.IndexOf(target);
@@ -152,7 +181,7 @@ namespace Installer.Builder.Views
 
                 lblEntryHint.Text = exes.Count > 1
                     ? string.Format(CultureInfo.CurrentCulture,
-                        _text == null ? "{0}" : _text.Get("Field.EntryPoint.Multiple"), exes.Count)
+                        T("Field.EntryPoint.Multiple", "发现 {0} 个可执行文件，请选要启动的那个"), exes.Count)
                     : string.Empty;
             }
             finally
@@ -165,8 +194,8 @@ namespace Installer.Builder.Views
         {
             using (var dialog = new FolderBrowserDialog())
             {
-                dialog.Description = txtSource.PlaceholderText;
-                dialog.SelectedPath = Directory.Exists(Folder) ? Folder : string.Empty;
+                dialog.Description = T("Step.Folder.Pick", "选择要打包的文件夹");
+                dialog.SelectedPath = Directory.Exists(_folder) ? _folder : string.Empty;
                 dialog.ShowNewFolderButton = true;
 
                 if (dialog.ShowDialog(this) != DialogResult.OK)
@@ -174,9 +203,22 @@ namespace Installer.Builder.Views
                     return;
                 }
 
-                Folder = dialog.SelectedPath;
-                Raise();
+                SetFolderFromUser(dialog.SelectedPath);
             }
+        }
+
+        private void SetFolderFromUser(string dir)
+        {
+            _folder = (dir ?? string.Empty).Trim();
+            ApplyFolderState();
+
+            var chosen = FolderChosen;
+            if (chosen != null)
+            {
+                chosen(_folder);
+            }
+
+            Raise();
         }
 
         private void OnDragEnter(object sender, DragEventArgs e)
@@ -192,8 +234,7 @@ namespace Installer.Builder.Views
                 return;
             }
 
-            Folder = dir;
-            Raise();
+            SetFolderFromUser(dir);
         }
 
         private static string FirstFolder(DragEventArgs e)
@@ -214,13 +255,6 @@ namespace Installer.Builder.Views
 
         private void Raise()
         {
-            if (_text != null)
-            {
-                btnBrowse.Text = string.IsNullOrWhiteSpace(Folder)
-                    ? _text.Get("Step.Folder.Pick")
-                    : _text.Get("Step.Folder.Change");
-            }
-
             var handler = Changed;
             if (handler != null)
             {

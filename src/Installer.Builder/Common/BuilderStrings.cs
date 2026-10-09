@@ -15,16 +15,27 @@ namespace Installer.Builder.Common
             Add(t, "App.Title", "安装包制作助手", "Installer Builder");
 
             // 三步
-            Add(t, "Step.Folder", "第 1 步 · 选择要打包的文件夹", "Step 1 - Choose the folder to package");
-            Add(t, "Step.Folder.Hint", "把文件夹拖到这里，或者点右边的按钮",
-                "Drop the folder here, or use the button on the right");
+            Add(t, "Step.Folder", "① 选择要打包的文件夹", "① Choose the folder to package");
+            Add(t, "Step.Folder.Hint", "把文件夹拖到这里", "Drop the folder here");
+            Add(t, "Step.Folder.Sub", "或者点下面的按钮", "or use the button below");
+            Add(t, "Files.Missing", "（文件夹不存在）", "(folder not found)");
             Add(t, "Step.Folder.Pick", "选择文件夹", "Choose folder");
             Add(t, "Step.Folder.Change", "更换文件夹", "Change folder");
-            Add(t, "Step.Info", "第 2 步 · 填写基本信息", "Step 2 - Basic information");
-            Add(t, "Step.Shortcuts", "第 3 步 · 快捷方式", "Step 3 - Shortcuts");
+            Add(t, "Step.Info", "② 填写基本信息", "② Basic information");
+            Add(t, "Step.Shortcuts", "③ 快捷方式", "③ Shortcuts");
 
-            Add(t, "Field.Name", "产品名称", "Product name");
-            Add(t, "Field.NameEn", "英文名称", "English name");
+            // 工程文件
+            Add(t, "Menu.Open", "打开", "Open");
+            Add(t, "Menu.Save", "保存", "Save");
+            Add(t, "Menu.Recent", "最近使用", "Recent");
+            Add(t, "Menu.Recent.Empty", "（还没有最近使用）", "(nothing yet)");
+            Add(t, "Menu.OpenTitle", "打开工程", "Open project");
+            Add(t, "Menu.SaveTitle", "保存工程", "Save project");
+            Add(t, "Menu.Saved", "工程已保存。", "Project saved.");
+            Add(t, "Filter.Project", "安装包工程 (*.wmpkg.json)|*.wmpkg.json|所有文件 (*.*)|*.*",
+                "Installer project (*.wmpkg.json)|*.wmpkg.json|All files (*.*)|*.*");
+
+            Add(t, "Field.Name", "产品名称", "Product name");            Add(t, "Field.NameEn", "英文名称", "English name");
             Add(t, "Field.Version", "版本号", "Version");
             Add(t, "Field.Publisher", "厂商", "Publisher");
             Add(t, "Field.EntryPoint", "启动程序", "Start program");
@@ -80,6 +91,7 @@ namespace Installer.Builder.Common
             Add(t, "Btn.Building", "正在生成…", "Building...");
 
             Add(t, "Status.Ready", "选一个文件夹就可以开始了", "Pick a folder to begin");
+            Add(t, "Status.ReadyToBuild", "准备好了 —— 点右下角「生成安装包」", "Ready - click Build installer");
             Add(t, "Status.Building", "正在生成…", "Building...");
             Add(t, "Status.Done", "完成：{0}（{1}）", "Done: {0} ({1})");
             Add(t, "Status.Failed", "失败：{0}", "Failed: {0}");

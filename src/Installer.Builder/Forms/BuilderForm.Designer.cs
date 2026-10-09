@@ -31,20 +31,27 @@ namespace Installer.Builder.Forms
             this.rootLayout = new System.Windows.Forms.TableLayoutPanel();
             this.headerLayout = new System.Windows.Forms.TableLayoutPanel();
             this.lblTitle = new AntdUI.Label();
+            this.headerRight = new System.Windows.Forms.FlowLayoutPanel();
             this.cboLang = new AntdUI.Select();
+            this.btnSave = new AntdUI.Button();
+            this.btnOpen = new AntdUI.Button();
             this.bodyLayout = new System.Windows.Forms.TableLayoutPanel();
-            this.lblStep1 = new AntdUI.Label();
+            this.card1 = new AntdUI.Panel();
             this.folderStep = new Installer.Builder.Views.FolderStepView();
-            this.lblStep2 = new AntdUI.Label();
+            this.card2 = new AntdUI.Panel();
             this.infoStep = new Installer.Builder.Views.InfoStepView();
-            this.lblStep3 = new AntdUI.Label();
+            this.card3 = new AntdUI.Panel();
             this.shortcutStep = new Installer.Builder.Views.ShortcutStepView();
             this.btnAdvanced = new AntdUI.Button();
             this.outputBar = new Installer.Builder.Views.OutputBar();
             this.lblStatus = new AntdUI.Label();
             this.rootLayout.SuspendLayout();
             this.headerLayout.SuspendLayout();
+            this.headerRight.SuspendLayout();
             this.bodyLayout.SuspendLayout();
+            this.card1.SuspendLayout();
+            this.card2.SuspendLayout();
+            this.card3.SuspendLayout();
             this.SuspendLayout();
             //
             // rootLayout
@@ -58,166 +65,202 @@ namespace Installer.Builder.Forms
             this.rootLayout.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rootLayout.Location = new System.Drawing.Point(0, 0);
             this.rootLayout.Name = "rootLayout";
-            this.rootLayout.Padding = new System.Windows.Forms.Padding(20, 12, 20, 0);
+            this.rootLayout.Padding = new System.Windows.Forms.Padding(22, 14, 22, 0);
             this.rootLayout.RowCount = 4;
-            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 52F));
+            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 58F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 96F));
+            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 94F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.rootLayout.Size = new System.Drawing.Size(820, 648);
+            this.rootLayout.Size = new System.Drawing.Size(884, 744);
             this.rootLayout.TabIndex = 0;
             //
             // headerLayout
             //
             this.headerLayout.ColumnCount = 2;
             this.headerLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.headerLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
+            this.headerLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 330F));
             this.headerLayout.Controls.Add(this.lblTitle, 0, 0);
-            this.headerLayout.Controls.Add(this.cboLang, 1, 0);
+            this.headerLayout.Controls.Add(this.headerRight, 1, 0);
             this.headerLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.headerLayout.Location = new System.Drawing.Point(20, 12);
+            this.headerLayout.Location = new System.Drawing.Point(22, 14);
             this.headerLayout.Margin = new System.Windows.Forms.Padding(0);
             this.headerLayout.Name = "headerLayout";
             this.headerLayout.RowCount = 1;
             this.headerLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.headerLayout.Size = new System.Drawing.Size(780, 52);
+            this.headerLayout.Size = new System.Drawing.Size(840, 58);
             this.headerLayout.TabIndex = 0;
             //
             // lblTitle
             //
             this.lblTitle.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblTitle.AutoSize = true;
-            this.lblTitle.Font = new System.Drawing.Font("微软雅黑", 14F, System.Drawing.FontStyle.Bold);
-            this.lblTitle.Location = new System.Drawing.Point(0, 11);
+            this.lblTitle.Font = new System.Drawing.Font("微软雅黑", 15F, System.Drawing.FontStyle.Bold);
+            this.lblTitle.Location = new System.Drawing.Point(0, 13);
             this.lblTitle.Margin = new System.Windows.Forms.Padding(0);
             this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(160, 25);
+            this.lblTitle.Size = new System.Drawing.Size(180, 27);
             this.lblTitle.TabIndex = 0;
             this.lblTitle.Text = "安装包制作助手";
             //
+            // headerRight
+            //
+            this.headerRight.Controls.Add(this.btnSave);
+            this.headerRight.Controls.Add(this.btnOpen);
+            this.headerRight.Controls.Add(this.cboLang);
+            this.headerRight.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.headerRight.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
+            this.headerRight.Location = new System.Drawing.Point(510, 0);
+            this.headerRight.Margin = new System.Windows.Forms.Padding(0);
+            this.headerRight.Name = "headerRight";
+            this.headerRight.Size = new System.Drawing.Size(330, 58);
+            this.headerRight.TabIndex = 1;
+            //
             // cboLang
             //
-            this.cboLang.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.cboLang.Location = new System.Drawing.Point(640, 9);
+            this.cboLang.Location = new System.Drawing.Point(200, 13);
+            this.cboLang.Margin = new System.Windows.Forms.Padding(10, 13, 0, 0);
             this.cboLang.Name = "cboLang";
-            this.cboLang.Size = new System.Drawing.Size(140, 34);
-            this.cboLang.TabIndex = 1;
+            this.cboLang.Size = new System.Drawing.Size(130, 34);
+            this.cboLang.TabIndex = 0;
+            //
+            // btnSave
+            //
+            this.btnSave.Location = new System.Drawing.Point(102, 13);
+            this.btnSave.Margin = new System.Windows.Forms.Padding(10, 13, 0, 0);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Radius = 6;
+            this.btnSave.Size = new System.Drawing.Size(88, 34);
+            this.btnSave.TabIndex = 1;
+            this.btnSave.Text = "保存";
+            //
+            // btnOpen
+            //
+            this.btnOpen.Location = new System.Drawing.Point(4, 13);
+            this.btnOpen.Margin = new System.Windows.Forms.Padding(10, 13, 0, 0);
+            this.btnOpen.Name = "btnOpen";
+            this.btnOpen.Radius = 6;
+            this.btnOpen.Size = new System.Drawing.Size(88, 34);
+            this.btnOpen.TabIndex = 2;
+            this.btnOpen.Text = "打开";
             //
             // bodyLayout
             //
             this.bodyLayout.ColumnCount = 1;
             this.bodyLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.bodyLayout.Controls.Add(this.lblStep1, 0, 0);
-            this.bodyLayout.Controls.Add(this.folderStep, 0, 1);
-            this.bodyLayout.Controls.Add(this.lblStep2, 0, 2);
-            this.bodyLayout.Controls.Add(this.infoStep, 0, 3);
-            this.bodyLayout.Controls.Add(this.lblStep3, 0, 4);
-            this.bodyLayout.Controls.Add(this.shortcutStep, 0, 5);
-            this.bodyLayout.Controls.Add(this.btnAdvanced, 0, 6);
+            this.bodyLayout.Controls.Add(this.card1, 0, 0);
+            this.bodyLayout.Controls.Add(this.card2, 0, 1);
+            this.bodyLayout.Controls.Add(this.card3, 0, 2);
+            this.bodyLayout.Controls.Add(this.btnAdvanced, 0, 3);
             this.bodyLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.bodyLayout.Location = new System.Drawing.Point(20, 64);
+            this.bodyLayout.Location = new System.Drawing.Point(22, 72);
             this.bodyLayout.Margin = new System.Windows.Forms.Padding(0);
             this.bodyLayout.Name = "bodyLayout";
-            this.bodyLayout.RowCount = 8;
-            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
-            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 140F));
-            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
-            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 104F));
-            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
-            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 38F));
-            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 46F));
+            this.bodyLayout.RowCount = 5;
+            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 264F));
+            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 158F));
+            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 96F));
+            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 48F));
             this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.bodyLayout.Size = new System.Drawing.Size(780, 404);
+            this.bodyLayout.Size = new System.Drawing.Size(840, 560);
             this.bodyLayout.TabIndex = 1;
             //
-            // lblStep1
+            // card1
             //
-            this.lblStep1.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblStep1.AutoSize = true;
-            this.lblStep1.Font = new System.Drawing.Font("微软雅黑", 9.5F, System.Drawing.FontStyle.Bold);
-            this.lblStep1.Location = new System.Drawing.Point(0, 7);
-            this.lblStep1.Margin = new System.Windows.Forms.Padding(0);
-            this.lblStep1.Name = "lblStep1";
-            this.lblStep1.Size = new System.Drawing.Size(200, 18);
-            this.lblStep1.TabIndex = 0;
-            this.lblStep1.Text = "第 1 步 · 选择要打包的文件夹";
+            this.card1.BackColor = System.Drawing.Color.White;
+            this.card1.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
+            this.card1.BorderWidth = 1F;
+            this.card1.Controls.Add(this.folderStep);
+            this.card1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.card1.Location = new System.Drawing.Point(0, 0);
+            this.card1.Margin = new System.Windows.Forms.Padding(0, 0, 0, 10);
+            this.card1.Name = "card1";
+            this.card1.Padding = new System.Windows.Forms.Padding(14);
+            this.card1.Radius = 10;
+            this.card1.Size = new System.Drawing.Size(840, 254);
+            this.card1.TabIndex = 0;
             //
             // folderStep
             //
             this.folderStep.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.folderStep.Location = new System.Drawing.Point(0, 32);
+            this.folderStep.Location = new System.Drawing.Point(14, 14);
             this.folderStep.Margin = new System.Windows.Forms.Padding(0);
             this.folderStep.Name = "folderStep";
-            this.folderStep.Size = new System.Drawing.Size(780, 140);
-            this.folderStep.TabIndex = 1;
+            this.folderStep.Size = new System.Drawing.Size(812, 226);
+            this.folderStep.TabIndex = 0;
             //
-            // lblStep2
+            // card2
             //
-            this.lblStep2.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblStep2.AutoSize = true;
-            this.lblStep2.Font = new System.Drawing.Font("微软雅黑", 9.5F, System.Drawing.FontStyle.Bold);
-            this.lblStep2.Location = new System.Drawing.Point(0, 179);
-            this.lblStep2.Margin = new System.Windows.Forms.Padding(0);
-            this.lblStep2.Name = "lblStep2";
-            this.lblStep2.Size = new System.Drawing.Size(160, 18);
-            this.lblStep2.TabIndex = 2;
-            this.lblStep2.Text = "第 2 步 · 填写基本信息";
+            this.card2.BackColor = System.Drawing.Color.White;
+            this.card2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
+            this.card2.BorderWidth = 1F;
+            this.card2.Controls.Add(this.infoStep);
+            this.card2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.card2.Location = new System.Drawing.Point(0, 264);
+            this.card2.Margin = new System.Windows.Forms.Padding(0, 0, 0, 10);
+            this.card2.Name = "card2";
+            this.card2.Padding = new System.Windows.Forms.Padding(14);
+            this.card2.Radius = 10;
+            this.card2.Size = new System.Drawing.Size(840, 148);
+            this.card2.TabIndex = 1;
             //
             // infoStep
             //
             this.infoStep.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.infoStep.Location = new System.Drawing.Point(0, 204);
+            this.infoStep.Location = new System.Drawing.Point(14, 14);
             this.infoStep.Margin = new System.Windows.Forms.Padding(0);
             this.infoStep.Name = "infoStep";
-            this.infoStep.Size = new System.Drawing.Size(780, 104);
-            this.infoStep.TabIndex = 3;
+            this.infoStep.Size = new System.Drawing.Size(812, 120);
+            this.infoStep.TabIndex = 0;
             //
-            // lblStep3
+            // card3
             //
-            this.lblStep3.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblStep3.AutoSize = true;
-            this.lblStep3.Font = new System.Drawing.Font("微软雅黑", 9.5F, System.Drawing.FontStyle.Bold);
-            this.lblStep3.Location = new System.Drawing.Point(0, 315);
-            this.lblStep3.Margin = new System.Windows.Forms.Padding(0);
-            this.lblStep3.Name = "lblStep3";
-            this.lblStep3.Size = new System.Drawing.Size(120, 18);
-            this.lblStep3.TabIndex = 4;
-            this.lblStep3.Text = "第 3 步 · 快捷方式";
+            this.card3.BackColor = System.Drawing.Color.White;
+            this.card3.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
+            this.card3.BorderWidth = 1F;
+            this.card3.Controls.Add(this.shortcutStep);
+            this.card3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.card3.Location = new System.Drawing.Point(0, 422);
+            this.card3.Margin = new System.Windows.Forms.Padding(0, 0, 0, 10);
+            this.card3.Name = "card3";
+            this.card3.Padding = new System.Windows.Forms.Padding(14);
+            this.card3.Radius = 10;
+            this.card3.Size = new System.Drawing.Size(840, 86);
+            this.card3.TabIndex = 2;
             //
             // shortcutStep
             //
             this.shortcutStep.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.shortcutStep.Location = new System.Drawing.Point(0, 340);
+            this.shortcutStep.Location = new System.Drawing.Point(14, 14);
             this.shortcutStep.Margin = new System.Windows.Forms.Padding(0);
             this.shortcutStep.Name = "shortcutStep";
-            this.shortcutStep.Size = new System.Drawing.Size(780, 38);
-            this.shortcutStep.TabIndex = 5;
+            this.shortcutStep.Size = new System.Drawing.Size(812, 58);
+            this.shortcutStep.TabIndex = 0;
             //
             // btnAdvanced
             //
             this.btnAdvanced.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.btnAdvanced.Location = new System.Drawing.Point(0, 386);
-            this.btnAdvanced.Margin = new System.Windows.Forms.Padding(0);
+            this.btnAdvanced.Location = new System.Drawing.Point(0, 526);
+            this.btnAdvanced.Margin = new System.Windows.Forms.Padding(0, 8, 0, 8);
             this.btnAdvanced.Name = "btnAdvanced";
             this.btnAdvanced.Radius = 6;
-            this.btnAdvanced.Size = new System.Drawing.Size(140, 36);
-            this.btnAdvanced.TabIndex = 6;
+            this.btnAdvanced.Size = new System.Drawing.Size(140, 32);
+            this.btnAdvanced.TabIndex = 3;
             this.btnAdvanced.Text = "高级选项…";
             //
             // outputBar
             //
             this.outputBar.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.outputBar.Location = new System.Drawing.Point(20, 468);
+            this.outputBar.Location = new System.Drawing.Point(22, 632);
             this.outputBar.Margin = new System.Windows.Forms.Padding(0);
             this.outputBar.Name = "outputBar";
-            this.outputBar.Size = new System.Drawing.Size(780, 96);
+            this.outputBar.Size = new System.Drawing.Size(840, 94);
             this.outputBar.TabIndex = 2;
             //
             // lblStatus
             //
             this.lblStatus.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblStatus.AutoSize = true;
-            this.lblStatus.Location = new System.Drawing.Point(20, 576);
+            this.lblStatus.Location = new System.Drawing.Point(22, 714);
             this.lblStatus.Margin = new System.Windows.Forms.Padding(0);
             this.lblStatus.Name = "lblStatus";
             this.lblStatus.Size = new System.Drawing.Size(200, 17);
@@ -228,10 +271,11 @@ namespace Installer.Builder.Forms
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(820, 648);
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(247)))), ((int)(((byte)(250)))));
+            this.ClientSize = new System.Drawing.Size(884, 744);
             this.Controls.Add(this.rootLayout);
             this.Font = new System.Drawing.Font("微软雅黑", 9F);
-            this.MinimumSize = new System.Drawing.Size(720, 520);
+            this.MinimumSize = new System.Drawing.Size(800, 700);
             this.Name = "BuilderForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "安装包制作助手";
@@ -239,8 +283,12 @@ namespace Installer.Builder.Forms
             this.rootLayout.PerformLayout();
             this.headerLayout.ResumeLayout(false);
             this.headerLayout.PerformLayout();
+            this.headerRight.ResumeLayout(false);
             this.bodyLayout.ResumeLayout(false);
             this.bodyLayout.PerformLayout();
+            this.card1.ResumeLayout(false);
+            this.card2.ResumeLayout(false);
+            this.card3.ResumeLayout(false);
             this.ResumeLayout(false);
         }
 
@@ -249,13 +297,16 @@ namespace Installer.Builder.Forms
         private System.Windows.Forms.TableLayoutPanel rootLayout;
         private System.Windows.Forms.TableLayoutPanel headerLayout;
         private AntdUI.Label lblTitle;
+        private System.Windows.Forms.FlowLayoutPanel headerRight;
         private AntdUI.Select cboLang;
+        private AntdUI.Button btnSave;
+        private AntdUI.Button btnOpen;
         private System.Windows.Forms.TableLayoutPanel bodyLayout;
-        private AntdUI.Label lblStep1;
+        private AntdUI.Panel card1;
         private Installer.Builder.Views.FolderStepView folderStep;
-        private AntdUI.Label lblStep2;
+        private AntdUI.Panel card2;
         private Installer.Builder.Views.InfoStepView infoStep;
-        private AntdUI.Label lblStep3;
+        private AntdUI.Panel card3;
         private Installer.Builder.Views.ShortcutStepView shortcutStep;
         private AntdUI.Button btnAdvanced;
         private Installer.Builder.Views.OutputBar outputBar;

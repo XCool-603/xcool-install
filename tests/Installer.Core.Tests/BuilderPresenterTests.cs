@@ -625,8 +625,8 @@ namespace Installer.Core.Tests
 
             Assert.Equal("安装包制作助手", zh.S("App.Title"));
             Assert.Equal("Installer Builder", en.S("App.Title"));
-            Assert.Equal("第 1 步 · 选择要打包的文件夹", zh.S("Step.Folder"));
-            Assert.Equal("Step 1 - Choose the folder to package", en.S("Step.Folder"));
+            Assert.Equal("① 选择要打包的文件夹", zh.S("Step.Folder"));
+            Assert.Equal("① Choose the folder to package", en.S("Step.Folder"));
         }
 
         [Fact]

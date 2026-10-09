@@ -29,8 +29,12 @@ namespace Installer.Builder.Views
         private void InitializeComponent()
         {
             this.rootLayout = new System.Windows.Forms.TableLayoutPanel();
-            this.folderLayout = new System.Windows.Forms.TableLayoutPanel();
-            this.txtSource = new AntdUI.Input();
+            this.lblStep = new AntdUI.Label();
+            this.dropPanel = new AntdUI.Panel();
+            this.dropLayout = new System.Windows.Forms.TableLayoutPanel();
+            this.lblDropIcon = new AntdUI.Label();
+            this.lblDropText = new AntdUI.Label();
+            this.lblDropSub = new AntdUI.Label();
             this.btnBrowse = new AntdUI.Button();
             this.lblFiles = new AntdUI.Label();
             this.entryLayout = new System.Windows.Forms.TableLayoutPanel();
@@ -38,7 +42,8 @@ namespace Installer.Builder.Views
             this.cboEntry = new AntdUI.Select();
             this.lblEntryHint = new AntdUI.Label();
             this.rootLayout.SuspendLayout();
-            this.folderLayout.SuspendLayout();
+            this.dropPanel.SuspendLayout();
+            this.dropLayout.SuspendLayout();
             this.entryLayout.SuspendLayout();
             this.SuspendLayout();
             //
@@ -46,56 +51,113 @@ namespace Installer.Builder.Views
             //
             this.rootLayout.ColumnCount = 1;
             this.rootLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.rootLayout.Controls.Add(this.folderLayout, 0, 0);
-            this.rootLayout.Controls.Add(this.lblFiles, 0, 1);
-            this.rootLayout.Controls.Add(this.entryLayout, 0, 2);
+            this.rootLayout.Controls.Add(this.lblStep, 0, 0);
+            this.rootLayout.Controls.Add(this.dropPanel, 0, 1);
+            this.rootLayout.Controls.Add(this.lblFiles, 0, 2);
+            this.rootLayout.Controls.Add(this.entryLayout, 0, 3);
             this.rootLayout.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rootLayout.Location = new System.Drawing.Point(0, 0);
             this.rootLayout.Name = "rootLayout";
-            this.rootLayout.RowCount = 4;
-            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 62F));
+            this.rootLayout.RowCount = 5;
+            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 132F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 46F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.rootLayout.Size = new System.Drawing.Size(780, 140);
+            this.rootLayout.Size = new System.Drawing.Size(760, 240);
             this.rootLayout.TabIndex = 0;
             //
-            // folderLayout
+            // lblStep
             //
-            this.folderLayout.ColumnCount = 2;
-            this.folderLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.folderLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 132F));
-            this.folderLayout.Controls.Add(this.txtSource, 0, 0);
-            this.folderLayout.Controls.Add(this.btnBrowse, 1, 0);
-            this.folderLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.folderLayout.Location = new System.Drawing.Point(0, 0);
-            this.folderLayout.Margin = new System.Windows.Forms.Padding(0);
-            this.folderLayout.Name = "folderLayout";
-            this.folderLayout.RowCount = 1;
-            this.folderLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.folderLayout.Size = new System.Drawing.Size(780, 62);
-            this.folderLayout.TabIndex = 0;
+            this.lblStep.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblStep.AutoSize = true;
+            this.lblStep.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Bold);
+            this.lblStep.Location = new System.Drawing.Point(0, 5);
+            this.lblStep.Margin = new System.Windows.Forms.Padding(0);
+            this.lblStep.Name = "lblStep";
+            this.lblStep.Size = new System.Drawing.Size(200, 19);
+            this.lblStep.TabIndex = 0;
+            this.lblStep.Text = "① 选择要打包的文件夹";
             //
-            // txtSource
+            // dropPanel
             //
-            this.txtSource.AllowClear = true;
-            this.txtSource.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtSource.Location = new System.Drawing.Point(0, 11);
-            this.txtSource.Margin = new System.Windows.Forms.Padding(0, 11, 10, 11);
-            this.txtSource.Name = "txtSource";
-            this.txtSource.PlaceholderText = "把文件夹拖到这里，或者点右边的按钮";
-            this.txtSource.Size = new System.Drawing.Size(638, 40);
-            this.txtSource.TabIndex = 0;
+            this.dropPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(251)))), ((int)(((byte)(253)))));
+            this.dropPanel.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(190)))), ((int)(((byte)(200)))), ((int)(((byte)(215)))));
+            this.dropPanel.BorderStyle = System.Drawing.Drawing2D.DashStyle.Dash;
+            this.dropPanel.BorderWidth = 1.5F;
+            this.dropPanel.Controls.Add(this.dropLayout);
+            this.dropPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dropPanel.Location = new System.Drawing.Point(0, 30);
+            this.dropPanel.Margin = new System.Windows.Forms.Padding(0);
+            this.dropPanel.Name = "dropPanel";
+            this.dropPanel.Radius = 10;
+            this.dropPanel.Size = new System.Drawing.Size(760, 132);
+            this.dropPanel.TabIndex = 1;
+            //
+            // dropLayout
+            //
+            this.dropLayout.ColumnCount = 1;
+            this.dropLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.dropLayout.Controls.Add(this.lblDropIcon, 0, 0);
+            this.dropLayout.Controls.Add(this.lblDropText, 0, 1);
+            this.dropLayout.Controls.Add(this.lblDropSub, 0, 2);
+            this.dropLayout.Controls.Add(this.btnBrowse, 0, 3);
+            this.dropLayout.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dropLayout.Location = new System.Drawing.Point(0, 0);
+            this.dropLayout.Margin = new System.Windows.Forms.Padding(0);
+            this.dropLayout.Name = "dropLayout";
+            this.dropLayout.RowCount = 4;
+            this.dropLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 34F));
+            this.dropLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
+            this.dropLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.dropLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.dropLayout.Size = new System.Drawing.Size(760, 132);
+            this.dropLayout.TabIndex = 0;
+            //
+            // lblDropIcon
+            //
+            this.lblDropIcon.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.lblDropIcon.AutoSize = true;
+            this.lblDropIcon.Font = new System.Drawing.Font("Segoe UI Emoji", 15F);
+            this.lblDropIcon.Location = new System.Drawing.Point(366, 1);
+            this.lblDropIcon.Margin = new System.Windows.Forms.Padding(0);
+            this.lblDropIcon.Name = "lblDropIcon";
+            this.lblDropIcon.Size = new System.Drawing.Size(28, 27);
+            this.lblDropIcon.TabIndex = 0;
+            this.lblDropIcon.Text = "📁";
+            //
+            // lblDropText
+            //
+            this.lblDropText.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.lblDropText.AutoSize = true;
+            this.lblDropText.Font = new System.Drawing.Font("微软雅黑", 10F);
+            this.lblDropText.Location = new System.Drawing.Point(300, 39);
+            this.lblDropText.Margin = new System.Windows.Forms.Padding(0);
+            this.lblDropText.Name = "lblDropText";
+            this.lblDropText.Size = new System.Drawing.Size(160, 19);
+            this.lblDropText.TabIndex = 1;
+            this.lblDropText.Text = "把文件夹拖到这里";
+            //
+            // lblDropSub
+            //
+            this.lblDropSub.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.lblDropSub.AutoSize = true;
+            this.lblDropSub.Location = new System.Drawing.Point(330, 63);
+            this.lblDropSub.Margin = new System.Windows.Forms.Padding(0);
+            this.lblDropSub.Name = "lblDropSub";
+            this.lblDropSub.Size = new System.Drawing.Size(100, 17);
+            this.lblDropSub.TabIndex = 2;
+            this.lblDropSub.Text = "或者点下面的按钮";
             //
             // btnBrowse
             //
-            this.btnBrowse.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnBrowse.Location = new System.Drawing.Point(648, 11);
-            this.btnBrowse.Margin = new System.Windows.Forms.Padding(0, 11, 0, 11);
+            this.btnBrowse.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.btnBrowse.Location = new System.Drawing.Point(320, 86);
+            this.btnBrowse.Margin = new System.Windows.Forms.Padding(0, 4, 0, 4);
             this.btnBrowse.Name = "btnBrowse";
-            this.btnBrowse.Radius = 6;
-            this.btnBrowse.Size = new System.Drawing.Size(132, 40);
-            this.btnBrowse.TabIndex = 1;
+            this.btnBrowse.Radius = 8;
+            this.btnBrowse.Size = new System.Drawing.Size(120, 38);
+            this.btnBrowse.TabIndex = 3;
             this.btnBrowse.Text = "选择文件夹";
             this.btnBrowse.Type = AntdUI.TTypeMini.Primary;
             //
@@ -103,10 +165,10 @@ namespace Installer.Builder.Views
             //
             this.lblFiles.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblFiles.AutoSize = true;
-            this.lblFiles.Location = new System.Drawing.Point(2, 66);
+            this.lblFiles.Location = new System.Drawing.Point(2, 166);
             this.lblFiles.Name = "lblFiles";
             this.lblFiles.Size = new System.Drawing.Size(200, 17);
-            this.lblFiles.TabIndex = 1;
+            this.lblFiles.TabIndex = 2;
             this.lblFiles.Text = "";
             //
             // entryLayout
@@ -119,13 +181,13 @@ namespace Installer.Builder.Views
             this.entryLayout.Controls.Add(this.cboEntry, 1, 0);
             this.entryLayout.Controls.Add(this.lblEntryHint, 2, 0);
             this.entryLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.entryLayout.Location = new System.Drawing.Point(0, 88);
+            this.entryLayout.Location = new System.Drawing.Point(0, 188);
             this.entryLayout.Margin = new System.Windows.Forms.Padding(0);
             this.entryLayout.Name = "entryLayout";
             this.entryLayout.RowCount = 1;
             this.entryLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.entryLayout.Size = new System.Drawing.Size(780, 46);
-            this.entryLayout.TabIndex = 2;
+            this.entryLayout.Size = new System.Drawing.Size(760, 46);
+            this.entryLayout.TabIndex = 3;
             //
             // lblEntry
             //
@@ -162,14 +224,16 @@ namespace Installer.Builder.Views
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.Transparent;
+            this.BackColor = System.Drawing.Color.White;
             this.Controls.Add(this.rootLayout);
             this.Font = new System.Drawing.Font("微软雅黑", 9F);
             this.Name = "FolderStepView";
-            this.Size = new System.Drawing.Size(780, 140);
+            this.Size = new System.Drawing.Size(760, 240);
             this.rootLayout.ResumeLayout(false);
             this.rootLayout.PerformLayout();
-            this.folderLayout.ResumeLayout(false);
+            this.dropPanel.ResumeLayout(false);
+            this.dropLayout.ResumeLayout(false);
+            this.dropLayout.PerformLayout();
             this.entryLayout.ResumeLayout(false);
             this.entryLayout.PerformLayout();
             this.ResumeLayout(false);
@@ -178,8 +242,12 @@ namespace Installer.Builder.Views
         #endregion
 
         private System.Windows.Forms.TableLayoutPanel rootLayout;
-        private System.Windows.Forms.TableLayoutPanel folderLayout;
-        private AntdUI.Input txtSource;
+        private AntdUI.Label lblStep;
+        private AntdUI.Panel dropPanel;
+        private System.Windows.Forms.TableLayoutPanel dropLayout;
+        private AntdUI.Label lblDropIcon;
+        private AntdUI.Label lblDropText;
+        private AntdUI.Label lblDropSub;
         private AntdUI.Button btnBrowse;
         private AntdUI.Label lblFiles;
         private System.Windows.Forms.TableLayoutPanel entryLayout;

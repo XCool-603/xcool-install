@@ -64,8 +64,16 @@ namespace Installer.Builder.Forms
             {
                 MarkDirty();
                 UpdateOutputPath();
-                UpdateStatus(_presenter.S("Status.Ready"));
+                UpdateStatus(string.IsNullOrWhiteSpace(folderStep.Folder)
+                    ? _presenter.S("Status.Ready")
+                    : _presenter.S("Status.ReadyToBuild"));
             };
+
+            // 选了文件夹就把文件夹名填进产品名（用户手动改过就不再覆盖）
+            folderStep.FolderChosen += AutoFillProductName;
+
+            btnOpen.Click += (sender, e) => OpenProject();
+            btnSave.Click += (sender, e) => SaveProject();
 
             infoStep.Changed += () =>
             {
@@ -109,10 +117,9 @@ namespace Installer.Builder.Forms
 
             Text = _presenter.S("App.Title");
             lblTitle.Text = _presenter.S("App.Title");
-            lblStep1.Text = _presenter.S("Step.Folder");
-            lblStep2.Text = _presenter.S("Step.Info");
-            lblStep3.Text = _presenter.S("Step.Shortcuts");
             btnAdvanced.Text = _presenter.S("Advanced.Open");
+            btnOpen.Text = _presenter.S("Menu.Open");
+            btnSave.Text = _presenter.S("Menu.Save");
 
             folderStep.ApplyText(t);
             infoStep.ApplyText(t);
@@ -206,6 +213,98 @@ namespace Installer.Builder.Forms
         // ─────────────────────────────────────────────────────────────
         // 动作
         // ─────────────────────────────────────────────────────────────
+
+        /// <summary>上一次自动填入的产品名，用于判断"这个名字是不是我填的"。</summary>
+        private string _autoFilledName;
+
+        /// <summary>
+        /// 选了文件夹就把文件夹名填进产品名 —— 省掉一次输入。
+        /// 用户自己改过名字之后就不再覆盖。
+        /// </summary>
+        private void AutoFillProductName(string folder)
+        {
+            var suggested = BuilderPresenter.SuggestProductName(folder);
+            if (string.IsNullOrWhiteSpace(suggested))
+            {
+                return;
+            }
+
+            var current = infoStep.CurrentProductName;
+
+            // 用户自己填过（而且不是上次自动填的那个）→ 尊重用户
+            if (!string.IsNullOrEmpty(current)
+                && !string.Equals(current, _autoFilledName, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            _autoFilledName = suggested;
+            infoStep.SetProductName(suggested);
+        }
+
+        private void OpenProject()
+        {
+            using (var dialog = new OpenFileDialog())
+            {
+                dialog.Title = _presenter.S("Menu.OpenTitle");
+                dialog.Filter = _presenter.S("Filter.Project");
+
+                if (dialog.ShowDialog(this) != DialogResult.OK)
+                {
+                    return;
+                }
+
+                try
+                {
+                    _presenter.Load(dialog.FileName);
+                    WriteToViews();
+                    UpdateOutputPath();
+                    _presenter.Document.Dirty = false;
+                    UpdateTitle();
+                    UpdateStatus(_presenter.S("Status.Ready"));
+                }
+                catch (Exception ex)
+                {
+                    AntdUI.Message.error(this, _presenter.S("Msg.Error.Title") + "：" + ex.Message);
+                }
+            }
+        }
+
+        private void SaveProject()
+        {
+            ReadFromViews();
+
+            var path = _presenter.Document.Path;
+
+            if (string.IsNullOrEmpty(path))
+            {
+                using (var dialog = new SaveFileDialog())
+                {
+                    dialog.Title = _presenter.S("Menu.SaveTitle");
+                    dialog.Filter = _presenter.S("Filter.Project");
+                    dialog.FileName = "app.wmpkg.json";
+
+                    if (dialog.ShowDialog(this) != DialogResult.OK)
+                    {
+                        return;
+                    }
+
+                    path = dialog.FileName;
+                }
+            }
+
+            try
+            {
+                _presenter.Save(path);
+                UpdateTitle();
+                UpdateStatus(_presenter.S("Menu.Saved"));
+                AntdUI.Message.success(this, _presenter.S("Menu.Saved"));
+            }
+            catch (Exception ex)
+            {
+                AntdUI.Message.error(this, _presenter.S("Msg.Error.Title") + "：" + ex.Message);
+            }
+        }
 
         private void OpenAdvanced()
         {
@@ -442,7 +541,9 @@ namespace Installer.Builder.Forms
             {
                 folderStep.Folder = folder;
                 _presenter.Document.Project.Build.SourceDir = folder;
+                AutoFillProductName(folder);   // 和用户真选文件夹时一样
                 UpdateOutputPath();
+                UpdateStatus(_presenter.S("Status.ReadyToBuild"));
             }
             finally
             {

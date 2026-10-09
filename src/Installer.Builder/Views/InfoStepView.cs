@@ -61,9 +61,16 @@ namespace Installer.Builder.Views
             get { return txtVersion.Text.Trim(); }
         }
 
+        /// <summary>填入产品名（自动推导时用）。</summary>
+        public void SetProductName(string name)
+        {
+            txtNameZh.Text = name ?? string.Empty;
+        }
+
         /// <summary>刷新文案。</summary>
         public void ApplyText(IStringTable text)
         {
+            lblStep.Text = text.Get("Step.Info");
             lblName.Text = text.Get("Field.Name");
             lblNameEn.Text = text.Get("Field.NameEn");
             lblVersion.Text = text.Get("Field.Version");
