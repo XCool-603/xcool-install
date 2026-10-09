@@ -9,10 +9,50 @@ namespace Installer.Builder.Views
     public partial class InfoStepView : UserControl
     {
         /// <summary>构造。</summary>
+        private bool _mirroring;
+        private bool _englishEditedByUser;
+
         public InfoStepView()
         {
             InitializeComponent();
-            txtNameZh.TextChanged += (sender, e) => Changed?.Invoke();
+
+            txtNameZh.TextChanged += (sender, e) =>
+            {
+                MirrorEnglish();
+                Changed?.Invoke();
+            };
+
+            // 用户自己填过英文名之后就不再跟随
+            txtNameEn.TextChanged += (sender, e) =>
+            {
+                if (!_mirroring)
+                {
+                    _englishEditedByUser = true;
+                }
+            };
+        }
+
+        /// <summary>
+        /// 英文名留空时跟随中文名。
+        /// 这样英文系统上跑向导不会显示空产品名 —— 打包时也会做同样的补齐，
+        /// 这里只是让它**在界面上可见**。
+        /// </summary>
+        private void MirrorEnglish()
+        {
+            if (_englishEditedByUser)
+            {
+                return;
+            }
+
+            _mirroring = true;
+            try
+            {
+                txtNameEn.Text = txtNameZh.Text.Trim();
+            }
+            finally
+            {
+                _mirroring = false;
+            }
         }
 
         /// <summary>内容变化。</summary>
@@ -39,6 +79,7 @@ namespace Installer.Builder.Views
         /// <summary>写回界面。</summary>
         public void Write(LocalizedText name, string version, LocalizedText publisher)
         {
+            _englishEditedByUser = false;
             txtNameZh.Text = Get(name, "zh-Hans");
             txtNameEn.Text = Get(name, "en");
             txtVersion.Text = version ?? string.Empty;

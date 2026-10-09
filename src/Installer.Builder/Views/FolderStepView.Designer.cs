@@ -41,6 +41,7 @@ namespace Installer.Builder.Views
             this.lblEntry = new AntdUI.Label();
             this.cboEntry = new AntdUI.Select();
             this.lblEntryHint = new AntdUI.Label();
+            this.chkAutoName = new AntdUI.Checkbox();
             this.rootLayout.SuspendLayout();
             this.dropPanel.SuspendLayout();
             this.dropLayout.SuspendLayout();
@@ -173,13 +174,14 @@ namespace Installer.Builder.Views
             //
             // entryLayout
             //
-            this.entryLayout.ColumnCount = 3;
+            this.entryLayout.ColumnCount = 4;
             this.entryLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 76F));
             this.entryLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 300F));
             this.entryLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.entryLayout.Controls.Add(this.lblEntry, 0, 0);
             this.entryLayout.Controls.Add(this.cboEntry, 1, 0);
             this.entryLayout.Controls.Add(this.lblEntryHint, 2, 0);
+            this.entryLayout.Controls.Add(this.chkAutoName, 3, 0);
             this.entryLayout.Dock = System.Windows.Forms.DockStyle.Fill;
             this.entryLayout.Location = new System.Drawing.Point(0, 188);
             this.entryLayout.Margin = new System.Windows.Forms.Padding(0);
@@ -220,6 +222,20 @@ namespace Installer.Builder.Views
             this.lblEntryHint.TabIndex = 2;
             this.lblEntryHint.Text = "";
             //
+            // chkAutoName
+            //
+            this.chkAutoName.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.chkAutoName.AutoSize = true;
+            this.chkAutoName.Checked = true;
+            this.chkAutoName.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkAutoName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(41)))), ((int)(((byte)(55)))));
+            this.chkAutoName.Location = new System.Drawing.Point(580, 14);
+            this.chkAutoName.Margin = new System.Windows.Forms.Padding(0);
+            this.chkAutoName.Name = "chkAutoName";
+            this.chkAutoName.Size = new System.Drawing.Size(180, 23);
+            this.chkAutoName.TabIndex = 3;
+            this.chkAutoName.Text = "产品名跟随文件夹名";
+            //
             // FolderStepView
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -254,5 +270,6 @@ namespace Installer.Builder.Views
         private AntdUI.Label lblEntry;
         private AntdUI.Select cboEntry;
         private AntdUI.Label lblEntryHint;
+        private AntdUI.Checkbox chkAutoName;
     }
 }

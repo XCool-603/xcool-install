@@ -38,6 +38,7 @@ namespace Installer.Builder.Common
             Add(t, "Field.Name", "产品名称", "Product name");            Add(t, "Field.NameEn", "英文名称", "English name");
             Add(t, "Field.Version", "版本号", "Version");
             Add(t, "Field.Publisher", "厂商", "Publisher");
+            Add(t, "Field.AutoName", "产品名跟随文件夹名", "Name follows the folder");
             Add(t, "Field.EntryPoint", "启动程序", "Start program");
             Add(t, "Field.EntryPoint.None", "（这个文件夹里没有 .exe）", "(no .exe found in this folder)");
             Add(t, "Field.EntryPoint.Multiple", "发现 {0} 个可执行文件，请选要启动的那个",
@@ -50,7 +51,7 @@ namespace Installer.Builder.Common
             Add(t, "Shortcut.RunAfter", "安装完成后立即运行", "Run after install");
 
             Add(t, "Files.None", "还没有选择文件夹", "No folder selected yet");
-            Add(t, "Files.Count", "共 {0} 个文件，{1}", "{0} files, {1}");
+            Add(t, "Files.Count", "共 {0} 个文件 · 安装后约需 {1}", "{0} files · about {1} installed");
             Add(t, "Files.Empty", "这个文件夹是空的", "This folder is empty");
 
             Add(t, "Advanced.Open", "高级选项…", "Advanced...");

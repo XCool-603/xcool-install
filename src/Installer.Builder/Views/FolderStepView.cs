@@ -39,6 +39,8 @@ namespace Installer.Builder.Views
                 }
             };
 
+            chkAutoName.CheckedChanged += (sender, e) => Raise();
+
             // 整个卡片都可以拖
             dropPanel.AllowDrop = true;
             dropPanel.DragEnter += OnDragEnter;
@@ -62,6 +64,13 @@ namespace Installer.Builder.Views
             }
         }
 
+        /// <summary>产品名是否跟随文件夹名（默认开）。</summary>
+        public bool AutoNameFromFolder
+        {
+            get { return chkAutoName.Checked; }
+            set { chkAutoName.Checked = value; }
+        }
+
         /// <summary>当前启动程序（相对打包文件夹）。</summary>
         public string EntryPoint
         {
@@ -83,6 +92,7 @@ namespace Installer.Builder.Views
             _text = text;
             lblStep.Text = text.Get("Step.Folder");
             lblEntry.Text = text.Get("Field.EntryPoint");
+            chkAutoName.Text = text.Get("Field.AutoName");
             ApplyFolderState();
         }
 
@@ -100,7 +110,7 @@ namespace Installer.Builder.Views
                 lblFiles.Text = string.Empty;
                 lblEntryHint.Text = string.Empty;
                 cboEntry.Enabled = false;
-                cboEntry.Items.Clear();
+                ResetEntrySelection();
                 return;
             }
 
@@ -155,7 +165,9 @@ namespace Installer.Builder.Views
             _populating = true;
             try
             {
-                cboEntry.Items.Clear();
+                // **必须显式重置**：AntdUI.Select 在 Items.Clear() 之后仍会显示上一次的文本，
+                // 于是"换了文件夹但启动程序还显示旧值"。这是实际踩到的坑。
+                ResetEntrySelection();
 
                 if (exes.Count == 0)
                 {
@@ -188,6 +200,15 @@ namespace Installer.Builder.Views
             {
                 _populating = false;
             }
+        }
+
+        /// <summary>把下拉框彻底清空（含 AntdUI 内部缓存的显示文本）。</summary>
+        private void ResetEntrySelection()
+        {
+            cboEntry.Items.Clear();
+            cboEntry.SelectedIndex = -1;
+            cboEntry.SelectedValue = null;
+            cboEntry.Text = string.Empty;
         }
 
         private void Pick()

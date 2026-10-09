@@ -39,6 +39,7 @@ namespace Installer.Runtime
             "  --sandbox <目录>   沙箱模式：快捷方式/注册表全部重定向到该目录，不碰真实系统\n" +
             "  --dry-run          只走流程不落盘\n" +
             "  --verify-only      只校验容器与哈希\n" +
+            "  --elevated         内部用：表示已经提过权，避免无限重启\n" +
             "\n" +
             "卸载：\n" +
             "  --uninstall        按安装记录卸载（由控制面板调用）\n";
@@ -69,10 +70,10 @@ namespace Installer.Runtime
 
                 if (options.Uninstall)
                 {
-                    return RunUninstall(options);
+                    return RunUninstall(options, args);
                 }
 
-                return RunInstall(options);
+                return RunInstall(options, args);
             }
             catch (Exception ex)
             {
@@ -85,7 +86,7 @@ namespace Installer.Runtime
         // 安装
         // ─────────────────────────────────────────────────────────────
 
-        private static int RunInstall(RuntimeOptions options)
+        private static int RunInstall(RuntimeOptions options, string[] args)
         {
             var selfPath = GetSelfPath();
 
@@ -135,6 +136,13 @@ namespace Installer.Runtime
                 var productName = text.Resolve(manifest.Product.Name, manifest.ProductCode);
 
                 var installDir = ResolveInstallDir(options, manifest, CreatePlatform(options), productName);
+
+                // 「所有用户」要写 HKLM，而 stub 声明的是 asInvoker —— 不主动提权就必然被拒。
+                // 这里在**进向导之前**就把自己重启成管理员，用户只需要点一次 UAC。
+                if (NeedsElevation(manifest) && !options.AlreadyElevated && !IsElevated())
+                {
+                    return RelaunchElevated(options, args);
+                }
 
                 // 非静默 → 走向导界面
                 if (!options.Silent)
@@ -219,7 +227,7 @@ namespace Installer.Runtime
         // 卸载
         // ─────────────────────────────────────────────────────────────
 
-        private static int RunUninstall(RuntimeOptions options)
+        private static int RunUninstall(RuntimeOptions options, string[] args)
         {
             var selfPath = GetSelfPath();
             var installDir = Path.GetDirectoryName(selfPath);
@@ -231,6 +239,12 @@ namespace Installer.Runtime
             if (record == null)
             {
                 return RunDegradedUninstall(options, selfPath, installDir);
+            }
+
+            // 卸载 HKLM 里的东西同样需要管理员
+            if (!options.AlreadyElevated && !IsElevated() && NeedsElevationForUninstall(record))
+            {
+                return RelaunchElevated(options, args);
             }
 
             // 沙箱根：命令行优先，其次用安装记录里记下的 ——
@@ -374,6 +388,104 @@ namespace Installer.Runtime
 
             var byDir = Installer.Core.Install.UninstallKeys.FindByInstallLocation(platform.Registry, installDir);
             return byDir.Count == 0 ? null : byDir[0].DisplayName;
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // 提权
+        // ─────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// 这次安装是否需要管理员权限。
+        /// 「所有用户」要写 <c>HKLM</c>，而 stub 声明的是 <c>asInvoker</c> —— 不提权就必然被拒。
+        /// </summary>
+        private static bool NeedsElevation(InstallerManifest manifest)
+        {
+            return manifest != null
+                   && string.Equals(manifest.Scope, InstallScopes.PerMachine, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>卸载是否需要管理员（卸载键在 HKLM，或安装范围是所有用户）。</summary>
+        private static bool NeedsElevationForUninstall(InstallRecord record)
+        {
+            if (record == null)
+            {
+                return false;
+            }
+
+            if (string.Equals(record.Scope, InstallScopes.PerMachine, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            var key = record.UninstallKeyPath ?? string.Empty;
+            return key.IndexOf("HKLM", StringComparison.OrdinalIgnoreCase) >= 0
+                   || key.IndexOf("LocalMachine", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        /// <summary>当前进程是不是管理员。</summary>
+        private static bool IsElevated()
+        {
+            try
+            {
+                var id = System.Security.Principal.WindowsIdentity.GetCurrent();
+                var principal = new System.Security.Principal.WindowsPrincipal(id);
+                return principal.IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>把原参数重新拼一遍，并追加 <c>--elevated</c>（防无限重启）。</summary>
+        private static string RebuildArguments(string[] args)
+        {
+            var list = new List<string>();
+
+            foreach (var a in args)
+            {
+                if (string.Equals(a, "--elevated", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                list.Add(a.IndexOf(' ') >= 0 ? "\"" + a + "\"" : a);
+            }
+
+            list.Add("--elevated");
+            return string.Join(" ", list.ToArray());
+        }
+
+        /// <summary>
+        /// 以管理员身份重启自己。
+        /// 提权后的新实例会继续安装，当前实例直接退出 —— 用户只需要点一次 UAC。
+        /// </summary>
+        private static int RelaunchElevated(RuntimeOptions options, string[] args)
+        {
+            var selfPath = GetSelfPath();
+
+            var psi = new ProcessStartInfo
+            {
+                FileName = selfPath,
+                Arguments = RebuildArguments(args),
+                UseShellExecute = true,          // runas 必须走 ShellExecute
+                Verb = "runas",
+                WorkingDirectory = Path.GetDirectoryName(selfPath),
+            };
+
+            try
+            {
+                Process.Start(psi);
+                return 0;
+            }
+            catch (System.ComponentModel.Win32Exception)
+            {
+                // 用户在 UAC 上点了「否」
+                return Report(options, false,
+                    "安装到「所有用户」需要管理员权限，但 UAC 授权被取消了。\r\n\r\n" +
+                    "如果不想每次都提权：在制作端的「高级选项 → 安装细节」里把安装范围改成" +
+                    "「仅当前用户」，这样安装和卸载都不需要管理员。");
+            }
         }
 
         /// <summary>把卸载器复制到 %TEMP%，由副本删掉安装目录残留（含本 exe），再自删。</summary>
@@ -781,6 +893,9 @@ namespace Installer.Runtime
             /// 这样即使安装记录丢了，卸载器也知道自己该删哪一条卸载项。
             /// </summary>
             public string ProductCode;
+
+            /// <summary>内部用：已经提过权了，别再重启自己（防无限循环）。</summary>
+            public bool AlreadyElevated;
         }
 
         private static RuntimeOptions ParseOptions(string[] args)
@@ -813,6 +928,9 @@ namespace Installer.Runtime
                         break;
                     case "--product-code":
                         o.ProductCode = Next(args, ref i);
+                        break;
+                    case "--elevated":
+                        o.AlreadyElevated = true;
                         break;
                     case "--target":
                         o.Target = Next(args, ref i);
