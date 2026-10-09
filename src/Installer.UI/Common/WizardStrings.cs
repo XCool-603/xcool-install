@@ -32,6 +32,11 @@ namespace Installer.UI.Common
             Add(t, "Wizard.Retry", "重试", "Retry");
 
             Add(t, "Wizard.StepWelcome", "欢迎", "Welcome");
+            Add(t, "Welcome.CaptionDir", "默认安装位置", "Default location");
+            Add(t, "Welcome.CaptionSpace", "需要磁盘空间", "Disk space required");
+            Add(t, "Welcome.CaptionVersion", "版本与发布者", "Version & publisher");
+            Add(t, "Welcome.Hint", "下一步需要先阅读并同意「许可协议」，点击「下一步」继续。",
+                "You will be asked to accept the license agreement on the next step.");
             Add(t, "Step.License", "许可协议", "License");
             Add(t, "Step.Path", "安装位置", "Location");
             Add(t, "Step.Options", "选项", "Options");

@@ -246,6 +246,11 @@ namespace Installer.UI.Forms
                     ShowView(_welcomeView);
                     _welcomeView.Title = _presenter.Text("Welcome.Title") + " " + _presenter.ProductName;
                     _welcomeView.Body = _presenter.Text("Welcome.Body");
+                    _welcomeView.ApplyCaptions(_presenter.Text);
+                    _welcomeView.DirValue = _presenter.Options.InstallDir;
+                    _welcomeView.SpaceValue = BuildSpaceText();
+                    _welcomeView.VersionValue = _presenter.ProductVersion + " · " + _presenter.Publisher;
+                    _welcomeView.Hint = _presenter.Text("Welcome.Hint");
                     break;
 
                 case WizardPage.License:

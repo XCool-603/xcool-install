@@ -173,6 +173,12 @@ namespace Installer.UI.Presenters
             get { return _manifest.Product.Version; }
         }
 
+        /// <summary>发布者（按当前语言）。</summary>
+        public string Publisher
+        {
+            get { return _text.Resolve(_manifest.Product.Publisher, string.Empty); }
+        }
+
         /// <summary>许可协议正文（按当前语言）。</summary>
         public string LicenseText
         {
