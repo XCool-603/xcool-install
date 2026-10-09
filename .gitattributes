@@ -1,0 +1,38 @@
+# 默认按文本处理，自动识别二进制
+* text=auto
+
+# ── 源码：统一用 LF 存仓库 ────────────────────────────────
+*.cs       text diff=csharp
+*.csproj   text
+*.sln      text eol=crlf
+*.props    text
+*.targets  text
+*.json     text
+*.md       text
+*.ps1      text eol=crlf
+*.psm1     text eol=crlf
+*.xml      text
+*.config   text
+*.manifest text
+*.resx     text
+*.pas      text
+*.dpr      text
+
+# PowerShell 脚本必须带 BOM，否则 Windows PowerShell 5.1 按 GBK 读中文会解析失败。
+# 这条注释是给人看的提醒，.gitattributes 本身管不了 BOM。
+
+# ── 二进制：不要做行尾转换，也不要尝试 diff ────────────────
+*.dll      binary
+*.exe      binary
+*.pdb      binary
+*.lib      binary
+*.ico      binary
+*.png      binary
+*.jpg      binary
+*.gif      binary
+*.zip      binary
+*.resources binary
+*.lnk      binary
+
+# ── 仓库里不该出现的东西（.gitignore 兜底）────────────────
+*.nupkg    binary

@@ -1,0 +1,4 @@
+app exefile Stuep.exe
+app rcdata DSkin.dll
+app rcdata CSharpZip.dll
+app rcdata insatll.resources

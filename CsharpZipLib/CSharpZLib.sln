@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpZLib", "CSharpZLib.csproj", "{0E7413FF-EB9E-4714-ACF2-BE3A6A7B2FFD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpZLibDemo", "..\CSharpZLibDemo\CSharpZLibDemo.csproj", "{2A5E4ED1-323E-4249-B926-5864045E79C1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Installation", "Installation\Installation.csproj", "{4A79AF34-316A-45D4-8355-00964B531DDD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0E7413FF-EB9E-4714-ACF2-BE3A6A7B2FFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E7413FF-EB9E-4714-ACF2-BE3A6A7B2FFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E7413FF-EB9E-4714-ACF2-BE3A6A7B2FFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E7413FF-EB9E-4714-ACF2-BE3A6A7B2FFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A5E4ED1-323E-4249-B926-5864045E79C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A5E4ED1-323E-4249-B926-5864045E79C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A5E4ED1-323E-4249-B926-5864045E79C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A5E4ED1-323E-4249-B926-5864045E79C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A79AF34-316A-45D4-8355-00964B531DDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A79AF34-316A-45D4-8355-00964B531DDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A79AF34-316A-45D4-8355-00964B531DDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A79AF34-316A-45D4-8355-00964B531DDD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN - Subversion Support for Visual Studio
+	EndGlobalSection
+EndGlobal

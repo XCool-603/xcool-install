@@ -1,0 +1,353 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{21C53B68-6A1F-4B4C-B986-673C3B3CABF6}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>InstalltionEdit</RootNamespace>
+    <AssemblyName>安装包制作助手</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <PublishUrl>发布\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>app_install.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DSkin, Version=16.4.1.4, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\【DSkin资料】\DLL\【2.0】DSkin20160530171645\DSkin.dll</HintPath>
+    </Reference>
+    <Reference Include="DSkin.Design, Version=16.6.3.37, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>install\DSkin.Design.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\Installation\packages\WindowsAPICodePack-Core.1.1.1\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.Shell, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\Installation\packages\WindowsAPICodePack-Shell.1.1.1\lib\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Code.cs" />
+    <Compile Include="Form1.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form1.Designer.cs">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmBase.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmBase.Designer.cs">
+      <DependentUpon>FrmBase.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmInstallation.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmInstallation.Designer.cs">
+      <DependentUpon>FrmInstallation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmLicenseAgreement.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmLicenseAgreement.Designer.cs">
+      <DependentUpon>FrmLicenseAgreement.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmMain.Designer.cs">
+      <DependentUpon>FrmMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmMessage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmMessage.Designer.cs">
+      <DependentUpon>FrmMessage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmProductInfo.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmProductInfo.Designer.cs">
+      <DependentUpon>FrmProductInfo.cs</DependentUpon>
+    </Compile>
+    <Compile Include="IpadView\DSkinIpadView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="IpadView\DSkinIpadViewDesigner.cs" />
+    <Compile Include="IpadView\DSkinIpadViewItem.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="LoadResourcesDll.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Form1.resx">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmBase.resx">
+      <DependentUpon>FrmBase.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmInstallation.resx">
+      <DependentUpon>FrmInstallation.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmLicenseAgreement.resx">
+      <DependentUpon>FrmLicenseAgreement.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmMain.resx">
+      <DependentUpon>FrmMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmMessage.resx">
+      <DependentUpon>FrmMessage.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmProductInfo.resx">
+      <DependentUpon>FrmProductInfo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="IpadView\DSkinIpadViewItem.resx">
+      <DependentUpon>DSkinIpadViewItem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="install\CSharpZip.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="install\DSkin.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="install\Installation.exe" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\BtnD.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\BtnH.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\BtnN.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CanBack.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CanForword.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ChromeAdd.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ChromeAddHover.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ChromeAddNormal.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ChromeBackground.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ChromeCenter.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ChromeClose.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ChromeCloseHover.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ChromeInactive.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ChromeInactiveCenter.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ChromeInactiveLeft.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ChromeInactiveRight.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ChromeLeft.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ChromeRight.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ChromeSelect.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\file.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\folder.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Home.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\loading2.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\loading3.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\More.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\NoBack.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\NoForword.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ReLoad.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ToolBackGroud.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\4.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\backgroud.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ckd.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ckedd.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ckedh.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ckedn.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ckh.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ckn.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\go_Dwn.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\go_Ent.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\go_Nor.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\OpenDialog_Dwn.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\OpenDialog_Ent.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\OpenDialog_Nor.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="app_install.ico" />
+    <None Include="Resources\DSkin.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CsharpZipLib\CSharpZipLib.csproj">
+      <Project>{0e7413ff-eb9e-4714-acf2-be3a6a7b2ffd}</Project>
+      <Name>CSharpZipLib</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

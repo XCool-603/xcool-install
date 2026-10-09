@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2016-06-16 10:16:05.256.pas,C:\Users\Administrator\Documents\RAD Studio\Projects\Unit1.pas=G:\【其他资料】\安装包\CheckDotNet\frmMain.pas</Transaction>
+    <Transaction>2016-06-16 10:16:05.256.dfm,C:\Users\Administrator\Documents\RAD Studio\Projects\Unit1.dfm=G:\【其他资料】\安装包\CheckDotNet\frmMain.dfm</Transaction>
+    <Transaction>2016-06-16 10:16:23.904.bdsproj,C:\Users\Administrator\Documents\RAD Studio\Projects\Project1.bdsproj=G:\【其他资料】\安装包\CheckDotNet\CheckDotNet.bdsproj</Transaction>
+  </Transactions>
+</BorlandProject>

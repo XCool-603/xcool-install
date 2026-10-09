@@ -1,0 +1,84 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <!--
+      显式钉死平台与 RID。
+      不钉的后果：SDK 对 net48 会自己推 RuntimeIdentifier（AnyCPU+Prefer32Bit=false → win-x64，
+      x86 → win-x86），而 dotnet restore 有时不生成这个目标，于是 build 报 NETSDK1047，构建时好时坏。
+      选 x86 是因为安装器可能要注册 32 位 COM 组件（direct 方式需要位数一致）。
+    -->
+    <PlatformTarget>x86</PlatformTarget>
+    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+    <!-- 别让输出多一层 win-x86\ —— e2e、文档、StubLocator 都按 bin\Debug\ 找 -->
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <LangVersion>7.3</LangVersion>
+    <RootNamespace>Installer.Runtime</RootNamespace>
+    <AssemblyName>Installer.Runtime</AssemblyName>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <Deterministic>true</Deterministic>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- stub 必须自包含：下面 EmbedDependencies 目标会把依赖 DLL 嵌进来 -->
+    <SelfContained>true</SelfContained>
+    <!--
+      FileAlignment 必须放大到 4096。
+      默认的 512 会让 SizeOfHeaders 刚好等于第一个节的 PointerToRawData，
+      于是 PE 头部没有任何余量 —— 图标补丁需要新增一个节表项时会失败
+      （"节表空间不足：需要写到 0x218，但头部可用空间只到 0x200"）。
+      放大到 4096 后头部有约 3.5 KB 余量，图标补丁才有地方写新节。
+    -->
+    <FileAlignment>4096</FileAlignment>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Installer.Core\Installer.Core.csproj" />
+    <ProjectReference Include="..\Installer.UI\Installer.UI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- SDK 风格项目默认不引用 WinForms，需要显式加 -->
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="app.manifest" />
+  </ItemGroup>
+
+  <!--
+    把依赖的托管程序集作为资源嵌进 stub，让产物是真正的单文件。
+    AssemblyResolve 由 EmbeddedAssemblyResolver 处理（见 Program.cs）。
+    没有这一步，交付物就是 "exe + AntdUI.dll + Newtonsoft.Json.dll"，只是把 4 个文件变成 3 个。
+  -->
+  <Target Name="EmbedDependencies"
+          DependsOnTargets="ResolveReferences"
+          BeforeTargets="CreateManifestResourceNames">
+    <Message Importance="high" Text="EmbedDependencies: ReferencePath 共 @(ReferencePath->Count()) 项" />
+    <Message Importance="high" Text="EmbedDependencies: 将嵌入 %(ReferencePath.FileName)%(ReferencePath.Extension) [%(ReferencePath.Identity)]"
+             Condition="'%(ReferencePath.FileName)' == 'Newtonsoft.Json'
+                     or '%(ReferencePath.FileName)' == 'Installer.Core'
+                     or '%(ReferencePath.FileName)' == 'Installer.Abstractions'" />
+    <ItemGroup>
+      <EmbeddedResource Include="@(ReferencePath)"
+                        Condition="'%(ReferencePath.FileName)' == 'Newtonsoft.Json'
+                                or '%(ReferencePath.FileName)' == 'Installer.Core'
+                                or '%(ReferencePath.FileName)' == 'Installer.Abstractions'
+                                or '%(ReferencePath.FileName)' == 'Installer.UI'
+                                or '%(ReferencePath.FileName)' == 'AntdUI'">
+        <!--
+          Type=Non-Resx 与 WithCulture=false 是必须的：
+          Microsoft.Common.CurrentVersion.targets 用这两个元数据筛出 _CoreCompileResourceInputs，
+          缺了它们，临时加进来的 EmbeddedResource 会被静默丢掉（编译能过，但资源没进去）。
+        -->
+        <LogicalName>Installer.Runtime.Deps.%(ReferencePath.FileName)%(ReferencePath.Extension)</LogicalName>
+        <Type>Non-Resx</Type>
+        <WithCulture>false</WithCulture>
+      </EmbeddedResource>
+    </ItemGroup>
+  </Target>
+
+</Project>
