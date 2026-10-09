@@ -29,8 +29,8 @@ namespace Installer.Builder.Forms
         private void InitializeComponent()
         {
             this.rootLayout = new System.Windows.Forms.TableLayoutPanel();
+            this.pageHeader = new AntdUI.PageHeader();
             this.headerLayout = new System.Windows.Forms.TableLayoutPanel();
-            this.lblTitle = new AntdUI.Label();
             this.headerRight = new System.Windows.Forms.FlowLayoutPanel();
             this.cboLang = new AntdUI.Select();
             this.btnSave = new AntdUI.Button();
@@ -61,28 +61,47 @@ namespace Installer.Builder.Forms
             //
             this.rootLayout.ColumnCount = 1;
             this.rootLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.rootLayout.Controls.Add(this.headerLayout, 0, 0);
-            this.rootLayout.Controls.Add(this.bodyLayout, 0, 1);
-            this.rootLayout.Controls.Add(this.outputBar, 0, 2);
-            this.rootLayout.Controls.Add(this.statusLayout, 0, 3);
+            this.rootLayout.Controls.Add(this.pageHeader, 0, 0);
+            this.rootLayout.Controls.Add(this.headerLayout, 0, 1);
+            this.rootLayout.Controls.Add(this.bodyLayout, 0, 2);
+            this.rootLayout.Controls.Add(this.outputBar, 0, 3);
+            this.rootLayout.Controls.Add(this.statusLayout, 0, 4);
             this.rootLayout.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rootLayout.Location = new System.Drawing.Point(0, 0);
             this.rootLayout.Name = "rootLayout";
             this.rootLayout.Padding = new System.Windows.Forms.Padding(24, 20, 24, 8);
-            this.rootLayout.RowCount = 4;
-            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 60F));
+            this.rootLayout.RowCount = 5;
+            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 52F));
+            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 44F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 94F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 34F));
-            this.rootLayout.Size = new System.Drawing.Size(920, 892);
+            this.rootLayout.Size = new System.Drawing.Size(920, 928);
             this.rootLayout.TabIndex = 0;
+            //
+            // pageHeader —— AntdUI 的自绘标题栏（配合 FormBorderStyle.None）
+            //
+            this.pageHeader.DividerShow = true;
+            this.pageHeader.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pageHeader.DragMove = true;
+            this.pageHeader.EnableDoubleClickMaximize = true;
+            this.pageHeader.IconSvg = "<svg viewBox=\"0 0 24 24\"><path d=\"M12 2 4 6v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V6l-8-4z\" fill=\"#1677FF\"/></svg>";
+            this.pageHeader.Location = new System.Drawing.Point(0, 0);
+            this.pageHeader.Margin = new System.Windows.Forms.Padding(0);
+            this.pageHeader.MaximizeBox = true;
+            this.pageHeader.MinimizeBox = true;
+            this.pageHeader.Name = "pageHeader";
+            this.pageHeader.ShowButton = true;
+            this.pageHeader.ShowIcon = true;
+            this.pageHeader.Size = new System.Drawing.Size(872, 52);
+            this.pageHeader.TabIndex = 0;
+            this.pageHeader.Text = "安装包制作助手";
+            this.pageHeader.UseTitleFont = true;
             //
             // headerLayout
             //
-            this.headerLayout.ColumnCount = 2;
+            this.headerLayout.ColumnCount = 1;
             this.headerLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.headerLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 330F));
-            this.headerLayout.Controls.Add(this.lblTitle, 0, 0);
             this.headerLayout.Controls.Add(this.headerRight, 1, 0);
             this.headerLayout.Dock = System.Windows.Forms.DockStyle.Fill;
             this.headerLayout.Location = new System.Drawing.Point(22, 14);
@@ -93,23 +112,12 @@ namespace Installer.Builder.Forms
             this.headerLayout.Size = new System.Drawing.Size(840, 58);
             this.headerLayout.TabIndex = 0;
             //
-            // lblTitle
-            //
-            this.lblTitle.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblTitle.AutoSize = true;
-            this.lblTitle.Font = new System.Drawing.Font("微软雅黑", 15F, System.Drawing.FontStyle.Bold);
-            this.lblTitle.Location = new System.Drawing.Point(0, 13);
-            this.lblTitle.Margin = new System.Windows.Forms.Padding(0);
-            this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(180, 27);
-            this.lblTitle.TabIndex = 0;
-            this.lblTitle.Text = "安装包制作助手";
             //
             // headerRight
             //
+            this.headerRight.Controls.Add(this.cboLang);
             this.headerRight.Controls.Add(this.btnSave);
             this.headerRight.Controls.Add(this.btnOpen);
-            this.headerRight.Controls.Add(this.cboLang);
             this.headerRight.Dock = System.Windows.Forms.DockStyle.Fill;
             this.headerRight.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
             this.headerRight.Location = new System.Drawing.Point(510, 0);
@@ -316,9 +324,10 @@ namespace Installer.Builder.Forms
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(247)))), ((int)(((byte)(250)))));
-            this.ClientSize = new System.Drawing.Size(920, 892);
+            this.ClientSize = new System.Drawing.Size(920, 928);
             this.Controls.Add(this.rootLayout);
             this.Font = new System.Drawing.Font("微软雅黑", 9.75F);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.MinimumSize = new System.Drawing.Size(860, 840);
             this.Name = "BuilderForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -341,8 +350,8 @@ namespace Installer.Builder.Forms
         #endregion
 
         private System.Windows.Forms.TableLayoutPanel rootLayout;
+        private AntdUI.PageHeader pageHeader;
         private System.Windows.Forms.TableLayoutPanel headerLayout;
-        private AntdUI.Label lblTitle;
         private System.Windows.Forms.FlowLayoutPanel headerRight;
         private AntdUI.Select cboLang;
         private AntdUI.Button btnSave;

@@ -129,7 +129,6 @@ namespace Installer.Builder.Forms
             var t = _presenter.Text;
 
             Text = _presenter.S("App.Title");
-            lblTitle.Text = _presenter.S("App.Title");
             btnAdvanced.Text = _presenter.S("Advanced.Open");
             btnOpen.Text = _presenter.S("Menu.Open");
             btnSave.Text = _presenter.S("Menu.Save");

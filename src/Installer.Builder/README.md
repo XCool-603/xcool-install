@@ -64,6 +64,28 @@ Builder/
 | `Modal.Config` | **有** `OkText`/`CancelText`/`OkType`/`Icon` |
 | 禁用态 | `Enabled=false` 渲染成浅灰底浅灰字，几乎读不出 → 用 `Visible` 代替 |
 | `TableLayoutPanel` | 调了 `SuspendLayout()` 就必须调 `ResumeLayout()`，否则子控件不显示 |
+| `BaseForm` | **不提供自绘标题栏** —— `FormBorderStyle` 默认仍是 `Sizable`，所以会挂系统原生标题栏 |
+| `PageHeader` | 才是标题栏控件（`ShowButton`/`MaximizeBox`/`MinimizeBox`/`DragMove`/`DividerShow`），`Height` 默认 0 |
+| `BaseForm.EnableHitTest` | 默认 true，负责无边框窗口的拖拽缩放热区 |
+
+## 现代标题栏的正确做法
+
+`AntdUI.BaseForm` 名字听着像"自带现代标题栏"，其实不是。正确组合是：
+
+```csharp
+// Designer
+this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;   // 去掉系统标题栏
+this.pageHeader.Dock        = System.Windows.Forms.DockStyle.Fill;
+this.pageHeader.DragMove    = true;    // 可拖动
+this.pageHeader.ShowButton  = true;    // 显示 最小化/最大化/关闭
+this.pageHeader.ShowIcon    = true;
+this.pageHeader.IconSvg     = "<svg …/>";
+this.pageHeader.DividerShow = true;    // 底部分隔线
+this.pageHeader.Text        = "安装包制作助手";
+```
+
+`BaseForm.EnableHitTest`（默认 true）会自动处理无边框窗口的边框拖拽缩放，
+`EnableDoubleClickMaximize` 处理双击标题栏最大化。
 
 ## 界面规格
 
