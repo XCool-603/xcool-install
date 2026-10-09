@@ -39,7 +39,7 @@ namespace Installer.Builder.Views
             this.pickedLayout = new System.Windows.Forms.TableLayoutPanel();
             this.lblPickedPath = new AntdUI.Label();
             this.btnChange = new AntdUI.Button();
-            this.lblFiles = new AntdUI.Label();
+            this.lblPickedStats = new AntdUI.Label();
             this.entryLayout = new System.Windows.Forms.TableLayoutPanel();
             this.lblEntry = new AntdUI.Label();
             this.cboEntry = new AntdUI.Select();
@@ -58,18 +58,17 @@ namespace Installer.Builder.Views
             this.rootLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.rootLayout.Controls.Add(this.lblStep, 0, 0);
             this.rootLayout.Controls.Add(this.dropPanel, 0, 1);
-            this.rootLayout.Controls.Add(this.lblFiles, 0, 2);
-            this.rootLayout.Controls.Add(this.entryLayout, 0, 3);
+            this.rootLayout.Controls.Add(this.entryLayout, 0, 2);
             this.rootLayout.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rootLayout.Location = new System.Drawing.Point(0, 0);
             this.rootLayout.Name = "rootLayout";
-            this.rootLayout.RowCount = 5;
+            this.rootLayout.RowCount = 4;
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 140F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 46F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.rootLayout.Size = new System.Drawing.Size(760, 298);
+            this.rootLayout.Size = new System.Drawing.Size(832, 286);
             this.rootLayout.TabIndex = 0;
             //
             // lblStep
@@ -99,7 +98,7 @@ namespace Installer.Builder.Views
             this.dropPanel.Margin = new System.Windows.Forms.Padding(0);
             this.dropPanel.Name = "dropPanel";
             this.dropPanel.Radius = 14;
-            this.dropPanel.Size = new System.Drawing.Size(760, 140);
+            this.dropPanel.Size = new System.Drawing.Size(832, 200);
             this.dropPanel.TabIndex = 1;
             //
             // dropLayout —— 空态：图标 / 提示 / 副提示 / 按钮（竖排）
@@ -119,7 +118,7 @@ namespace Installer.Builder.Views
             this.dropLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
             this.dropLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
             this.dropLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.dropLayout.Size = new System.Drawing.Size(760, 140);
+            this.dropLayout.Size = new System.Drawing.Size(832, 200);
             this.dropLayout.TabIndex = 0;
             //
             // lblDropIcon
@@ -180,13 +179,15 @@ namespace Installer.Builder.Views
             this.pickedLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
             this.pickedLayout.Controls.Add(this.lblPickedPath, 0, 0);
             this.pickedLayout.Controls.Add(this.btnChange, 1, 0);
+            this.pickedLayout.Controls.Add(this.lblPickedStats, 0, 1);
+            this.pickedLayout.SetColumnSpan(this.lblPickedStats, 2);
             this.pickedLayout.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pickedLayout.Location = new System.Drawing.Point(0, 0);
             this.pickedLayout.Margin = new System.Windows.Forms.Padding(0);
             this.pickedLayout.Name = "pickedLayout";
             this.pickedLayout.RowCount = 1;
             this.pickedLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.pickedLayout.Size = new System.Drawing.Size(760, 140);
+            this.pickedLayout.Size = new System.Drawing.Size(832, 200);
             this.pickedLayout.TabIndex = 1;
             this.pickedLayout.Visible = false;
             //
@@ -199,7 +200,7 @@ namespace Installer.Builder.Views
             this.lblPickedPath.Location = new System.Drawing.Point(16, 0);
             this.lblPickedPath.Margin = new System.Windows.Forms.Padding(16, 0, 12, 0);
             this.lblPickedPath.Name = "lblPickedPath";
-            this.lblPickedPath.Size = new System.Drawing.Size(600, 140);
+            this.lblPickedPath.Size = new System.Drawing.Size(660, 40);
             this.lblPickedPath.TabIndex = 0;
             this.lblPickedPath.Text = "";
             //
@@ -208,7 +209,7 @@ namespace Installer.Builder.Views
             this.btnChange.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.btnChange.BorderWidth = 1F;
             this.btnChange.DefaultBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(229)))), ((int)(((byte)(232)))), ((int)(((byte)(239)))));
-            this.btnChange.Location = new System.Drawing.Point(644, 51);
+            this.btnChange.Location = new System.Drawing.Point(716, 1);
             this.btnChange.Margin = new System.Windows.Forms.Padding(0, 0, 16, 0);
             this.btnChange.Name = "btnChange";
             this.btnChange.Radius = 8;
@@ -216,17 +217,20 @@ namespace Installer.Builder.Views
             this.btnChange.TabIndex = 1;
             this.btnChange.Text = "更换文件夹";
             //
-            // lblFiles
             //
-            this.lblFiles.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblFiles.AutoSize = true;
-            this.lblFiles.Font = new System.Drawing.Font("微软雅黑", 9F);
-            this.lblFiles.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(156)))), ((int)(((byte)(163)))), ((int)(((byte)(175)))));
-            this.lblFiles.Location = new System.Drawing.Point(2, 174);
-            this.lblFiles.Name = "lblFiles";
-            this.lblFiles.Size = new System.Drawing.Size(200, 17);
-            this.lblFiles.TabIndex = 2;
-            this.lblFiles.Text = "";
+            // lblPickedStats
+            //
+            this.lblPickedStats.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblPickedStats.AutoSize = true;
+            this.lblPickedStats.Font = new System.Drawing.Font("微软雅黑", 9F);
+            this.lblPickedStats.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(156)))), ((int)(((byte)(163)))), ((int)(((byte)(175)))));
+            this.lblPickedStats.Location = new System.Drawing.Point(16, 44);
+            this.lblPickedStats.Margin = new System.Windows.Forms.Padding(16, 0, 0, 0);
+            this.lblPickedStats.Name = "lblPickedStats";
+            this.lblPickedStats.Size = new System.Drawing.Size(200, 17);
+            this.lblPickedStats.TabIndex = 1;
+            this.lblPickedStats.Text = "";
+            //
             //
             // entryLayout
             //
@@ -240,7 +244,7 @@ namespace Installer.Builder.Views
             this.entryLayout.Controls.Add(this.lblEntryHint, 2, 0);
             this.entryLayout.Controls.Add(this.chkAutoName, 3, 0);
             this.entryLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.entryLayout.Location = new System.Drawing.Point(0, 196);
+            this.entryLayout.Location = new System.Drawing.Point(0, 230);
             this.entryLayout.Margin = new System.Windows.Forms.Padding(0);
             this.entryLayout.Name = "entryLayout";
             this.entryLayout.RowCount = 1;
@@ -303,7 +307,7 @@ namespace Installer.Builder.Views
             this.Controls.Add(this.rootLayout);
             this.Font = new System.Drawing.Font("微软雅黑", 9.75F);
             this.Name = "FolderStepView";
-            this.Size = new System.Drawing.Size(760, 298);
+            this.Size = new System.Drawing.Size(832, 286);
             this.rootLayout.ResumeLayout(false);
             this.rootLayout.PerformLayout();
             this.dropPanel.ResumeLayout(false);
@@ -328,7 +332,7 @@ namespace Installer.Builder.Views
         private System.Windows.Forms.TableLayoutPanel pickedLayout;
         private AntdUI.Label lblPickedPath;
         private AntdUI.Button btnChange;
-        private AntdUI.Label lblFiles;
+        private AntdUI.Label lblPickedStats;
         private System.Windows.Forms.TableLayoutPanel entryLayout;
         private AntdUI.Label lblEntry;
         private AntdUI.Select cboEntry;

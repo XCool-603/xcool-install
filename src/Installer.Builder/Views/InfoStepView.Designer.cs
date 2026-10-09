@@ -80,7 +80,7 @@ namespace Installer.Builder.Views
             this.lblStep.Name = "lblStep";
             this.lblStep.Size = new System.Drawing.Size(160, 19);
             this.lblStep.TabIndex = 0;
-            this.lblStep.Text = "② 填写基本信息";
+            this.lblStep.Text = "填写基本信息";
             //
             // lblName
             //

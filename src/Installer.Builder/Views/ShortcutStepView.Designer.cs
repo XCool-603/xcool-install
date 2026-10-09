@@ -49,9 +49,9 @@ namespace Installer.Builder.Views
             this.rootLayout.Location = new System.Drawing.Point(0, 0);
             this.rootLayout.Name = "rootLayout";
             this.rootLayout.RowCount = 2;
-            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.rootLayout.Size = new System.Drawing.Size(760, 70);
+            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
+            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 48F));
+            this.rootLayout.Size = new System.Drawing.Size(832, 74);
             this.rootLayout.TabIndex = 0;
             //
             // lblStep
@@ -59,14 +59,14 @@ namespace Installer.Builder.Views
             this.lblStep.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblStep.AutoSize = true;
             this.lblStep.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Bold);
-            this.lblStep.Location = new System.Drawing.Point(0, 5);
+            this.lblStep.Location = new System.Drawing.Point(0, 3);
             this.lblStep.Margin = new System.Windows.Forms.Padding(0);
             this.lblStep.PrefixSvg = "<svg viewBox=\"0 0 20 20\"><rect width=\"20\" height=\"20\" rx=\"6\" fill=\"#1677FF\"/><text x=\"10\" y=\"15\" font-size=\"13\" fill=\"#FFFFFF\" text-anchor=\"middle\">3</text></svg>";
             this.lblStep.IconGap = 6;
             this.lblStep.Name = "lblStep";
             this.lblStep.Size = new System.Drawing.Size(120, 19);
             this.lblStep.TabIndex = 0;
-            this.lblStep.Text = "③ 快捷方式";
+            this.lblStep.Text = "快捷方式";
             //
             // flow
             //
@@ -75,7 +75,7 @@ namespace Installer.Builder.Views
             this.flow.Controls.Add(this.chkAutostart);
             this.flow.Controls.Add(this.chkRunAfter);
             this.flow.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flow.Location = new System.Drawing.Point(0, 30);
+            this.flow.Location = new System.Drawing.Point(0, 26);
             this.flow.Margin = new System.Windows.Forms.Padding(0);
             this.flow.Name = "flow";
             this.flow.Size = new System.Drawing.Size(760, 40);
@@ -86,8 +86,8 @@ namespace Installer.Builder.Views
             //
             this.chkDesktop.AutoSize = true;
             this.chkDesktop.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(41)))), ((int)(((byte)(55)))));
-            this.chkDesktop.Location = new System.Drawing.Point(0, 8);
-            this.chkDesktop.Margin = new System.Windows.Forms.Padding(0, 8, 28, 6);
+            this.chkDesktop.Location = new System.Drawing.Point(0, 4);
+            this.chkDesktop.Margin = new System.Windows.Forms.Padding(0, 4, 28, 4);
             this.chkDesktop.Name = "chkDesktop";
             this.chkDesktop.Size = new System.Drawing.Size(130, 23);
             this.chkDesktop.TabIndex = 0;
@@ -98,8 +98,8 @@ namespace Installer.Builder.Views
             //
             this.chkStartMenu.AutoSize = true;
             this.chkStartMenu.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(41)))), ((int)(((byte)(55)))));
-            this.chkStartMenu.Location = new System.Drawing.Point(158, 8);
-            this.chkStartMenu.Margin = new System.Windows.Forms.Padding(0, 8, 28, 6);
+            this.chkStartMenu.Location = new System.Drawing.Point(158, 4);
+            this.chkStartMenu.Margin = new System.Windows.Forms.Padding(0, 4, 28, 4);
             this.chkStartMenu.Name = "chkStartMenu";
             this.chkStartMenu.Size = new System.Drawing.Size(160, 23);
             this.chkStartMenu.TabIndex = 1;
@@ -110,8 +110,8 @@ namespace Installer.Builder.Views
             //
             this.chkAutostart.AutoSize = true;
             this.chkAutostart.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(41)))), ((int)(((byte)(55)))));
-            this.chkAutostart.Location = new System.Drawing.Point(346, 8);
-            this.chkAutostart.Margin = new System.Windows.Forms.Padding(0, 8, 28, 6);
+            this.chkAutostart.Location = new System.Drawing.Point(346, 4);
+            this.chkAutostart.Margin = new System.Windows.Forms.Padding(0, 4, 28, 4);
             this.chkAutostart.Name = "chkAutostart";
             this.chkAutostart.Size = new System.Drawing.Size(110, 23);
             this.chkAutostart.TabIndex = 2;
@@ -122,7 +122,7 @@ namespace Installer.Builder.Views
             //
             this.chkRunAfter.AutoSize = true;
             this.chkRunAfter.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(41)))), ((int)(((byte)(55)))));
-            this.chkRunAfter.Location = new System.Drawing.Point(484, 8);
+            this.chkRunAfter.Location = new System.Drawing.Point(484, 4);
             this.chkRunAfter.Margin = new System.Windows.Forms.Padding(0, 8, 0, 6);
             this.chkRunAfter.Name = "chkRunAfter";
             this.chkRunAfter.Size = new System.Drawing.Size(150, 23);
@@ -138,7 +138,7 @@ namespace Installer.Builder.Views
             this.Controls.Add(this.rootLayout);
             this.Font = new System.Drawing.Font("微软雅黑", 9F);
             this.Name = "ShortcutStepView";
-            this.Size = new System.Drawing.Size(760, 70);
+            this.Size = new System.Drawing.Size(832, 74);
             this.rootLayout.ResumeLayout(false);
             this.rootLayout.PerformLayout();
             this.flow.ResumeLayout(false);

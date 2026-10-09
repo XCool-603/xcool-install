@@ -17,6 +17,7 @@ namespace Installer.Builder.Common
             // 三步
             Add(t, "Step.Folder", "选择要打包的文件夹", "Choose the folder to package");
             Add(t, "Step.Folder.Hint", "把文件夹拖到这里", "Drop the folder here");
+            Add(t, "Step.Folder.Release", "松开即可选择这个文件夹", "Release to use this folder");
             Add(t, "Step.Folder.Sub", "或者点下面的按钮", "or use the button below");
             Add(t, "Files.Missing", "（文件夹不存在）", "(folder not found)");
             Add(t, "Step.Folder.Pick", "选择文件夹", "Choose folder");

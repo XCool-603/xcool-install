@@ -32,6 +32,7 @@ namespace Installer.Builder.Views
             AllowDrop = true;
             DragEnter += OnDragEnter;
             DragDrop += OnDragDrop;
+            DragLeave += OnDragLeave;
             cboEntry.SelectedIndexChanged += (sender, e) =>
             {
                 if (!_populating)
@@ -46,6 +47,7 @@ namespace Installer.Builder.Views
             dropPanel.AllowDrop = true;
             dropPanel.DragEnter += OnDragEnter;
             dropPanel.DragDrop += OnDragDrop;
+            dropPanel.DragLeave += OnDragLeave;
         }
 
         /// <summary>文件夹或启动程序变化。</summary>
@@ -66,7 +68,7 @@ namespace Installer.Builder.Views
         }
 
         /// <summary>空态拖拽区高度（竖排：图标 / 提示 / 副提示 / 按钮）。</summary>
-        public const float DropZoneExpanded = 140F;
+        public const float DropZoneExpanded = 200F;
 
         /// <summary>已选态拖拽区高度（横排：路径 + 更换按钮）。</summary>
         public const float DropZoneCollapsed = 64F;
@@ -125,10 +127,11 @@ namespace Installer.Builder.Views
                 dropPanel.BorderStyle = System.Drawing.Drawing2D.DashStyle.Dash;
                 dropPanel.BackColor = System.Drawing.Color.FromArgb(250, 251, 253);
 
+                lblDropText.ForeColor = System.Drawing.Color.FromArgb(31, 41, 55);
                 lblDropText.Text = T("Step.Folder.Hint", "把文件夹拖到这里");
                 lblDropSub.Text = T("Step.Folder.Sub", "或者点下面的按钮");
                 btnBrowse.Text = T("Step.Folder.Pick", "选择文件夹");
-                lblFiles.Text = string.Empty;
+                lblPickedStats.Text = string.Empty;
                 lblEntryHint.Text = string.Empty;
                 cboEntry.Enabled = false;
                 ResetEntrySelection();
@@ -149,7 +152,7 @@ namespace Installer.Builder.Views
 
             if (!Directory.Exists(_folder))
             {
-                lblFiles.Text = T("Files.Missing", "（文件夹不存在）");
+                lblPickedStats.Text = T("Files.Missing", "（文件夹不存在）");
             }
         }
 
@@ -169,7 +172,7 @@ namespace Installer.Builder.Views
         {
             if (string.IsNullOrWhiteSpace(_folder))
             {
-                lblFiles.Text = string.Empty;
+                lblPickedStats.Text = string.Empty;
                 return;
             }
 
@@ -179,12 +182,12 @@ namespace Installer.Builder.Views
 
             if (count == 0)
             {
-                lblFiles.Text = T("Files.Empty", "这个文件夹是空的");
+                lblPickedStats.Text = T("Files.Empty", "这个文件夹是空的");
                 return;
             }
 
             var template = T("Files.Count", "共 {0} 个文件，{1}");
-            lblFiles.Text = string.Format(CultureInfo.CurrentCulture, template, count, FormatSize(bytes));
+            lblPickedStats.Text = string.Format(CultureInfo.CurrentCulture, template, count, FormatSize(bytes));
         }
 
         /// <summary>把文件夹里的 exe 列出来给用户选。</summary>
@@ -274,7 +277,42 @@ namespace Installer.Builder.Views
 
         private void OnDragEnter(object sender, DragEventArgs e)
         {
-            e.Effect = FirstFolder(e) != null ? DragDropEffects.Copy : DragDropEffects.None;
+            var ok = FirstFolder(e) != null;
+            e.Effect = ok ? DragDropEffects.Copy : DragDropEffects.None;
+
+            if (ok)
+            {
+                SetDropHover(true);
+            }
+        }
+
+        private void OnDragLeave(object sender, EventArgs e)
+        {
+            SetDropHover(false);
+        }
+
+        /// <summary>
+        /// 拖拽悬停态：浅蓝底 #E6F4FF + 2px 蓝色实线边 + 蓝色加粗提示（设计稿取值）。
+        /// 离开或已选文件夹时还原成空态。
+        /// </summary>
+        private void SetDropHover(bool hover)
+        {
+            if (!hover || !string.IsNullOrWhiteSpace(_folder))
+            {
+                ApplyFolderState();
+                return;
+            }
+
+            dropLayout.Visible = true;
+            pickedLayout.Visible = false;
+
+            dropPanel.BackColor = System.Drawing.Color.FromArgb(230, 244, 255);
+            dropPanel.BorderColor = System.Drawing.Color.FromArgb(22, 119, 255);
+            dropPanel.BorderWidth = 2F;
+            dropPanel.BorderStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+
+            lblDropText.ForeColor = System.Drawing.Color.FromArgb(22, 119, 255);
+            lblDropText.Text = T("Step.Folder.Release", "松开即可选择这个文件夹");
         }
 
         private void OnDragDrop(object sender, DragEventArgs e)

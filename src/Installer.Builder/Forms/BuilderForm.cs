@@ -246,19 +246,31 @@ namespace Installer.Builder.Forms
         {
             var hasFolder = !string.IsNullOrWhiteSpace(folderStep.Folder);
 
-            // 未选文件夹时第 2、3 步淡化 —— AntdUI 的禁用态就是"变淡"
+            // 未选文件夹时第 2、3 步淡化。
+            // 设计稿的做法是卡片背景 白 → #F7F8FA、徽章 #1677FF → #9DC5FC，
+            // 而不是只把 Enabled 置 false（AntdUI 的禁用态对比度只有 55，几乎读不出）。
             card2.Enabled = hasFolder;
             card3.Enabled = hasFolder;
 
+            var cardBack = hasFolder
+                ? System.Drawing.Color.White
+                : System.Drawing.Color.FromArgb(247, 248, 250);
+
+            card2.BackColor = cardBack;
+            card3.BackColor = cardBack;
+
+            infoStep.SetDimmed(!hasFolder);
+            shortcutStep.SetDimmed(!hasFolder);
+
             outputBar.CanBuild = hasFolder;
 
-            // 拖拽区收缩：空态 140 / 已选 92；卡片行高跟着走
+            // 拖拽区收缩：空态 200 / 已选 64；卡片行高跟着走
             var dropHeight = hasFolder
                 ? Views.FolderStepView.DropZoneCollapsed
                 : Views.FolderStepView.DropZoneExpanded;
 
             folderStep.SetDropZoneHeight(dropHeight);
-            SetCard1RowHeight(dropHeight + 158F);   // 30 标签 + 26 统计 + 46 入口 + 16 间距 + 40 内边距
+            SetCard1RowHeight(dropHeight + 158F);   // 30 标题 + 56 启动程序行 + 16 间距 + 40 内边距 + 余量
 
             int count;
             long bytes;
@@ -277,9 +289,9 @@ namespace Installer.Builder.Forms
         /// </summary>
         private void SetCard1RowHeight(float height)
         {
-            if (bodyLayout.RowStyles.Count > 0)
+            if (contentLayout.RowStyles.Count > 0)
             {
-                bodyLayout.RowStyles[0].Height = height;
+                contentLayout.RowStyles[0].Height = height;
             }
         }
 

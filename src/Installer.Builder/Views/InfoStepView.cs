@@ -3,6 +3,8 @@ using System.Windows.Forms;
 using Installer.Abstractions.Model;
 using Installer.Abstractions.Platform;
 
+using Installer.Builder.Common;
+
 namespace Installer.Builder.Views
 {
     /// <summary>第 2 步：基本信息（中英文名称 / 版本 / 厂商）。</summary>
@@ -133,5 +135,19 @@ namespace Installer.Builder.Views
             string v;
             return t.TryGetValue(culture, out v) ? v : string.Empty;
         }
-    }
+    
+        /// <summary>
+        /// 未选文件夹时把整张卡片淡化。
+        /// 设计稿的做法是**改背景色**（白 → #F7F8FA）+ 徽章变浅，
+        /// 不是简单地把控件 Enabled 置 false。
+        /// </summary>
+        public void SetDimmed(bool dimmed)
+        {
+            var back = dimmed
+                ? System.Drawing.Color.FromArgb(247, 248, 250)
+                : System.Drawing.Color.White;
+
+            BackColor = back;
+            lblStep.PrefixSvg = StepBadge.Create(2, dimmed);
+        }}
 }
