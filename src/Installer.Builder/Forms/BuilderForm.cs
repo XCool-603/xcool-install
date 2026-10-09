@@ -256,8 +256,9 @@ namespace Installer.Builder.Forms
                 ? System.Drawing.Color.White
                 : System.Drawing.Color.FromArgb(247, 248, 250);
 
-            card2.BackColor = cardBack;
-            card3.BackColor = cardBack;
+            // 注意：AntdUI.Panel 画背景用的是 Back，不是继承来的 BackColor！
+            card2.Back = cardBack;
+            card3.Back = cardBack;
 
             infoStep.SetDimmed(!hasFolder);
             shortcutStep.SetDimmed(!hasFolder);

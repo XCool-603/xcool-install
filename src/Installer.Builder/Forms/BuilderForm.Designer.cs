@@ -59,6 +59,7 @@ namespace Installer.Builder.Forms
             //
             // pageHeader —— 顶部栏：品牌 + 操作按钮 + 窗口按钮，全在一行（高 64）
             //
+            this.pageHeader.BackColor = System.Drawing.Color.White;
             this.pageHeader.Controls.Add(this.headerRight);
             this.pageHeader.DividerShow = true;
             this.pageHeader.Dock = System.Windows.Forms.DockStyle.Top;
@@ -81,6 +82,7 @@ namespace Installer.Builder.Forms
             //
             // headerRight —— 挂在 PageHeader 里；DisplayRectangle 会自动避开窗口按钮
             //
+            this.headerRight.BackColor = System.Drawing.Color.White;
             this.headerRight.Controls.Add(this.cboLang);
             this.headerRight.Controls.Add(this.btnSave);
             this.headerRight.Controls.Add(this.btnOpen);
@@ -152,7 +154,7 @@ namespace Installer.Builder.Forms
             //
             // card1
             //
-            this.card1.BackColor = System.Drawing.Color.White;
+            this.card1.Back = System.Drawing.Color.White;
             this.card1.BorderWidth = 0F;
             this.card1.Controls.Add(this.folderStep);
             this.card1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -162,7 +164,8 @@ namespace Installer.Builder.Forms
             this.card1.Padding = new System.Windows.Forms.Padding(20);
             this.card1.Radius = 14;
             this.card1.Shadow = 8;
-            this.card1.ShadowOpacity = 0.08F;
+            this.card1.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
+            this.card1.ShadowOpacity = 0.18F;
             this.card1.Size = new System.Drawing.Size(872, 338);
             this.card1.TabIndex = 0;
             //
@@ -178,7 +181,7 @@ namespace Installer.Builder.Forms
             //
             // card2
             //
-            this.card2.BackColor = System.Drawing.Color.White;
+            this.card2.Back = System.Drawing.Color.White;
             this.card2.BorderWidth = 0F;
             this.card2.Controls.Add(this.infoStep);
             this.card2.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -188,7 +191,8 @@ namespace Installer.Builder.Forms
             this.card2.Padding = new System.Windows.Forms.Padding(20);
             this.card2.Radius = 14;
             this.card2.Shadow = 8;
-            this.card2.ShadowOpacity = 0.08F;
+            this.card2.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
+            this.card2.ShadowOpacity = 0.18F;
             this.card2.Size = new System.Drawing.Size(872, 178);
             this.card2.TabIndex = 1;
             //
@@ -204,7 +208,7 @@ namespace Installer.Builder.Forms
             //
             // card3
             //
-            this.card3.BackColor = System.Drawing.Color.White;
+            this.card3.Back = System.Drawing.Color.White;
             this.card3.BorderWidth = 0F;
             this.card3.Controls.Add(this.shortcutStep);
             this.card3.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -214,7 +218,8 @@ namespace Installer.Builder.Forms
             this.card3.Padding = new System.Windows.Forms.Padding(20);
             this.card3.Radius = 14;
             this.card3.Shadow = 8;
-            this.card3.ShadowOpacity = 0.08F;
+            this.card3.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
+            this.card3.ShadowOpacity = 0.18F;
             this.card3.Size = new System.Drawing.Size(872, 102);
             this.card3.TabIndex = 2;
             //

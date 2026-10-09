@@ -125,7 +125,10 @@ namespace Installer.Builder.Views
                 dropLayout.Visible = true;
                 pickedLayout.Visible = false;
                 dropPanel.BorderStyle = System.Drawing.Drawing2D.DashStyle.Dash;
-                dropPanel.BackColor = System.Drawing.Color.FromArgb(250, 251, 253);
+                dropPanel.Back = System.Drawing.Color.FromArgb(230, 244, 255);
+                dropLayout.BackColor = System.Drawing.Color.FromArgb(230, 244, 255);
+                dropPanel.BorderColor = System.Drawing.Color.FromArgb(22, 119, 255);
+                dropPanel.BorderWidth = 1.5F;
 
                 lblDropText.ForeColor = System.Drawing.Color.FromArgb(31, 41, 55);
                 lblDropText.Text = T("Step.Folder.Hint", "把文件夹拖到这里");
@@ -142,7 +145,9 @@ namespace Installer.Builder.Views
             dropLayout.Visible = false;
             pickedLayout.Visible = true;
             dropPanel.BorderStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            dropPanel.BackColor = System.Drawing.Color.White;
+            dropPanel.Back = System.Drawing.Color.White;
+            dropLayout.BackColor = System.Drawing.Color.White;
+            pickedLayout.BackColor = System.Drawing.Color.White;
 
             lblPickedPath.Text = _folder;
             btnChange.Text = T("Step.Folder.Change", "更换文件夹");
@@ -306,7 +311,8 @@ namespace Installer.Builder.Views
             dropLayout.Visible = true;
             pickedLayout.Visible = false;
 
-            dropPanel.BackColor = System.Drawing.Color.FromArgb(230, 244, 255);
+            dropPanel.Back = System.Drawing.Color.FromArgb(230, 244, 255);
+            dropLayout.BackColor = System.Drawing.Color.FromArgb(230, 244, 255);
             dropPanel.BorderColor = System.Drawing.Color.FromArgb(22, 119, 255);
             dropPanel.BorderWidth = 2F;
             dropPanel.BorderStyle = System.Drawing.Drawing2D.DashStyle.Solid;

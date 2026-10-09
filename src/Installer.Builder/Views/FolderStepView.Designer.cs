@@ -87,8 +87,8 @@ namespace Installer.Builder.Views
             //
             // dropPanel
             //
-            this.dropPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(251)))), ((int)(((byte)(253)))));
-            this.dropPanel.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(213)))), ((int)(((byte)(221)))));
+            this.dropPanel.Back = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(244)))), ((int)(((byte)(255)))));
+            this.dropPanel.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(119)))), ((int)(((byte)(255)))));
             this.dropPanel.BorderStyle = System.Drawing.Drawing2D.DashStyle.Dash;
             this.dropPanel.BorderWidth = 1.5F;
             this.dropPanel.Controls.Add(this.dropLayout);
@@ -109,6 +109,7 @@ namespace Installer.Builder.Views
             this.dropLayout.Controls.Add(this.lblDropText, 0, 1);
             this.dropLayout.Controls.Add(this.lblDropSub, 0, 2);
             this.dropLayout.Controls.Add(this.btnBrowse, 0, 3);
+            this.dropLayout.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(244)))), ((int)(((byte)(255)))));
             this.dropLayout.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dropLayout.Location = new System.Drawing.Point(0, 0);
             this.dropLayout.Margin = new System.Windows.Forms.Padding(0);
@@ -181,6 +182,7 @@ namespace Installer.Builder.Views
             this.pickedLayout.Controls.Add(this.btnChange, 1, 0);
             this.pickedLayout.Controls.Add(this.lblPickedStats, 0, 1);
             this.pickedLayout.SetColumnSpan(this.lblPickedStats, 2);
+            this.pickedLayout.BackColor = System.Drawing.Color.White;
             this.pickedLayout.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pickedLayout.Location = new System.Drawing.Point(0, 0);
             this.pickedLayout.Margin = new System.Windows.Forms.Padding(0);
