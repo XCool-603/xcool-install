@@ -324,6 +324,13 @@ namespace Installer.UI.Forms
                     _finishView.Body = string.Format(CultureInfo.CurrentCulture,
                         _presenter.Text("Finish.Body"), _presenter.ProductName, _presenter.Options.InstallDir);
                     _finishView.RunText = _presenter.Text("Options.RunAfter");
+                    _finishView.RunHint = _presenter.Text("Finish.RunHint");
+                    _finishView.FooterHint = string.Format(CultureInfo.CurrentCulture,
+                        _presenter.Text("Finish.UninstallHint"), _presenter.ProductName);
+                    _finishView.SetChips(
+                        HasShortcut("Desktop") ? _presenter.Text("Options.Desktop") : null,
+                        HasShortcut("StartMenu") ? _presenter.Text("Options.StartMenu") : null,
+                        _manifest.Autostart ? _presenter.Text("Options.Autostart") : null);
                     _finishView.ShowRunOption = _manifest.RunAfterInstall;
                     _finishView.RunChecked = true;
                     _finishView.SetState(true);
@@ -343,6 +350,25 @@ namespace Installer.UI.Forms
         }
 
         /// <summary>浅蓝信息条：「将安装到 X · 已选择 N 项附加任务」。</summary>
+        /// <summary>清单里是否声明了指定位置的快捷方式。</summary>
+        private bool HasShortcut(string location)
+        {
+            if (_manifest.Shortcuts == null)
+            {
+                return false;
+            }
+
+            foreach (var s in _manifest.Shortcuts)
+            {
+                if (s != null && string.Equals(s.Location, location, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private string BuildSettingsInfo()
         {
             var count = 0;

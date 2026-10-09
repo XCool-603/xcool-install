@@ -32,6 +32,10 @@ namespace Installer.UI.Common
             Add(t, "Wizard.Retry", "重试", "Retry");
 
             Add(t, "Wizard.StepInfo", "第 {0} 步，共 {1} 步", "Step {0} of {1}");
+            Add(t, "Finish.RunHint", "点击「完成」后将自动启动程序", "The app will start after you click Finish");
+            Add(t, "Finish.UninstallHint", "如需卸载，可在「设置 → 应用 → 已安装的应用」中找到「{0}」。",
+                "To uninstall, find {0} in Settings > Apps.");
+            Add(t, "Finish.OpenDir", "打开安装目录", "Open install folder");
             Add(t, "Progress.Subtitle", "安装程序正在解压并写入文件，请不要关闭窗口或关机。",
                 "Setup is extracting files. Do not close the window or power off.");
             Add(t, "Progress.CapFiles", "已解压文件", "Files extracted");
