@@ -31,7 +31,12 @@ namespace Installer.UI.Common
             Add(t, "Wizard.Close", "关闭", "Close");
             Add(t, "Wizard.Retry", "重试", "Retry");
 
+            Add(t, "Wizard.StepInfo", "第 {0} 步，共 {1} 步", "Step {0} of {1}");
             Add(t, "Wizard.StepWelcome", "欢迎", "Welcome");
+            Add(t, "License.Subtitle", "请仔细阅读下面的许可协议。安装「{0}」前，你需要接受本协议的全部条款。",
+                "Please read the license agreement below. You must accept it before installing {0}.");
+            Add(t, "License.AcceptHint", "勾选后才能继续安装；若不同意，可点击「取消」退出安装。",
+                "You must accept to continue. Click Cancel to exit without installing.");
             Add(t, "Welcome.CaptionDir", "默认安装位置", "Default location");
             Add(t, "Welcome.CaptionSpace", "需要磁盘空间", "Disk space required");
             Add(t, "Welcome.CaptionVersion", "版本与发布者", "Version & publisher");

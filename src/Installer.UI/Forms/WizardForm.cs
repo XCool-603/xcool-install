@@ -256,7 +256,11 @@ namespace Installer.UI.Forms
                 case WizardPage.License:
                     ShowView(_licenseView);
                     _licenseView.Title = _presenter.Text("License.Title");
+                    _licenseView.Subtitle = string.Format(
+                        System.Globalization.CultureInfo.CurrentCulture,
+                        _presenter.Text("License.Subtitle"), _presenter.ProductName);
                     _licenseView.AcceptText = _presenter.Text("License.Accept");
+                    _licenseView.AcceptHint = _presenter.Text("License.AcceptHint");
                     _licenseView.LicenseText = _presenter.LicenseText;
                     _licenseView.Accepted = _presenter.Options.AcceptLicense;
                     break;
@@ -401,6 +405,17 @@ namespace Installer.UI.Forms
             if (_presenter.ShowSteps)
             {
                 stepBar.Current = Math.Min(_presenter.StepIndex, Math.Max(0, stepBar.Steps.Length - 1));
+
+                // 底栏左侧「第 N 步，共 M 步」。StepIndex 是 0 起的，显示要 +1。
+                lblStepInfo.Text = string.Format(
+                    System.Globalization.CultureInfo.CurrentCulture,
+                    _presenter.Text("Wizard.StepInfo"),
+                    _presenter.StepIndex + 1,
+                    stepBar.Steps.Length);
+            }
+            else
+            {
+                lblStepInfo.Text = string.Empty;
             }
 
             // 安装中：主按钮变成"取消"，用 Error 色提示
