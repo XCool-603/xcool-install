@@ -20,7 +20,7 @@ namespace Installer.Builder.Forms
             base.Dispose(disposing);
         }
 
-        #region Windows 窗体设计器生成的代码
+        #region Windows Form Designer generated code
 
         /// <summary>
         /// 设计器支持所需的方法 - 不要修改

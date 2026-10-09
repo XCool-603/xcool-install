@@ -75,6 +75,8 @@ namespace Installer.Builder.Views
             this.lblStep.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Bold);
             this.lblStep.Location = new System.Drawing.Point(0, 5);
             this.lblStep.Margin = new System.Windows.Forms.Padding(0);
+            this.lblStep.PrefixSvg = "<svg viewBox=\"0 0 20 20\"><rect width=\"20\" height=\"20\" rx=\"6\" fill=\"#1677FF\"/><text x=\"10\" y=\"15\" font-size=\"13\" fill=\"#FFFFFF\" text-anchor=\"middle\">1</text></svg>";
+            this.lblStep.IconGap = 6;
             this.lblStep.Name = "lblStep";
             this.lblStep.Size = new System.Drawing.Size(200, 19);
             this.lblStep.TabIndex = 0;
@@ -118,14 +120,16 @@ namespace Installer.Builder.Views
             // lblDropIcon
             //
             this.lblDropIcon.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.lblDropIcon.AutoSize = true;
-            this.lblDropIcon.Font = new System.Drawing.Font("Segoe UI Emoji", 15F);
+            this.lblDropIcon.AutoSize = false;
+            this.lblDropIcon.Font = new System.Drawing.Font("微软雅黑", 9F);
             this.lblDropIcon.Location = new System.Drawing.Point(366, 1);
             this.lblDropIcon.Margin = new System.Windows.Forms.Padding(0);
+            this.lblDropIcon.PrefixSvg = "<svg viewBox=\"0 0 24 24\"><path d=\"M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z\" fill=\"#1677FF\"/></svg>";
+            this.lblDropIcon.IconGap = 0;
             this.lblDropIcon.Name = "lblDropIcon";
-            this.lblDropIcon.Size = new System.Drawing.Size(28, 27);
+            this.lblDropIcon.Size = new System.Drawing.Size(48, 48);
             this.lblDropIcon.TabIndex = 0;
-            this.lblDropIcon.Text = "📁";
+            this.lblDropIcon.Text = " ";
             //
             // lblDropText
             //

@@ -15,14 +15,14 @@ namespace Installer.Builder.Common
             Add(t, "App.Title", "安装包制作助手", "Installer Builder");
 
             // 三步
-            Add(t, "Step.Folder", "① 选择要打包的文件夹", "① Choose the folder to package");
+            Add(t, "Step.Folder", "选择要打包的文件夹", "Choose the folder to package");
             Add(t, "Step.Folder.Hint", "把文件夹拖到这里", "Drop the folder here");
             Add(t, "Step.Folder.Sub", "或者点下面的按钮", "or use the button below");
             Add(t, "Files.Missing", "（文件夹不存在）", "(folder not found)");
             Add(t, "Step.Folder.Pick", "选择文件夹", "Choose folder");
             Add(t, "Step.Folder.Change", "更换文件夹", "Change folder");
-            Add(t, "Step.Info", "② 填写基本信息", "② Basic information");
-            Add(t, "Step.Shortcuts", "③ 快捷方式", "③ Shortcuts");
+            Add(t, "Step.Info", "填写基本信息", "Basic information");
+            Add(t, "Step.Shortcuts", "快捷方式", "Shortcuts");
 
             // 工程文件
             Add(t, "Menu.Open", "打开", "Open");

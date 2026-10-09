@@ -103,7 +103,6 @@ namespace Installer.Builder.Views
         {
             if (string.IsNullOrWhiteSpace(_folder))
             {
-                lblDropIcon.Text = "📁";
                 lblDropText.Text = T("Step.Folder.Hint", "把文件夹拖到这里");
                 lblDropSub.Text = T("Step.Folder.Sub", "或者点下面的按钮");
                 btnBrowse.Text = T("Step.Folder.Pick", "选择文件夹");
@@ -114,7 +113,6 @@ namespace Installer.Builder.Views
                 return;
             }
 
-            lblDropIcon.Text = "📦";
             lblDropText.Text = _folder;
             lblDropSub.Text = Directory.Exists(_folder) ? string.Empty : T("Files.Missing", "（文件夹不存在）");
             btnBrowse.Text = T("Step.Folder.Change", "更换文件夹");

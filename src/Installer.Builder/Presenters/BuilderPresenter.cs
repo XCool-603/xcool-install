@@ -8,6 +8,7 @@ using Installer.Abstractions.Packaging;
 using Installer.Abstractions.Platform;
 using Installer.Builder.Common;
 using Installer.Builder.Models;
+using Installer.Builder.Services;
 using Installer.Core.Packaging;
 
 namespace Installer.Builder.Presenters
@@ -24,12 +25,16 @@ namespace Installer.Builder.Presenters
     public sealed class BuilderPresenter
     {
         private string _stubPath;
+        private readonly BuildService _buildService;
 
         /// <summary>构造。</summary>
         /// <param name="culture">界面语言；null 表示跟随系统。</param>
         /// <param name="stubPath">显式指定 stub；null 表示自动找。</param>
-        public BuilderPresenter(string culture = null, string stubPath = null)
+        /// <param name="buildService">打包服务；null 表示用默认实现（测试可注入假的）。</param>
+        public BuilderPresenter(string culture = null, string stubPath = null, BuildService buildService = null)
         {
+            _buildService = buildService ?? new BuildService();
+
             Text = new StringTable(BuilderStrings.CreateDefault(),
                 culture ?? StringTable.DetectRequestedCulture(), "zh-Hans");
 
@@ -370,10 +375,10 @@ namespace Installer.Builder.Presenters
                 IconPath = string.IsNullOrWhiteSpace(b.IconPath) ? null : b.IconPath,
                 SkipIconPatch = string.IsNullOrWhiteSpace(b.IconPath),
                 BuildTimestamp = timestamp,
-                PackerVersion = PackageBuilder.PackerVersion,
+                PackerVersion = _buildService.PackerVersion,
             };
 
-            return new PackageBuilder().Build(options, progress);
+            return _buildService.Build(options, progress);
         }
 
         /// <summary>

@@ -61,6 +61,8 @@ namespace Installer.Builder.Views
             this.lblStep.Font = new System.Drawing.Font("微软雅黑", 10F, System.Drawing.FontStyle.Bold);
             this.lblStep.Location = new System.Drawing.Point(0, 5);
             this.lblStep.Margin = new System.Windows.Forms.Padding(0);
+            this.lblStep.PrefixSvg = "<svg viewBox=\"0 0 20 20\"><rect width=\"20\" height=\"20\" rx=\"6\" fill=\"#1677FF\"/><text x=\"10\" y=\"15\" font-size=\"13\" fill=\"#FFFFFF\" text-anchor=\"middle\">3</text></svg>";
+            this.lblStep.IconGap = 6;
             this.lblStep.Name = "lblStep";
             this.lblStep.Size = new System.Drawing.Size(120, 19);
             this.lblStep.TabIndex = 0;

@@ -20,7 +20,7 @@ namespace Installer.Builder.Forms
             base.Dispose(disposing);
         }
 
-        #region Windows 窗体设计器生成的代码
+        #region Windows Form Designer generated code
 
         /// <summary>
         /// 设计器支持所需的方法 - 不要修改
@@ -44,8 +44,11 @@ namespace Installer.Builder.Forms
             this.shortcutStep = new Installer.Builder.Views.ShortcutStepView();
             this.btnAdvanced = new AntdUI.Button();
             this.outputBar = new Installer.Builder.Views.OutputBar();
+            this.statusLayout = new System.Windows.Forms.TableLayoutPanel();
             this.lblStatus = new AntdUI.Label();
+            this.progress = new AntdUI.Progress();
             this.rootLayout.SuspendLayout();
+            this.statusLayout.SuspendLayout();
             this.headerLayout.SuspendLayout();
             this.headerRight.SuspendLayout();
             this.bodyLayout.SuspendLayout();
@@ -61,17 +64,17 @@ namespace Installer.Builder.Forms
             this.rootLayout.Controls.Add(this.headerLayout, 0, 0);
             this.rootLayout.Controls.Add(this.bodyLayout, 0, 1);
             this.rootLayout.Controls.Add(this.outputBar, 0, 2);
-            this.rootLayout.Controls.Add(this.lblStatus, 0, 3);
+            this.rootLayout.Controls.Add(this.statusLayout, 0, 3);
             this.rootLayout.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rootLayout.Location = new System.Drawing.Point(0, 0);
             this.rootLayout.Name = "rootLayout";
-            this.rootLayout.Padding = new System.Windows.Forms.Padding(22, 14, 22, 0);
+            this.rootLayout.Padding = new System.Windows.Forms.Padding(24, 20, 24, 8);
             this.rootLayout.RowCount = 4;
-            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 58F));
+            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 60F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 94F));
-            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.rootLayout.Size = new System.Drawing.Size(884, 812);
+            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 34F));
+            this.rootLayout.Size = new System.Drawing.Size(920, 892);
             this.rootLayout.TabIndex = 0;
             //
             // headerLayout
@@ -128,7 +131,9 @@ namespace Installer.Builder.Forms
             this.btnSave.Location = new System.Drawing.Point(102, 13);
             this.btnSave.Margin = new System.Windows.Forms.Padding(10, 13, 0, 0);
             this.btnSave.Name = "btnSave";
-            this.btnSave.Radius = 6;
+            this.btnSave.Radius = 8;
+            this.btnSave.BorderWidth = 1F;
+            this.btnSave.DefaultBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(229)))), ((int)(((byte)(232)))), ((int)(((byte)(239)))));
             this.btnSave.Size = new System.Drawing.Size(88, 34);
             this.btnSave.TabIndex = 1;
             this.btnSave.Text = "保存";
@@ -138,7 +143,9 @@ namespace Installer.Builder.Forms
             this.btnOpen.Location = new System.Drawing.Point(4, 13);
             this.btnOpen.Margin = new System.Windows.Forms.Padding(10, 13, 0, 0);
             this.btnOpen.Name = "btnOpen";
-            this.btnOpen.Radius = 6;
+            this.btnOpen.Radius = 8;
+            this.btnOpen.BorderWidth = 1F;
+            this.btnOpen.DefaultBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(229)))), ((int)(((byte)(232)))), ((int)(((byte)(239)))));
             this.btnOpen.Size = new System.Drawing.Size(88, 34);
             this.btnOpen.TabIndex = 2;
             this.btnOpen.Text = "打开";
@@ -156,26 +163,28 @@ namespace Installer.Builder.Forms
             this.bodyLayout.Margin = new System.Windows.Forms.Padding(0);
             this.bodyLayout.Name = "bodyLayout";
             this.bodyLayout.RowCount = 5;
-            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 272F));
-            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 166F));
-            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 112F));
+            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 300F));
+            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 196F));
+            this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 132F));
             this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 48F));
             this.bodyLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.bodyLayout.Size = new System.Drawing.Size(840, 616);
+            this.bodyLayout.Size = new System.Drawing.Size(872, 676);
             this.bodyLayout.TabIndex = 1;
             //
             // card1
             //
             this.card1.BackColor = System.Drawing.Color.White;
             this.card1.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
-            this.card1.BorderWidth = 1F;
+            this.card1.BorderWidth = 0F;
             this.card1.Controls.Add(this.folderStep);
             this.card1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.card1.Location = new System.Drawing.Point(0, 0);
-            this.card1.Margin = new System.Windows.Forms.Padding(0, 0, 0, 10);
+            this.card1.Margin = new System.Windows.Forms.Padding(0, 0, 0, 16);
             this.card1.Name = "card1";
-            this.card1.Padding = new System.Windows.Forms.Padding(14);
-            this.card1.Radius = 10;
+            this.card1.Padding = new System.Windows.Forms.Padding(20);
+            this.card1.Radius = 14;
+            this.card1.Shadow = 8;
+            this.card1.ShadowOpacity = 0.10F;
             this.card1.Size = new System.Drawing.Size(840, 262);
             this.card1.TabIndex = 0;
             //
@@ -192,14 +201,16 @@ namespace Installer.Builder.Forms
             //
             this.card2.BackColor = System.Drawing.Color.White;
             this.card2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
-            this.card2.BorderWidth = 1F;
+            this.card2.BorderWidth = 0F;
             this.card2.Controls.Add(this.infoStep);
             this.card2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.card2.Location = new System.Drawing.Point(0, 272);
-            this.card2.Margin = new System.Windows.Forms.Padding(0, 0, 0, 10);
+            this.card2.Margin = new System.Windows.Forms.Padding(0, 0, 0, 16);
             this.card2.Name = "card2";
-            this.card2.Padding = new System.Windows.Forms.Padding(14);
-            this.card2.Radius = 10;
+            this.card2.Padding = new System.Windows.Forms.Padding(20);
+            this.card2.Radius = 14;
+            this.card2.Shadow = 8;
+            this.card2.ShadowOpacity = 0.10F;
             this.card2.Size = new System.Drawing.Size(840, 156);
             this.card2.TabIndex = 1;
             //
@@ -216,14 +227,16 @@ namespace Installer.Builder.Forms
             //
             this.card3.BackColor = System.Drawing.Color.White;
             this.card3.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(228)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
-            this.card3.BorderWidth = 1F;
+            this.card3.BorderWidth = 0F;
             this.card3.Controls.Add(this.shortcutStep);
             this.card3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.card3.Location = new System.Drawing.Point(0, 438);
-            this.card3.Margin = new System.Windows.Forms.Padding(0, 0, 0, 10);
+            this.card3.Margin = new System.Windows.Forms.Padding(0, 0, 0, 16);
             this.card3.Name = "card3";
-            this.card3.Padding = new System.Windows.Forms.Padding(14);
-            this.card3.Radius = 10;
+            this.card3.Padding = new System.Windows.Forms.Padding(20);
+            this.card3.Radius = 14;
+            this.card3.Shadow = 8;
+            this.card3.ShadowOpacity = 0.10F;
             this.card3.Size = new System.Drawing.Size(840, 102);
             this.card3.TabIndex = 2;
             //
@@ -242,7 +255,9 @@ namespace Installer.Builder.Forms
             this.btnAdvanced.Location = new System.Drawing.Point(0, 556);
             this.btnAdvanced.Margin = new System.Windows.Forms.Padding(0, 8, 0, 8);
             this.btnAdvanced.Name = "btnAdvanced";
-            this.btnAdvanced.Radius = 6;
+            this.btnAdvanced.Radius = 8;
+            this.btnAdvanced.BorderWidth = 1F;
+            this.btnAdvanced.DefaultBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(229)))), ((int)(((byte)(232)))), ((int)(((byte)(239)))));
             this.btnAdvanced.Size = new System.Drawing.Size(140, 32);
             this.btnAdvanced.TabIndex = 3;
             this.btnAdvanced.Text = "高级选项…";
@@ -255,6 +270,35 @@ namespace Installer.Builder.Forms
             this.outputBar.Name = "outputBar";
             this.outputBar.Size = new System.Drawing.Size(840, 94);
             this.outputBar.TabIndex = 2;
+            //
+            // statusLayout
+            //
+            this.statusLayout.ColumnCount = 2;
+            this.statusLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.statusLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 320F));
+            this.statusLayout.Controls.Add(this.lblStatus, 0, 0);
+            this.statusLayout.Controls.Add(this.progress, 1, 0);
+            this.statusLayout.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.statusLayout.Location = new System.Drawing.Point(24, 838);
+            this.statusLayout.Margin = new System.Windows.Forms.Padding(0);
+            this.statusLayout.Name = "statusLayout";
+            this.statusLayout.RowCount = 1;
+            this.statusLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.statusLayout.Size = new System.Drawing.Size(872, 34);
+            this.statusLayout.TabIndex = 3;
+            //
+            // progress
+            //
+            this.progress.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.progress.Location = new System.Drawing.Point(552, 4);
+            this.progress.Name = "progress";
+            this.progress.Radius = 3;
+            this.progress.Shape = AntdUI.TShapeProgress.Default;
+            this.progress.Size = new System.Drawing.Size(320, 26);
+            this.progress.TabIndex = 1;
+            this.progress.Text = "0%";
+            this.progress.Value = 0F;
+            this.progress.Visible = false;
             //
             // lblStatus
             //
@@ -272,15 +316,17 @@ namespace Installer.Builder.Forms
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(247)))), ((int)(((byte)(250)))));
-            this.ClientSize = new System.Drawing.Size(884, 812);
+            this.ClientSize = new System.Drawing.Size(920, 892);
             this.Controls.Add(this.rootLayout);
-            this.Font = new System.Drawing.Font("微软雅黑", 9F);
-            this.MinimumSize = new System.Drawing.Size(820, 780);
+            this.Font = new System.Drawing.Font("微软雅黑", 9.75F);
+            this.MinimumSize = new System.Drawing.Size(860, 840);
             this.Name = "BuilderForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "安装包制作助手";
             this.rootLayout.ResumeLayout(false);
             this.rootLayout.PerformLayout();
+            this.statusLayout.ResumeLayout(false);
+            this.statusLayout.PerformLayout();
             this.headerLayout.ResumeLayout(false);
             this.headerLayout.PerformLayout();
             this.headerRight.ResumeLayout(false);
@@ -310,6 +356,8 @@ namespace Installer.Builder.Forms
         private Installer.Builder.Views.ShortcutStepView shortcutStep;
         private AntdUI.Button btnAdvanced;
         private Installer.Builder.Views.OutputBar outputBar;
+        private System.Windows.Forms.TableLayoutPanel statusLayout;
         private AntdUI.Label lblStatus;
+        private AntdUI.Progress progress;
     }
 }

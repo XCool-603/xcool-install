@@ -415,12 +415,20 @@ namespace Installer.Builder.Forms
 
             _building = true;
             outputBar.Building = true;
+
+            // 进度条：打包期间显示在状态栏右侧
+            progress.Value = 0F;
+            progress.Text = "0%";
+            progress.Visible = true;
+
             UpdateStatus(_presenter.S("Status.Building"));
 
             var reporter = new Progress<BuildProgress>(p =>
             {
                 var percent = Math.Max(0, Math.Min(100, p.Percent));
-                UpdateStatus(p.Message + "  (" + percent + "%)");
+                progress.Value = percent / 100F;   // AntdUI.Progress.Value 是 0~1
+                progress.Text = percent + "%";
+                UpdateStatus(p.Message);
             });
 
             Task.Run(() =>
@@ -441,6 +449,7 @@ namespace Installer.Builder.Forms
         {
             _building = false;
             outputBar.Building = false;
+            progress.Visible = false;
 
             if (error != null)
             {
