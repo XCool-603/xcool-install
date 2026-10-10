@@ -68,6 +68,7 @@ namespace Installer.UI.Forms
             this.cardLayout.Controls.Add(this.pnlContent, 0, 2);
             this.cardLayout.Controls.Add(this.footerLayout, 0, 3);
             this.cardLayout.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.cardLayout.BackColor = System.Drawing.Color.White;
             this.cardLayout.Location = new System.Drawing.Point(0, 0);
             this.cardLayout.Margin = new System.Windows.Forms.Padding(0);
             this.cardLayout.Name = "cardLayout";
@@ -103,6 +104,7 @@ namespace Installer.UI.Forms
             this.pnlContent.Location = new System.Drawing.Point(0, 168);
             this.pnlContent.Margin = new System.Windows.Forms.Padding(0);
             this.pnlContent.Name = "pnlContent";
+            this.pnlContent.BackColor = System.Drawing.Color.White;
             this.pnlContent.Padding = new System.Windows.Forms.Padding(32, 0, 32, 0);
             this.pnlContent.Size = new System.Drawing.Size(640, 424);
             this.pnlContent.TabIndex = 2;
@@ -118,6 +120,7 @@ namespace Installer.UI.Forms
             this.footerLayout.Location = new System.Drawing.Point(0, 592);
             this.footerLayout.Margin = new System.Windows.Forms.Padding(0);
             this.footerLayout.Name = "footerLayout";
+            this.footerLayout.BackColor = System.Drawing.Color.White;
             this.footerLayout.RowCount = 1;
             this.footerLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.footerLayout.Size = new System.Drawing.Size(640, 72);
