@@ -254,9 +254,9 @@ $wizardMap = @(
     @{ design = '3-安装设置2.png';     impl = 'Path.png';             name = '安装设置' },
     @{ design = '4-正在安装3.png';     impl = 'Installing.png';       name = '正在安装' },
     @{ design = '5-安装完成3.png';     impl = 'Finish.png';           name = '安装完成' },
-    @{ design = '6-确认卸载.png';      impl = 'UninstallConfirm.png'; name = '确认卸载' },
-    @{ design = '7-正在卸载.png';      impl = 'Uninstalling.png';     name = '正在卸载' },
-    @{ design = '8-卸载完成.png';      impl = 'Uninstalled.png';      name = '卸载完成' }
+    @{ design = '6-确认卸载.png';      impl = 'uninstall\UninstallConfirm.png'; name = '确认卸载' },
+    @{ design = '7-正在卸载.png';      impl = 'uninstall\Uninstalling.png';     name = '正在卸载' },
+    @{ design = '8-卸载完成.png';      impl = 'uninstall\Uninstalled.png';      name = '卸载完成' }
 )
 
 $probeBottom = 500
@@ -331,7 +331,7 @@ foreach ($c in $designCopy) {
 # 图标：设计稿要求的三处必须有非空 SVG
 $iconChecks = @(
     @{ file = 'Views\WelcomeView.Designer.cs';  what = '信息卡图标块'; frag = 'boxDir.Radius = 9' },
-    @{ file = 'Views\WelcomeView.Designer.cs';  what = '提示条 ⓘ';     frag = 'lblHint.PrefixSvg' },
+    @{ file = 'Views\WelcomeView.Designer.cs';  what = '提示条 ⓘ';     frag = 'lblHintIcon.PrefixSvg' },
     @{ file = 'Forms\WizardForm.Designer.cs';   what = '主按钮箭头';   frag = 'btnPrimary.IconSvg' }
 )
 foreach ($c in $iconChecks) {

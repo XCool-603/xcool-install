@@ -6,11 +6,13 @@ using Installer.UI.Common;
 namespace Installer.UI.Views
 {
     /// <summary>
-    /// 正在安装 / 正在卸载页（设计稿第 4 步 / 卸载第 2 步）。
+    /// 正在安装 / 正在卸载页（设计稿「正在安装3」/「正在卸载」）。
     ///
-    /// 结构：标题 + 副标题 + 进度行（阶段名 + 百分比）+ 进度条
-    ///       + 统计卡（当前文件 + 4 列数字）+ 4 行步骤状态。
+    /// 结构：标题 + 副标题 + 进度行（圆弧图标 + 阶段名 + 百分比）+ 进度条
+    ///       + 统计卡（当前文件 + 4 列数字）+ 4 行步骤状态（图标 + 文案）。
     /// 卸载向导复用同一页，只把主色换成红、数字列改成「已删除 / 已释放」。
+    ///
+    /// 逐元素坐标见 ProgressView.Designer.cs 顶部的换算表。
     /// </summary>
     public partial class ProgressView : UserControl
     {
@@ -80,6 +82,7 @@ namespace Installer.UI.Views
         /// <param name="currentIndex">进行中的行号（0 起）；-1 表示没有进行中的行。</param>
         public void SetSteps(string[] titles, int currentIndex)
         {
+            var icons = new[] { stepIcon1, stepIcon2, stepIcon3, stepIcon4 };
             var labels = new[] { step1, step2, step3, step4 };
 
             for (var i = 0; i < labels.Length; i++)
@@ -90,7 +93,7 @@ namespace Installer.UI.Views
                 var active = i == currentIndex;
 
                 labels[i].ForeColor = done ? DoneColor : (active ? _accent : IdleColor);
-                labels[i].PrefixSvg = active ? Spinner() : (done ? Check() : Circle());
+                icons[i].PrefixSvg = active ? Spinner(_accent) : (done ? Check() : Circle());
             }
         }
 
@@ -99,7 +102,12 @@ namespace Installer.UI.Views
         {
             var v = Math.Max(0, Math.Min(100, percent));
             progressBar.Value = v / 100F;
-            progressBar.Text = string.Empty;   // 进度行已经有百分比了，别重复
+
+            // 进度条自身不画文字：AntdUI.Progress 在「有文字」时会预留文字宽度并把条截短。
+            // 只有 Text=null 且 UseSystemText=true 才走「无文字」分支（空串不算 null）。
+            // 百分比已经画在进度行右侧的 lblPercent 上了。
+            progressBar.Text = null;
+
             lblPercent.Text = v + "%";
         }
 
@@ -132,24 +140,25 @@ namespace Installer.UI.Views
             lblPhase.ForeColor = accent;
             lblPercent.ForeColor = accent;
             progressBar.Fill = accent;
+            iconPhase.PrefixSvg = Spinner(accent);
         }
 
         private static string Check()
         {
             return "<svg viewBox=\"0 0 16 16\"><circle cx=\"8\" cy=\"8\" r=\"7\" fill=\"#52C41A\"/>"
-                 + "<path d=\"M4.8 8.2l2.1 2.1 4.3-4.4\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>";
+                 + "<path d=\"M4.9 8.2l2.1 2.1 4.2-4.3\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>";
         }
 
         private static string Circle()
         {
-            return "<svg viewBox=\"0 0 16 16\"><circle cx=\"8\" cy=\"8\" r=\"6.4\" fill=\"none\" stroke=\"#9CA3AF\" stroke-width=\"1.4\"/></svg>";
+            return "<svg viewBox=\"0 0 16 16\"><circle cx=\"8\" cy=\"8\" r=\"6.6\" fill=\"none\" stroke=\"#D0D5DD\" stroke-width=\"1.5\"/></svg>";
         }
 
-        private string Spinner()
+        private static string Spinner(Color accent)
         {
-            var hex = string.Format("#{0:X2}{1:X2}{2:X2}", _accent.R, _accent.G, _accent.B);
-            return "<svg viewBox=\"0 0 16 16\"><path d=\"M8 2.6a5.4 5.4 0 1 0 5.4 5.4\" fill=\"none\" stroke=\""
-                 + hex + "\" stroke-width=\"1.7\" stroke-linecap=\"round\"/></svg>";
+            var hex = string.Format("#{0:X2}{1:X2}{2:X2}", accent.R, accent.G, accent.B);
+            return "<svg viewBox=\"0 0 24 24\"><path d=\"M12 3a9 9 0 1 0 9 9\" fill=\"none\" stroke=\""
+                 + hex + "\" stroke-width=\"2.2\" stroke-linecap=\"round\"/></svg>";
         }
     }
 }

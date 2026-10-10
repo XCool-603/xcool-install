@@ -46,7 +46,7 @@ namespace Installer.UI.Common
             Add(t, "Progress.CapRemaining", "预计剩余", "Remaining");
             Add(t, "Progress.Step1", "准备安装目录", "Prepare install folder");
             Add(t, "Progress.Step2", "解压程序文件", "Extract program files");
-            Add(t, "Progress.Step3", "创建快捷方式", "Create shortcuts");
+            Add(t, "Progress.Step3", "创建桌面与开始菜单快捷方式", "Create desktop & Start Menu shortcuts");
             Add(t, "Progress.Step4", "写入注册表与卸载信息", "Write registry & uninstall info");
             Add(t, "Path.Subtitle", "确认安装目录，并勾选安装时需要一并完成的操作。",
                 "Confirm the install folder and pick the tasks to perform.");
@@ -85,8 +85,10 @@ namespace Installer.UI.Common
                 "Before continuing, close any running instances to avoid file locks.");
             Add(t, "Welcome.SpaceValue", "{0}（本机可用 {1}）", "{0} ({1} free on this PC)");
 
+            // 文案照抄设计稿第 3 版（许可协议页），不要自己改写
             Add(t, "License.Title", "许可协议", "License Agreement");
-            Add(t, "License.Accept", "我已阅读并接受许可协议", "I accept the terms of the license agreement");
+            Add(t, "License.CardTitle", "{0} 最终用户许可协议", "{0} End User License Agreement");
+            Add(t, "License.Accept", "我已阅读并同意许可协议", "I have read and accept the license agreement");
             Add(t, "License.MustAccept", "请先接受许可协议。", "You must accept the license agreement first.");
 
             Add(t, "Path.Title", "选择安装位置与附加任务", "Choose location & tasks");
@@ -97,20 +99,20 @@ namespace Installer.UI.Common
             Add(t, "Path.Empty", "安装路径不能为空。", "Install path cannot be empty.");
 
             Add(t, "Options.Title", "附加任务", "Additional tasks");
-            Add(t, "Options.Desktop", "创建桌面快捷方式", "Create a desktop shortcut");
-            Add(t, "Options.StartMenu", "创建开始菜单快捷方式", "Create a Start Menu shortcut");
-            Add(t, "Options.Autostart", "开机自动启动", "Start with Windows");
-            Add(t, "Options.RunAfter", "安装完成后立即运行", "Run after installation");
+            Add(t, "Options.Desktop", "桌面快捷方式", "Desktop shortcut");
+            Add(t, "Options.StartMenu", "开始菜单", "Start Menu");
+            Add(t, "Options.Autostart", "安装后自动运行", "Run after install");
+            Add(t, "Options.RunAfter", "立即运行「{0}」", "Run after installation");
 
-            Add(t, "Progress.Title", "正在安装", "Installing");
+            Add(t, "Progress.Title", "正在安装「{0}」", "Installing {0}");
             Add(t, "Progress.Preparing", "正在准备…", "Preparing...");
             Add(t, "Progress.RollingBack", "安装失败，正在撤销更改…", "Installation failed, rolling back...");
             Add(t, "Install.Com", "正在注册组件…", "Registering components...");
             Add(t, "Install.Repair", "正在校验并修复文件…", "Verifying and repairing files...");
             Add(t, "Install.CleanupOrphans", "正在清理残留的卸载项…", "Cleaning up stale uninstall entries...");
 
-            Add(t, "Finish.Title", "安装完成", "Installation complete");
-            Add(t, "Finish.Body", "{0} 已安装到：\r\n{1}", "{0} has been installed to:\r\n{1}");
+            Add(t, "Finish.Title", "「{0}」安装完成", "{0} is installed");
+            Add(t, "Finish.Body", "已成功安装到 {0}，共写入 {1} 个文件、{2}。", "Installed to {0} ({1} files, {2}).");
 
             Add(t, "Failed.Title", "安装失败", "Installation failed");
             Add(t, "Failed.Body", "安装未能完成：\r\n{0}\r\n\r\n已回滚到安装前的状态。",
@@ -122,6 +124,31 @@ namespace Installer.UI.Common
             Add(t, "Uninstall.Done", "卸载完成。", "Uninstall complete.");
             Add(t, "Uninstall.Running", "正在卸载…", "Uninstalling...");
             Add(t, "Uninstall.Progress", "正在删除文件与注册表项…", "Removing files and registry entries...");
+
+            // ── 卸载向导「确认卸载」页（设计稿第 3 版，文案照抄设计稿）─────
+            // 注意：Uninstall.Title（=「卸载」）同时也是这一页主按钮的文案 key，
+            // 不要把它改成页面标题 —— 页面标题用下面的 Uninstall.ConfirmTitle。
+            Add(t, "Uninstall.ConfirmTitle", "卸载「{0}」", "Uninstall {0}");
+            Add(t, "Uninstall.ConfirmSubtitle",
+                "卸载程序将移除「{0} {1}」的程序文件、快捷方式与注册表项。",
+                "Uninstall will remove the program files, shortcuts and registry entries of {0} {1}.");
+            Add(t, "Uninstall.CaptionDir", "当前安装位置", "Current location");
+            Add(t, "Uninstall.CaptionSpace", "占用磁盘空间", "Disk space used");
+            Add(t, "Uninstall.CaptionVersion", "安装时间与版本", "Installed on & version");
+            Add(t, "Uninstall.SpaceValue", "{0}（卸载后将释放）", "{0} (freed after uninstall)");
+            Add(t, "Uninstall.DeleteData", "同时删除用户配置与缓存数据", "Also delete user settings and cache");
+            Add(t, "Uninstall.DeleteData.Hint",
+                "包括个人设置、登录状态与本地缓存；取消勾选则保留，方便下次安装时继续使用。",
+                "Includes personal settings, sign-in state and local cache. Uncheck to keep them for a future install.");
+            Add(t, "Uninstall.Warn1",
+                "卸载后程序将无法启动，桌面与开始菜单的快捷方式也会一并移除。",
+                "The app will no longer start, and its desktop and Start menu shortcuts are removed as well.");
+            Add(t, "Uninstall.Warn2", "如需重新使用，请再次运行安装包进行安装。",
+                "Run the installer again if you want to use it later.");
+
+            // 卸载向导的 3 步步骤条（确认卸载 / 正在卸载 / 完成）
+            Add(t, "Step.UninstallConfirm", "确认卸载", "Confirm");
+            Add(t, "Step.Uninstalling", "正在卸载", "Uninstalling");
 
             return t;
         }

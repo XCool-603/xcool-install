@@ -126,17 +126,17 @@ namespace Installer.UI.Views
             //
             // row1 / row2 / row3 —— 设计稿 y 356 / 410 / 464，行距 54，每行 536x38
             //
-            this.row1.Location = new System.Drawing.Point(0, 0);
+            this.row1.Location = new System.Drawing.Point(20, 20);
             this.row1.Margin = new System.Windows.Forms.Padding(0);
             this.row1.Name = "row1";
             this.row1.Size = new System.Drawing.Size(536, 38);
             this.row1.TabIndex = 0;
-            this.row2.Location = new System.Drawing.Point(0, 54);
+            this.row2.Location = new System.Drawing.Point(20, 74);
             this.row2.Margin = new System.Windows.Forms.Padding(0);
             this.row2.Name = "row2";
             this.row2.Size = new System.Drawing.Size(536, 38);
             this.row2.TabIndex = 1;
-            this.row3.Location = new System.Drawing.Point(0, 108);
+            this.row3.Location = new System.Drawing.Point(20, 128);
             this.row3.Margin = new System.Windows.Forms.Padding(0);
             this.row3.Name = "row3";
             this.row3.Size = new System.Drawing.Size(536, 38);
@@ -289,7 +289,7 @@ namespace Installer.UI.Views
             this.lblHintIcon.AutoSize = false;
             this.lblHintIcon.Font = new System.Drawing.Font("微软雅黑", 9F);
             this.lblHintIcon.IconGap = 0;
-            this.lblHintIcon.Location = new System.Drawing.Point(0, 1);
+            this.lblHintIcon.Location = new System.Drawing.Point(16, 13);
             this.lblHintIcon.Margin = new System.Windows.Forms.Padding(0);
             this.lblHintIcon.Name = "lblHintIcon";
             this.lblHintIcon.PrefixSvg = "<svg viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"9.4\" fill=\"none\" stroke=\"#FAAD14\" stroke-width=\"1.9\"/><path d=\"M12 10.8v6\" stroke=\"#FAAD14\" stroke-width=\"1.9\" stroke-linecap=\"round\"/><circle cx=\"12\" cy=\"7.4\" r=\"1.25\" fill=\"#FAAD14\"/></svg>";
@@ -302,7 +302,7 @@ namespace Installer.UI.Views
             this.lblHint.AutoSize = false;
             this.lblHint.Font = new System.Drawing.Font("微软雅黑", 9F);
             this.lblHint.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(124)))), ((int)(((byte)(96)))), ((int)(((byte)(22)))));
-            this.lblHint.Location = new System.Drawing.Point(24, 0);
+            this.lblHint.Location = new System.Drawing.Point(40, 12);
             this.lblHint.Margin = new System.Windows.Forms.Padding(0);
             this.lblHint.Name = "lblHint";
             this.lblHint.Size = new System.Drawing.Size(536, 18);

@@ -31,6 +31,7 @@ namespace Installer.UI.Forms
 
         private WelcomeView _welcomeView;
         private LicenseView _licenseView;
+        private UninstallConfirmView _uninstallConfirmView;
         private PathView _pathView;
         private OptionsView _optionsView;
         private ProgressView _progressView;
@@ -144,6 +145,62 @@ namespace Installer.UI.Forms
             }
         }
 
+        /// <summary>
+        /// 设计稿里每页的高度都不一样（欢迎 712、许可协议 1012、安装设置 923…），
+        /// 所以窗口要跟着当前页变高，否则高页面底部会被裁掉。
+        /// 数值取自 Calicat 设计稿第 3 版各页 frame 的实际高度。
+        /// </summary>
+        private static int DesignHeight(WizardPage page)
+        {
+            switch (page)
+            {
+                case WizardPage.Welcome:
+                    return 712;
+                case WizardPage.License:
+                    return 1012;
+                case WizardPage.Path:
+                case WizardPage.Options:
+                    return 923;
+                case WizardPage.Installing:
+                case WizardPage.Uninstalling:
+                    return 720;
+                case WizardPage.UninstallConfirm:
+                    return 764;
+                default:
+                    return 584;
+            }
+        }
+
+        /// <summary>
+        /// 按当前页把窗口与卡片调整到设计稿高度。
+        /// 卡片四周各留 24（设计稿的页面 padding），所以卡片高 = 窗口高 - 48。
+        /// </summary>
+        private void ApplyPageSize(WizardPage page)
+        {
+            var h = DesignHeight(page);
+            if (ClientSize.Height == h)
+            {
+                return;
+            }
+
+            // 先放开约束再改尺寸，否则会被 Minimum/MaximumSize 顶回去
+            MinimumSize = new System.Drawing.Size(0, 0);
+            MaximumSize = new System.Drawing.Size(0, 0);
+            ClientSize = new System.Drawing.Size(Common.WizardTheme.WindowWidth, h);
+            MinimumSize = new System.Drawing.Size(Common.WizardTheme.WindowWidth, h);
+            MaximumSize = new System.Drawing.Size(Common.WizardTheme.WindowWidth, h);
+
+            // AntdUI.Panel 一旦在**运行时**被重设 Size，就会为了给投影留位置把 body
+            // 内缩 Shadow(=12) px；Designer 里建好后没动过尺寸的卡片不触发这个重算。
+            // 表现是「欢迎页正常，其他页整体内缩 12px、右侧内容被裁」。
+            // 反向补偿：Location 与 Size 各外扩 Shadow，让 body 落回设计稿的 (24,24) 640x(h-48)。
+            var inset = card.Shadow;
+            card.Location = new System.Drawing.Point(24 - inset, 24 - inset);
+            card.Size = new System.Drawing.Size(
+                Common.WizardTheme.CardWidth + inset * 2, h - 48 + inset * 2);
+            ApplyCardRegion();
+        }
+
         private void ApplyAppearance()
         {
             Text = _presenter.ProductName + " " + _presenter.ProductVersion;
@@ -156,7 +213,8 @@ namespace Installer.UI.Forms
             headerView.ApplyText(_presenter.Text, _presenter.ProductName, _presenter.ProductVersion, uninstall);
 
             var ui = _manifest.Ui;
-            var accent = WizardTheme.Primary;
+            // 卸载向导主色换红（设计稿：卸载流程的当前步骤点与主按钮都是红）
+            var accent = _uninstallMode ? WizardTheme.Danger : WizardTheme.Primary;
 
             if (ui != null && !string.IsNullOrEmpty(ui.AccentColor))
             {
@@ -167,7 +225,9 @@ namespace Installer.UI.Forms
                 }
             }
 
-            headerView.ApplyAccent(accent);
+            // 品牌头部始终是品牌蓝 —— 设计稿里卸载向导的头部也没有变红，
+            // 只有步骤条的当前点与主按钮换成红色。所以 accent 只作用于后两者。
+            headerView.ApplyAccent(WizardTheme.Primary);
             stepBar.Accent = accent;
             _accent = accent;
 
@@ -212,6 +272,7 @@ namespace Installer.UI.Forms
         {
             _welcomeView = new WelcomeView { Dock = DockStyle.Fill };
             _licenseView = new LicenseView { Dock = DockStyle.Fill };
+            _uninstallConfirmView = new UninstallConfirmView { Dock = DockStyle.Fill };
             _pathView = new PathView { Dock = DockStyle.Fill };
             _optionsView = new OptionsView { Dock = DockStyle.Fill };
             _finishView = new FinishView { Dock = DockStyle.Fill };
@@ -233,6 +294,7 @@ namespace Installer.UI.Forms
 
             pnlContent.Controls.Add(_welcomeView);
             pnlContent.Controls.Add(_licenseView);
+            pnlContent.Controls.Add(_uninstallConfirmView);
             pnlContent.Controls.Add(_pathView);
             pnlContent.Controls.Add(_optionsView);
             pnlContent.Controls.Add(_progressView);
@@ -259,6 +321,7 @@ namespace Installer.UI.Forms
         private void Render()
         {
             var page = _presenter.Current;
+            ApplyPageSize(page);
 
             if (_uninstallMode)
             {
@@ -266,12 +329,24 @@ namespace Installer.UI.Forms
                 switch (page)
                 {
                     case WizardPage.UninstallConfirm:
-                        ShowView(_finishView);
-                        _finishView.Title = _presenter.Text("Uninstall.Title");
-                        _finishView.Body = string.Format(CultureInfo.CurrentCulture,
-                            _presenter.Text("Uninstall.Confirm"), _presenter.ProductName);
-                        _finishView.ShowRunOption = false;
-                        _finishView.SetNeutral();
+                        // 设计稿第 3 版给「确认卸载」单独画了一页（信息卡 + 删除数据勾选 + 红色警告条），
+                        // 不再拿完成页凑。
+                        ShowView(_uninstallConfirmView);
+                        _uninstallConfirmView.ApplyAccent(_accent);
+                        _uninstallConfirmView.Title = string.Format(CultureInfo.CurrentCulture,
+                            _presenter.Text("Uninstall.ConfirmTitle"), _presenter.ProductName);
+                        _uninstallConfirmView.Subtitle = string.Format(CultureInfo.CurrentCulture,
+                            _presenter.Text("Uninstall.ConfirmSubtitle"), _presenter.ProductName, _presenter.ProductVersion);
+                        _uninstallConfirmView.ApplyCaptions(_presenter.Text);
+                        _uninstallConfirmView.DirValue = _presenter.Options.InstallDir;
+                        _uninstallConfirmView.SpaceValue = string.Format(CultureInfo.CurrentCulture,
+                            _presenter.Text("Uninstall.SpaceValue"), BuildInstalledSizeText());
+                        _uninstallConfirmView.VersionValue = _presenter.ProductVersion + " · " + _presenter.Publisher;
+                        _uninstallConfirmView.DeleteDataText = _presenter.Text("Uninstall.DeleteData");
+                        _uninstallConfirmView.DeleteDataHint = _presenter.Text("Uninstall.DeleteData.Hint");
+                        _uninstallConfirmView.DeleteUserData = false;
+                        _uninstallConfirmView.WarningLine1 = _presenter.Text("Uninstall.Warn1");
+                        _uninstallConfirmView.WarningLine2 = _presenter.Text("Uninstall.Warn2");
                         break;
 
                     case WizardPage.Uninstalling:
@@ -320,10 +395,13 @@ namespace Installer.UI.Forms
                     _licenseView.Subtitle = string.Format(
                         System.Globalization.CultureInfo.CurrentCulture,
                         _presenter.Text("License.Subtitle"), _presenter.ProductName);
-                    _licenseView.AcceptText = _presenter.Text("License.Accept");
+                    _licenseView.AcceptText = string.Format(
+                        System.Globalization.CultureInfo.CurrentCulture,
+                        _presenter.Text("License.Accept"), _presenter.ProductName);
                     _licenseView.AcceptHint = _presenter.Text("License.AcceptHint");
                     _licenseView.LicenseText = _presenter.LicenseText;
                     _licenseView.Accepted = _presenter.Options.AcceptLicense;
+                    _licenseView.ApplyCaptions(_presenter.Text, _presenter.ProductName);
                     break;
 
                 case WizardPage.Path:
@@ -363,7 +441,8 @@ namespace Installer.UI.Forms
                 case WizardPage.Installing:
                     ShowView(_progressView);
                     _progressView.ApplyAccent(_accent);
-                    _progressView.Title = _presenter.Text("Progress.Title");
+                    _progressView.Title = string.Format(CultureInfo.CurrentCulture,
+                        _presenter.Text("Progress.Title"), _presenter.ProductName);
                     _progressView.Subtitle = _presenter.Text("Progress.Subtitle");
                     _progressView.StepText = _presenter.Text("Progress.Preparing");
                     _progressView.CurrentFileText = string.Empty;
@@ -381,9 +460,10 @@ namespace Installer.UI.Forms
 
                 case WizardPage.Finish:
                     ShowView(_finishView);
-                    _finishView.Title = _presenter.Text("Finish.Title");
+                    _finishView.Title = string.Format(CultureInfo.CurrentCulture,
+                        _presenter.Text("Finish.Title"), _presenter.ProductName);
                     _finishView.Body = string.Format(CultureInfo.CurrentCulture,
-                        _presenter.Text("Finish.Body"), _presenter.ProductName, _presenter.Options.InstallDir);
+                        _presenter.Text("Finish.Body"), _presenter.Options.InstallDir, _manifest.Files.Count, BuildSpaceText());
                     _finishView.RunText = _presenter.Text("Options.RunAfter");
                     _finishView.RunHint = _presenter.Text("Finish.RunHint");
                     _finishView.FooterHint = string.Format(CultureInfo.CurrentCulture,
@@ -444,6 +524,35 @@ namespace Installer.UI.Forms
                 _presenter.Text("Options.InfoFormat"),
                 o.InstallDir,
                 count);
+        }
+
+        /// <summary>卸载页用的「已占用大小」（卸载模式下清单是空的，所以直接量安装目录）。</summary>
+        private string BuildInstalledSizeText()
+        {
+            try
+            {
+                var dir = _presenter.Options.InstallDir;
+                if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir))
+                {
+                    return FormatSize(-1);
+                }
+
+                long total = 0;
+                foreach (var file in Directory.GetFiles(dir, "*", SearchOption.AllDirectories))
+                {
+                    total += new FileInfo(file).Length;
+                }
+
+                return FormatSize(total);
+            }
+            catch (IOException)
+            {
+                return FormatSize(-1);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return FormatSize(-1);
+            }
         }
 
         private string BuildSpaceText()
@@ -871,14 +980,14 @@ namespace Installer.UI.Forms
             {
                 case WizardPage.Installing:
                     _progressView.SetIndeterminate(false);
-                    _progressView.SetPercent(42);
+                    _progressView.SetPercent(62);
                     _progressView.StepText = @"正在解压文件 3/5：bin\App.exe";
                     _progressView.CurrentFileText = @"正在写入：bin\CqVideo\ffmpeg.dll";
                     _progressView.SetStats("123 / 199", "56.4 MB / 90.6 MB", "00:12", "约 8 秒");
                     _progressView.SetSteps(new[]
                     {
                         _presenter.Text("Progress.Step1") + " —— 已完成",
-                        _presenter.Text("Progress.Step2") + " —— 进行中 42%",
+                        _presenter.Text("Progress.Step2") + " —— 进行中 62%",
                         _presenter.Text("Progress.Step3") + " —— 等待中",
                         _presenter.Text("Progress.Step4") + " —— 等待中",
                     }, 1);

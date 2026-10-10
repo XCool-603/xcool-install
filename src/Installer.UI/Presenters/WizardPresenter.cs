@@ -206,6 +206,12 @@ namespace Installer.UI.Presenters
                         return 0;
                     case WizardPage.License:
                         return 1;
+                    case WizardPage.UninstallConfirm:
+                        return 0;
+                    case WizardPage.Uninstalling:
+                        return 1;
+                    case WizardPage.Uninstalled:
+                        return 2;
                     case WizardPage.Path:
                     case WizardPage.Options:
                         // 设计稿把「安装位置」与「附加任务」合成一步「安装设置」
@@ -232,10 +238,29 @@ namespace Installer.UI.Presenters
             get { return _licenseRequired; }
         }
 
+        /// <summary>是否处于卸载流程（三页：确认卸载 / 正在卸载 / 完成）。</summary>
+        public bool IsUninstallFlow
+        {
+            get
+            {
+                return Current == WizardPage.UninstallConfirm
+                    || Current == WizardPage.Uninstalling
+                    || Current == WizardPage.Uninstalled;
+            }
+        }
+
+        /// <summary>当前流程实际会经过的步骤文案 key。</summary>
         public string[] StepKeys
         {
             get
             {
+                // 卸载流程是 3 步（确认卸载 / 正在卸载 / 完成）
+                if (IsUninstallFlow)
+                {
+                    return new[] { "Step.UninstallConfirm", "Step.Uninstalling", "Wizard.Finish" };
+                }
+
+                // 安装流程：没勾「必须接受许可」时许可页会被跳过，步骤条就是 4 步而不是 5 步
                 return _licenseRequired
                     ? new[] { "Wizard.StepWelcome", "Step.License", "Wizard.StepSettings", "Step.Install", "Wizard.Finish" }
                     : new[] { "Wizard.StepWelcome", "Wizard.StepSettings", "Step.Install", "Wizard.Finish" };

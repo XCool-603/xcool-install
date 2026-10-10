@@ -330,15 +330,20 @@ namespace Installer.Core.Tests
 
             Assert.Equal(WizardPage.UninstallConfirm, p.Current);
             Assert.Equal("Uninstall.Title", p.PrimaryKey);
-            Assert.False(p.ShowSteps);
+            // 设计稿第 3 版里卸载向导也有步骤条（3 步：确认卸载 / 正在卸载 / 完成）
+            Assert.True(p.ShowSteps);
+            Assert.Equal(3, p.StepCount);
+            Assert.Equal(0, p.StepIndex);
             Assert.True(p.CanClose);
 
             p.Primary();
             Assert.Equal(WizardPage.Uninstalling, p.Current);
             Assert.True(p.PrimaryIsCancel);
+            Assert.Equal(1, p.StepIndex);
             Assert.False(p.CanClose);           // 卸载中不允许直接关
 
             p.EnterUninstalled();
+            Assert.Equal(2, p.StepIndex);
             Assert.Equal("Wizard.Close", p.SecondaryKey);
         }
 
