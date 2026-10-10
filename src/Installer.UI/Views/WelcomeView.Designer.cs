@@ -71,7 +71,7 @@ namespace Installer.UI.Views
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 34F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 86F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 186F));
-            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
+            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 62F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.rootLayout.Size = new System.Drawing.Size(600, 400);
             this.rootLayout.TabIndex = 0;
@@ -80,7 +80,7 @@ namespace Installer.UI.Views
             //
             this.lblTitle.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblTitle.AutoSize = true;
-            this.lblTitle.Font = new System.Drawing.Font("微软雅黑", 17F, System.Drawing.FontStyle.Bold);
+            this.lblTitle.Font = new System.Drawing.Font("微软雅黑", 13.5F, System.Drawing.FontStyle.Bold);
             this.lblTitle.Location = new System.Drawing.Point(0, 0);
             this.lblTitle.Margin = new System.Windows.Forms.Padding(0);
             this.lblTitle.Name = "lblTitle";
@@ -91,7 +91,7 @@ namespace Installer.UI.Views
             // lblBody
             //
             this.lblBody.AutoSize = false;
-            this.lblBody.Font = new System.Drawing.Font("微软雅黑", 12F);
+            this.lblBody.Font = new System.Drawing.Font("微软雅黑", 9.75F);
             this.lblBody.Location = new System.Drawing.Point(0, 40);
             this.lblBody.Margin = new System.Windows.Forms.Padding(0, 8, 0, 0);
             this.lblBody.Name = "lblBody";
@@ -167,7 +167,7 @@ namespace Installer.UI.Views
             //
             this.lblDirCaption.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblDirCaption.AutoSize = true;
-            this.lblDirCaption.Font = new System.Drawing.Font("微软雅黑", 11F);
+            this.lblDirCaption.Font = new System.Drawing.Font("微软雅黑", 9F);
             this.lblDirCaption.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(156)))), ((int)(((byte)(163)))), ((int)(((byte)(175)))));
             this.lblDirCaption.Location = new System.Drawing.Point(0, 0);
             this.lblDirCaption.Margin = new System.Windows.Forms.Padding(0);
@@ -180,7 +180,7 @@ namespace Installer.UI.Views
             //
             this.lblDirValue.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblDirValue.AutoSize = true;
-            this.lblDirValue.Font = new System.Drawing.Font("微软雅黑", 13F);
+            this.lblDirValue.Font = new System.Drawing.Font("微软雅黑", 9.75F);
             this.lblDirValue.Location = new System.Drawing.Point(0, 18);
             this.lblDirValue.Margin = new System.Windows.Forms.Padding(0);
             this.lblDirValue.Name = "lblDirValue";
@@ -222,7 +222,7 @@ namespace Installer.UI.Views
             //
             this.lblSpaceCaption.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblSpaceCaption.AutoSize = true;
-            this.lblSpaceCaption.Font = new System.Drawing.Font("微软雅黑", 11F);
+            this.lblSpaceCaption.Font = new System.Drawing.Font("微软雅黑", 9F);
             this.lblSpaceCaption.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(156)))), ((int)(((byte)(163)))), ((int)(((byte)(175)))));
             this.lblSpaceCaption.Location = new System.Drawing.Point(0, 0);
             this.lblSpaceCaption.Margin = new System.Windows.Forms.Padding(0);
@@ -235,7 +235,7 @@ namespace Installer.UI.Views
             //
             this.lblSpaceValue.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblSpaceValue.AutoSize = true;
-            this.lblSpaceValue.Font = new System.Drawing.Font("微软雅黑", 13F);
+            this.lblSpaceValue.Font = new System.Drawing.Font("微软雅黑", 9.75F);
             this.lblSpaceValue.Location = new System.Drawing.Point(0, 18);
             this.lblSpaceValue.Margin = new System.Windows.Forms.Padding(0);
             this.lblSpaceValue.Name = "lblSpaceValue";
@@ -277,7 +277,7 @@ namespace Installer.UI.Views
             //
             this.lblVersionCaption.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblVersionCaption.AutoSize = true;
-            this.lblVersionCaption.Font = new System.Drawing.Font("微软雅黑", 11F);
+            this.lblVersionCaption.Font = new System.Drawing.Font("微软雅黑", 9F);
             this.lblVersionCaption.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(156)))), ((int)(((byte)(163)))), ((int)(((byte)(175)))));
             this.lblVersionCaption.Location = new System.Drawing.Point(0, 0);
             this.lblVersionCaption.Margin = new System.Windows.Forms.Padding(0);
@@ -290,7 +290,7 @@ namespace Installer.UI.Views
             //
             this.lblVersionValue.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblVersionValue.AutoSize = true;
-            this.lblVersionValue.Font = new System.Drawing.Font("微软雅黑", 13F);
+            this.lblVersionValue.Font = new System.Drawing.Font("微软雅黑", 9.75F);
             this.lblVersionValue.Location = new System.Drawing.Point(0, 18);
             this.lblVersionValue.Margin = new System.Windows.Forms.Padding(0);
             this.lblVersionValue.Name = "lblVersionValue";
@@ -305,20 +305,20 @@ namespace Installer.UI.Views
             this.hintPanel.Location = new System.Drawing.Point(0, 322);
             this.hintPanel.Margin = new System.Windows.Forms.Padding(0, 20, 0, 0);
             this.hintPanel.Name = "hintPanel";
-            this.hintPanel.Padding = new System.Windows.Forms.Padding(14, 10, 14, 10);
+            this.hintPanel.Padding = new System.Windows.Forms.Padding(16, 12, 16, 12);
             this.hintPanel.Radius = 8;
-            this.hintPanel.Size = new System.Drawing.Size(600, 44);
+            this.hintPanel.Size = new System.Drawing.Size(576, 42);
             this.hintPanel.TabIndex = 3;
             //
             // lblHint
             //
             this.lblHint.AutoSize = false;
             this.lblHint.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblHint.Font = new System.Drawing.Font("微软雅黑", 11F);
-            this.lblHint.Location = new System.Drawing.Point(14, 10);
+            this.lblHint.Font = new System.Drawing.Font("微软雅黑", 9F);
+            this.lblHint.Location = new System.Drawing.Point(16, 12);
             this.lblHint.Margin = new System.Windows.Forms.Padding(0);
             this.lblHint.Name = "lblHint";
-            this.lblHint.Size = new System.Drawing.Size(572, 24);
+            this.lblHint.Size = new System.Drawing.Size(544, 18);
             this.lblHint.TabIndex = 0;
             this.lblHint.Text = "";
             //
@@ -328,7 +328,7 @@ namespace Installer.UI.Views
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.Controls.Add(this.rootLayout);
-            this.Font = new System.Drawing.Font("微软雅黑", 12F);
+            this.Font = new System.Drawing.Font("微软雅黑", 9.75F);
             this.Name = "WelcomeView";
             this.Size = new System.Drawing.Size(600, 400);
             this.rootLayout.ResumeLayout(false);

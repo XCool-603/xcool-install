@@ -69,6 +69,7 @@ namespace Installer.UI.Forms
 
             InitializeComponent();
             ApplyCardRegion();
+            MakeLabelsTransparent(this);
 
             ApplyAppearance();
             BuildViews();
@@ -98,6 +99,32 @@ namespace Installer.UI.Forms
         /// 而卡片里铺满了 cardLayout（TableLayoutPanel）和品牌区的 Panel，
         /// 它们的直角会把卡片的圆角盖掉。用 Region 裁剪整个卡片（含子控件）才有效。
         /// </summary>
+        /// <summary>
+        /// 把 AntdUI.Panel 内部的 Label 背景设为透明。
+        ///
+        /// 为什么需要：AntdUI.Panel 的圆角靠它自己的 Back 画出来，
+        /// 所以不能给面板设 WinForms 的 BackColor（会盖成直角）。
+        /// 但面板一旦没有 BackColor，里面的 Label 就失去可继承的背景，
+        /// 各自画一块白底 —— 表现就是「产品名后面有个白方块」。
+        /// 显式设成透明即可两全。
+        /// </summary>
+        private static void MakeLabelsTransparent(System.Windows.Forms.Control root)
+        {
+            foreach (System.Windows.Forms.Control c in root.Controls)
+            {
+                var label = c as AntdUI.Label;
+                if (label != null)
+                {
+                    label.BackColor = System.Drawing.Color.Transparent;
+                }
+
+                if (c.Controls.Count > 0)
+                {
+                    MakeLabelsTransparent(c);
+                }
+            }
+        }
+
         private void ApplyCardRegion()
         {
             var r = Common.WizardTheme.CardRadius;
@@ -778,6 +805,7 @@ namespace Installer.UI.Forms
         {
             base.OnResize(e);
             ApplyCardRegion();
+            MakeLabelsTransparent(this);
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
