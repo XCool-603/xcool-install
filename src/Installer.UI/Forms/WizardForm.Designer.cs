@@ -49,14 +49,14 @@ namespace Installer.UI.Forms
             //
             this.card.Back = System.Drawing.Color.White;
             this.card.Controls.Add(this.cardLayout);
-            this.card.Location = new System.Drawing.Point(20, 20);
+            this.card.Location = new System.Drawing.Point(20, 24);
             this.card.Margin = new System.Windows.Forms.Padding(0);
             this.card.Name = "card";
             this.card.Radius = 16;
             this.card.Shadow = 12;
             this.card.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
             this.card.ShadowOpacity = 0.18F;
-            this.card.Size = new System.Drawing.Size(648, 680);
+            this.card.Size = new System.Drawing.Size(648, 676);
             this.card.TabIndex = 0;
             //
             // cardLayout —— 品牌头 / 步骤条 / 内容 / 底栏
@@ -73,11 +73,11 @@ namespace Installer.UI.Forms
             this.cardLayout.Margin = new System.Windows.Forms.Padding(0);
             this.cardLayout.Name = "cardLayout";
             this.cardLayout.RowCount = 4;
-            this.cardLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 104F));
-            this.cardLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this.cardLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 100F));
+            this.cardLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 72F));
             this.cardLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.cardLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 72F));
-            this.cardLayout.Size = new System.Drawing.Size(648, 680);
+            this.cardLayout.Size = new System.Drawing.Size(648, 676);
             this.cardLayout.TabIndex = 0;
             //
             // headerView —— 蓝色品牌区
@@ -86,26 +86,26 @@ namespace Installer.UI.Forms
             this.headerView.Location = new System.Drawing.Point(0, 0);
             this.headerView.Margin = new System.Windows.Forms.Padding(0);
             this.headerView.Name = "headerView";
-            this.headerView.Size = new System.Drawing.Size(648, 104);
+            this.headerView.Size = new System.Drawing.Size(648, 100);
             this.headerView.TabIndex = 0;
             //
             // stepBar —— 步骤条
             //
             this.stepBar.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.stepBar.Location = new System.Drawing.Point(0, 104);
+            this.stepBar.Location = new System.Drawing.Point(0, 100);
             this.stepBar.Margin = new System.Windows.Forms.Padding(0);
             this.stepBar.Name = "stepBar";
-            this.stepBar.Size = new System.Drawing.Size(648, 40);
+            this.stepBar.Size = new System.Drawing.Size(648, 72);
             this.stepBar.TabIndex = 1;
             //
             // pnlContent —— 页面宿主
             //
             this.pnlContent.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlContent.Location = new System.Drawing.Point(0, 144);
+            this.pnlContent.Location = new System.Drawing.Point(0, 172);
             this.pnlContent.Margin = new System.Windows.Forms.Padding(0);
             this.pnlContent.Name = "pnlContent";
             this.pnlContent.Padding = new System.Windows.Forms.Padding(24, 20, 24, 0);
-            this.pnlContent.Size = new System.Drawing.Size(648, 464);
+            this.pnlContent.Size = new System.Drawing.Size(648, 432);
             this.pnlContent.TabIndex = 2;
             //
             // footerLayout
@@ -116,7 +116,7 @@ namespace Installer.UI.Forms
             this.footerLayout.Controls.Add(this.lblStepInfo, 0, 0);
             this.footerLayout.Controls.Add(this.buttonFlow, 1, 0);
             this.footerLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.footerLayout.Location = new System.Drawing.Point(0, 608);
+            this.footerLayout.Location = new System.Drawing.Point(0, 604);
             this.footerLayout.Margin = new System.Windows.Forms.Padding(0);
             this.footerLayout.Name = "footerLayout";
             this.footerLayout.RowCount = 1;

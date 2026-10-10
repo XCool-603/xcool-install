@@ -66,8 +66,8 @@ namespace Installer.UI.Views
             this.layout.Margin = new System.Windows.Forms.Padding(0);
             this.layout.Name = "layout";
             this.layout.RowCount = 2;
-            this.layout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.layout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 24F));
+            this.layout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
+            this.layout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
             this.layout.SetRowSpan(this.iconPanel, 2);
             this.layout.Size = new System.Drawing.Size(600, 76);
             this.layout.TabIndex = 0;
@@ -76,7 +76,7 @@ namespace Installer.UI.Views
             //
             this.iconPanel.Controls.Add(this.lblIcon);
             this.iconPanel.Location = new System.Drawing.Point(0, 2);
-            this.iconPanel.Margin = new System.Windows.Forms.Padding(0, 2, 28, 0);
+            this.iconPanel.Margin = new System.Windows.Forms.Padding(0, 6, 28, 0);
             this.iconPanel.Name = "iconPanel";
             this.iconPanel.Radius = 12;
             this.iconPanel.Size = new System.Drawing.Size(48, 48);

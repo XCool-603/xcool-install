@@ -1,4 +1,4 @@
-﻿ 制作端界面 —— 与 Calicat 设计稿的自动对比
+﻿制作端界面 —— 与 Calicat 设计稿的自动对比
 #
 # 用法：powershell -ExecutionPolicy Bypass -File tools\verify-ui.ps1
 #
@@ -240,6 +240,62 @@ foreach ($sf in $srcFiles) {
     }
 }
 Check ($unwired.Count -eq 0) '所有事件处理方法都已订阅' ($unwired -join ', ')
+
+# ─────────────────────────────────────────────────────────────
+Write-Host "== 6. 向导每页与设计稿逐点比对" -ForegroundColor Cyan
+# 比对区域取 y ∈ [0, 500]：覆盖品牌头(0~124)、步骤条(124~164)、
+# 页面标题与第一块内容。设计稿每页高度不同，取公共区段才可比。
+$designDir = Join-Path $root 'docs\界面截图\安装向导-设计稿'
+$implDir = Join-Path $root 'docs\界面截图\安装向导-当前实现'
+
+$wizardMap = @(
+    @{ design = '1-欢迎3.png';        impl = 'Welcome.png';          name = '欢迎' },
+    @{ design = '2-许可协议.png';      impl = 'License.png';          name = '许可协议' },
+    @{ design = '3-安装设置2.png';     impl = 'Path.png';             name = '安装设置' },
+    @{ design = '4-正在安装3.png';     impl = 'Installing.png';       name = '正在安装' },
+    @{ design = '5-安装完成3.png';     impl = 'Finish.png';           name = '安装完成' },
+    @{ design = '6-确认卸载.png';      impl = 'UninstallConfirm.png'; name = '确认卸载' },
+    @{ design = '7-正在卸载.png';      impl = 'Uninstalling.png';     name = '正在卸载' },
+    @{ design = '8-卸载完成.png';      impl = 'Uninstalled.png';      name = '卸载完成' }
+)
+
+$probeBottom = 500
+$step = 4
+$tol = 12
+
+foreach ($m in $wizardMap) {
+    $dp = Join-Path $designDir $m.design
+    $ip = Join-Path $implDir $m.impl
+
+    if (-not (Test-Path $dp) -or -not (Test-Path $ip)) {
+        Write-Host ("  [跳过] {0}（缺文件）" -f $m.name) -ForegroundColor Yellow
+        continue
+    }
+
+    $d = New-Object System.Drawing.Bitmap($dp)
+    $i = New-Object System.Drawing.Bitmap($ip)
+
+    $total = 0
+    $hit = 0
+    for ($y = 0; $y -lt $probeBottom; $y += $step) {
+        if ($y -ge $d.Height -or $y -ge $i.Height) { break }
+        for ($x = 0; $x -lt 688; $x += $step) {
+            if ($x -ge $d.Width -or $x -ge $i.Width) { break }
+            $cd = $d.GetPixel($x, $y)
+            $ci = $i.GetPixel($x, $y)
+            $total++
+            if ([math]::Abs($cd.R - $ci.R) -le $tol -and
+                [math]::Abs($cd.G - $ci.G) -le $tol -and
+                [math]::Abs($cd.B - $ci.B) -le $tol) { $hit++ }
+        }
+    }
+
+    $pct = if ($total -gt 0) { [math]::Round(100.0 * $hit / $total, 1) } else { 0 }
+    Check ($pct -ge 90) ("{0} 与设计稿一致度 ≥90%" -f $m.name) ("实际 {0}%" -f $pct)
+
+    $d.Dispose()
+    $i.Dispose()
+}
 
 # ─────────────────────────────────────────────────────────────
 Write-Host ""
