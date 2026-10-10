@@ -1,0 +1,702 @@
+<frame> '空中小火车-安装向导-欢迎 3'  page=(0.0,0.0) size=(688,712)
+    .width = 688
+    .height = "fit_content"
+    .clip = true
+    .fills = "rgba(245,247,250,1)"
+    .padding = 24
+    .layout = "vertical"
+    .alignItems = "start"
+    .justifyContent = "start"
+  <frame> '安装向导窗口'  page=(24.0,24.0) size=(640,664)
+      .width = 640
+      .height = "fit_content"
+      .clip = true
+      .fills = "rgba(255,255,255,1)"
+      .effects = [{"offsetX": 0, "offsetY": 12, "blur": 40, "color": "rgba(16,24,40,0.16)", "type": "drop_shadow"}]
+      .cornerRadius = 16
+      .layout = "vertical"
+      .alignItems = "start"
+      .justifyContent = "start"
+    <frame> '顶部横幅'  page=(24.0,24.0) size=(640,104)
+        .width = "fill_container"
+        .height = "fit_content"
+        .fills = "rgba(22,119,255,1)"
+        .padding = [24, 32, 24, 32]
+        .layout = "horizontal"
+        .alignItems = "center"
+        .justifyContent = "start"
+        .gap = 16
+      <frame> '应用图标容器'  page=(56.0,48.0) size=(56,56)
+          .width = 56
+          .height = 56
+          .fills = "rgba(255,255,255,0.18)"
+          .cornerRadius = 16
+          .layout = "horizontal"
+          .alignItems = "center"
+          .justifyContent = "center"
+        <frame> '应用图标'  page=(68.0,60.0) size=(32,32)
+            .width = "fit_content"
+            .height = "fit_content"
+            .clip = true
+          <svg> '矢量'  page=(NOT_IN_META)
+              .width = 16
+              .height = 8
+              .opacity = 0.95
+              .content = "<svg  width=\"16\" height=\"8\" viewBox=\"-8 -4 16 8\" xmlns=\"http://www.w3.org/2000/svg\">\n<g transform=\"matrix(1 0 0 1 0 0)\"  >\n<path style=\"stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 0.95;\" vector-effect=\"non-scaling-stroke\"  transform=\" translate(-16, -11)\" d=\"M 16 7 L 24 11 L 16 15 L 8 11 Z\" stroke-linecap=\"round\" />\n</g>\n</svg>"
+              .fills = "#FFFFFF"
+          <svg> '矢量'  page=(NOT_IN_META)
+              .width = 8
+              .height = 14
+              .opacity = 0.72
+              .content = "<svg  width=\"8\" height=\"14\" viewBox=\"-4 -7 8 14\" xmlns=\"http://www.w3.org/2000/svg\">\n<g transform=\"matrix(1 0 0 1 0 0)\"  >\n<path style=\"stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 0.72;\" vector-effect=\"non-scaling-stroke\"  transform=\" translate(-12, -18)\" d=\"M 8 11 L 16 15 L 16 25 L 8 21 Z\" stroke-linecap=\"round\" />\n</g>\n</svg>"
+              .fills = "#FFFFFF"
+          <svg> '矢量'  page=(NOT_IN_META)
+              .width = 8
+              .height = 14
+              .opacity = 0.52
+              .content = "<svg  width=\"8\" height=\"14\" viewBox=\"-4 -7 8 14\" xmlns=\"http://www.w3.org/2000/svg\">\n<g transform=\"matrix(1 0 0 1 0 0)\"  >\n<path style=\"stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 0.52;\" vector-effect=\"non-scaling-stroke\"  transform=\" translate(-20, -18)\" d=\"M 24 11 L 16 15 L 16 25 L 24 21 Z\" stroke-linecap=\"round\" />\n</g>\n</svg>"
+              .fills = "#FFFFFF"
+      <frame> '标题区'  page=(128.0,50.0) size=(129,52)
+          .width = 129
+          .height = "fit_content"
+          .layout = "vertical"
+          .alignItems = "start"
+          .justifyContent = "start"
+        <rectangle> '图层'  page=(128.0,50.0) size=(129,28)
+            .width = "fill_container"
+            .height = 28
+            .fontSize = 20
+            .fontFamily = "SourceHanSans-SemiBold"
+            .lineHeight = 1.2
+            .textAlign = "left"
+            .fontFill = "rgba(255,255,255,1)"
+            .content = "空中小火车"
+            .textAlignVertical = "middle"
+        <frame> 'container'  page=(128.0,78.0) size=(129,24)
+            .width = "fill_container"
+            .height = "fit_content"
+            .padding = [4, 0, 0, 0]
+            .layout = "vertical"
+            .alignItems = "start"
+            .justifyContent = "start"
+          <rectangle> '图层'  page=(128.0,82.0) size=(129,20)
+              .width = "fill_container"
+              .height = 20
+              .fontSize = 13
+              .fontFamily = "SourceHanSans-Regular"
+              .lineHeight = 1.2
+              .textAlign = "left"
+              .fontFill = "rgba(255,255,255,1)"
+              .content = "安装向导 · 版本 1.0.0"
+              .textAlignVertical = "middle"
+    <frame> '步骤条'  page=(24.0,128.0) size=(640,64)
+        .width = "fill_container"
+        .height = "fit_content"
+        .padding = [20, 32, 20, 32]
+        .layout = "horizontal"
+        .alignItems = "center"
+        .justifyContent = "start"
+      <frame> '步骤-欢迎'  page=(56.0,148.0) size=(59,24)
+          .width = "fit_content"
+          .height = "fit_content"
+          .layout = "horizontal"
+          .alignItems = "center"
+          .justifyContent = "start"
+          .gap = 8
+        <frame> '步骤标记'  page=(56.0,148.0) size=(24,24)
+            .width = 24
+            .height = 24
+            .fills = "rgba(22,119,255,1)"
+            .cornerRadius = 12
+            .layout = "horizontal"
+            .alignItems = "center"
+            .justifyContent = "center"
+          <rectangle> '图层'  page=(63.5,154.0) size=(9,12)
+              .width = 9
+              .height = "fit_content"
+              .fontSize = 12
+              .fontFamily = "SourceHanSans-SemiBold"
+              .lineHeight = 1.2
+              .textAlign = "left"
+              .fontFill = "rgba(255,255,255,1)"
+              .content = "1"
+              .textAlignVertical = "middle"
+        <rectangle> '图层'  page=(88.0,150.0) size=(27,20)
+            .width = 27
+            .height = "fit_content"
+            .fontSize = 13
+            .fontFamily = "SourceHanSans-SemiBold"
+            .lineHeight = 1.2
+            .textAlign = "left"
+            .fontFill = "rgba(22,119,255,1)"
+            .content = "欢迎"
+            .textAlignVertical = "middle"
+      <frame> 'container'  page=(115.0,159.0) size=(38.75,2)
+          .width = "fill_container"
+          .height = "fit_content"
+          .padding = [0, 0, 0, 12]
+          .layout = "horizontal"
+          .alignItems = "start"
+          .justifyContent = "start"
+        <rectangle> '连接线'  page=(127.6,159.0) size=(26.75,2)
+            .width = "fill_container"
+            .height = 2
+            .fills = "rgba(229,232,239,1)"
+      <frame> 'container'  page=(153.8,148.0) size=(97,24)
+          .width = "fit_content"
+          .height = "fit_content"
+          .padding = [0, 0, 0, 12]
+          .layout = "horizontal"
+          .alignItems = "start"
+          .justifyContent = "start"
+        <frame> '步骤-许可协议'  page=(165.8,148.0) size=(85,24)
+            .width = "fit_content"
+            .height = "fit_content"
+            .layout = "horizontal"
+            .alignItems = "center"
+            .justifyContent = "start"
+            .gap = 8
+          <frame> '步骤标记'  page=(165.8,148.0) size=(24,24)
+              .width = 24
+              .height = 24
+              .stroke = {"align": "center", "thickness": 1, "lineCap": "butt", "lineJoin": "miter", "fills": "rgba(208,213,221,1)"}
+              .fills = "rgba(255,255,255,1)"
+              .cornerRadius = 12
+              .layout = "horizontal"
+              .alignItems = "center"
+              .justifyContent = "center"
+            <rectangle> '图层'  page=(173.2,154.0) size=(9,12)
+                .width = 9
+                .height = "fit_content"
+                .fontSize = 12
+                .fontFamily = "SourceHanSans-SemiBold"
+                .lineHeight = 1.2
+                .textAlign = "left"
+                .fontFill = "rgba(156,163,175,1)"
+                .content = "2"
+                .textAlignVertical = "middle"
+          <rectangle> '图层'  page=(197.8,150.0) size=(53,20)
+              .width = 53
+              .height = "fit_content"
+              .fontSize = 13
+              .fontFamily = "SourceHanSans-Regular"
+              .lineHeight = 1.2
+              .textAlign = "left"
+              .fontFill = "rgba(156,163,175,1)"
+              .content = "许可协议"
+              .textAlignVertical = "middle"
+      <frame> 'container'  page=(250.8,159.0) size=(38.75,2)
+          .width = "fill_container"
+          .height = "fit_content"
+          .padding = [0, 0, 0, 12]
+          .layout = "horizontal"
+          .alignItems = "start"
+          .justifyContent = "start"
+        <rectangle> '连接线'  page=(263.4,159.0) size=(26.75,2)
+            .width = "fill_container"
+            .height = 2
+            .fills = "rgba(229,232,239,1)"
+      <frame> 'container'  page=(289.5,148.0) size=(97,24)
+          .width = "fit_content"
+          .height = "fit_content"
+          .padding = [0, 0, 0, 12]
+          .layout = "horizontal"
+          .alignItems = "start"
+          .justifyContent = "start"
+        <frame> '步骤-安装设置'  page=(301.5,148.0) size=(85,24)
+            .width = "fit_content"
+            .height = "fit_content"
+            .layout = "horizontal"
+            .alignItems = "center"
+            .justifyContent = "start"
+            .gap = 8
+          <frame> '步骤标记'  page=(301.5,148.0) size=(24,24)
+              .width = 24
+              .height = 24
+              .stroke = {"align": "center", "thickness": 1, "lineCap": "butt", "lineJoin": "miter", "fills": "rgba(208,213,221,1)"}
+              .fills = "rgba(255,255,255,1)"
+              .cornerRadius = 12
+              .layout = "horizontal"
+              .alignItems = "center"
+              .justifyContent = "center"
+            <rectangle> '图层'  page=(309.0,154.0) size=(9,12)
+                .width = 9
+                .height = "fit_content"
+                .fontSize = 12
+                .fontFamily = "SourceHanSans-SemiBold"
+                .lineHeight = 1.2
+                .textAlign = "left"
+                .fontFill = "rgba(156,163,175,1)"
+                .content = "3"
+                .textAlignVertical = "middle"
+          <rectangle> '图层'  page=(333.5,150.0) size=(53,20)
+              .width = 53
+              .height = "fit_content"
+              .fontSize = 13
+              .fontFamily = "SourceHanSans-Regular"
+              .lineHeight = 1.2
+              .textAlign = "left"
+              .fontFill = "rgba(156,163,175,1)"
+              .content = "安装设置"
+              .textAlignVertical = "middle"
+      <frame> 'container'  page=(386.5,159.0) size=(38.75,2)
+          .width = "fill_container"
+          .height = "fit_content"
+          .padding = [0, 0, 0, 12]
+          .layout = "horizontal"
+          .alignItems = "start"
+          .justifyContent = "start"
+        <rectangle> '连接线'  page=(399.1,159.0) size=(26.75,2)
+            .width = "fill_container"
+            .height = 2
+            .fills = "rgba(229,232,239,1)"
+      <frame> 'container'  page=(425.2,148.0) size=(97,24)
+          .width = "fit_content"
+          .height = "fit_content"
+          .padding = [0, 0, 0, 12]
+          .layout = "horizontal"
+          .alignItems = "start"
+          .justifyContent = "start"
+        <frame> '步骤-正在安装'  page=(437.2,148.0) size=(85,24)
+            .width = "fit_content"
+            .height = "fit_content"
+            .layout = "horizontal"
+            .alignItems = "center"
+            .justifyContent = "start"
+            .gap = 8
+          <frame> '步骤标记'  page=(437.2,148.0) size=(24,24)
+              .width = 24
+              .height = 24
+              .stroke = {"align": "center", "thickness": 1, "lineCap": "butt", "lineJoin": "miter", "fills": "rgba(208,213,221,1)"}
+              .fills = "rgba(255,255,255,1)"
+              .cornerRadius = 12
+              .layout = "horizontal"
+              .alignItems = "center"
+              .justifyContent = "center"
+            <rectangle> '图层'  page=(444.8,154.0) size=(9,12)
+                .width = 9
+                .height = "fit_content"
+                .fontSize = 12
+                .fontFamily = "SourceHanSans-SemiBold"
+                .lineHeight = 1.2
+                .textAlign = "left"
+                .fontFill = "rgba(156,163,175,1)"
+                .content = "4"
+                .textAlignVertical = "middle"
+          <rectangle> '图层'  page=(469.2,150.0) size=(53,20)
+              .width = 53
+              .height = "fit_content"
+              .fontSize = 13
+              .fontFamily = "SourceHanSans-Regular"
+              .lineHeight = 1.2
+              .textAlign = "left"
+              .fontFill = "rgba(156,163,175,1)"
+              .content = "正在安装"
+              .textAlignVertical = "middle"
+      <frame> 'container'  page=(522.2,159.0) size=(38.75,2)
+          .width = "fill_container"
+          .height = "fit_content"
+          .padding = [0, 0, 0, 12]
+          .layout = "horizontal"
+          .alignItems = "start"
+          .justifyContent = "start"
+        <rectangle> '连接线'  page=(534.9,159.0) size=(26.75,2)
+            .width = "fill_container"
+            .height = 2
+            .fills = "rgba(229,232,239,1)"
+      <frame> 'container'  page=(561.0,148.0) size=(71,24)
+          .width = "fit_content"
+          .height = "fit_content"
+          .padding = [0, 0, 0, 12]
+          .layout = "horizontal"
+          .alignItems = "start"
+          .justifyContent = "start"
+        <frame> '步骤-完成'  page=(573.0,148.0) size=(59,24)
+            .width = "fit_content"
+            .height = "fit_content"
+            .layout = "horizontal"
+            .alignItems = "center"
+            .justifyContent = "start"
+            .gap = 8
+          <frame> '步骤标记'  page=(573.0,148.0) size=(24,24)
+              .width = 24
+              .height = 24
+              .stroke = {"align": "center", "thickness": 1, "lineCap": "butt", "lineJoin": "miter", "fills": "rgba(208,213,221,1)"}
+              .fills = "rgba(255,255,255,1)"
+              .cornerRadius = 12
+              .layout = "horizontal"
+              .alignItems = "center"
+              .justifyContent = "center"
+            <rectangle> '图层'  page=(580.5,154.0) size=(9,12)
+                .width = 9
+                .height = "fit_content"
+                .fontSize = 12
+                .fontFamily = "SourceHanSans-SemiBold"
+                .lineHeight = 1.2
+                .textAlign = "left"
+                .fontFill = "rgba(156,163,175,1)"
+                .content = "5"
+                .textAlignVertical = "middle"
+          <rectangle> '图层'  page=(605.0,150.0) size=(27,20)
+              .width = 27
+              .height = "fit_content"
+              .fontSize = 13
+              .fontFamily = "SourceHanSans-Regular"
+              .lineHeight = 1.2
+              .textAlign = "left"
+              .fontFill = "rgba(156,163,175,1)"
+              .content = "完成"
+              .textAlignVertical = "middle"
+    <frame> '内容区'  page=(24.0,192.0) size=(640,424)
+        .width = "fill_container"
+        .height = "fit_content"
+        .padding = 32
+        .layout = "vertical"
+        .alignItems = "start"
+        .justifyContent = "start"
+      <rectangle> '图层'  page=(56.0,224.0) size=(576,26)
+          .width = "fill_container"
+          .height = 26
+          .fontSize = 18
+          .fontFamily = "SourceHanSans-SemiBold"
+          .lineHeight = 1.2
+          .textAlign = "left"
+          .fontFill = "rgba(31,41,55,1)"
+          .content = "欢迎使用「空中小火车」安装向导"
+          .textAlignVertical = "middle"
+      <frame> 'container'  page=(56.0,250.0) size=(576,34)
+          .width = "fill_container"
+          .height = "fit_content"
+          .padding = [12, 0, 0, 0]
+          .layout = "vertical"
+          .alignItems = "start"
+          .justifyContent = "start"
+        <rectangle> '图层'  page=(56.0,262.0) size=(576,22)
+            .width = "fill_container"
+            .height = 22
+            .fontSize = 13
+            .fontFamily = "SourceHanSans-Regular"
+            .lineHeight = 1.2
+            .textAlign = "left"
+            .fontFill = "rgba(75,85,99,1)"
+            .content = "这个向导将引导你完成「空中小火车 1.0.0」的安装，整个过程大约需要 1 分钟。"
+            .textAlignVertical = "middle"
+      <frame> 'container'  page=(56.0,284.0) size=(576,28)
+          .width = "fill_container"
+          .height = "fit_content"
+          .padding = [6, 0, 0, 0]
+          .layout = "vertical"
+          .alignItems = "start"
+          .justifyContent = "start"
+        <rectangle> '图层'  page=(56.0,290.0) size=(576,22)
+            .width = "fill_container"
+            .height = 22
+            .fontSize = 13
+            .fontFamily = "SourceHanSans-Regular"
+            .lineHeight = 1.2
+            .textAlign = "left"
+            .fontFill = "rgba(75,85,99,1)"
+            .content = "继续之前，建议先关闭其他正在运行的程序，避免安装过程中出现文件占用。"
+            .textAlignVertical = "middle"
+      <frame> 'container'  page=(56.0,312.0) size=(576,210)
+          .width = "fill_container"
+          .height = "fit_content"
+          .padding = [24, 0, 0, 0]
+          .layout = "vertical"
+          .alignItems = "start"
+          .justifyContent = "start"
+        <frame> '信息卡'  page=(56.0,336.0) size=(576,186)
+            .width = "fill_container"
+            .height = "fit_content"
+            .fills = "rgba(245,247,250,1)"
+            .cornerRadius = 14
+            .padding = 20
+            .layout = "vertical"
+            .alignItems = "start"
+            .justifyContent = "start"
+          <frame> '信息行-安装位置'  page=(76.0,356.0) size=(536,38)
+              .width = "fill_container"
+              .height = "fit_content"
+              .layout = "horizontal"
+              .alignItems = "center"
+              .justifyContent = "start"
+              .gap = 12
+            <frame> '图标'  page=(76.0,359.0) size=(32,32)
+                .width = 32
+                .height = 32
+                .fills = "rgba(230,244,255,1)"
+                .cornerRadius = 9
+                .layout = "horizontal"
+                .alignItems = "center"
+                .justifyContent = "center"
+              <paragraph> '图层'  page=(83.0,366.0) size=(18,18)
+                  .width = 18
+                  .height = "fit_content"
+                  .fontSize = 16
+                  .fontFamily = "remixicon"
+                  .lineHeight = 1.2
+                  .textAlign = "left"
+                  .content = ""
+                  .textAlignVertical = "middle"
+                  .fills = "rgba(22,119,255,1)"
+            <frame> '文本'  page=(120.0,356.0) size=(171,38)
+                .width = 171
+                .height = "fit_content"
+                .layout = "vertical"
+                .alignItems = "start"
+                .justifyContent = "start"
+              <rectangle> '图层'  page=(120.0,356.0) size=(171,18)
+                  .width = "fill_container"
+                  .height = 18
+                  .fontSize = 12
+                  .fontFamily = "SourceHanSans-Regular"
+                  .lineHeight = 1.2
+                  .textAlign = "left"
+                  .fontFill = "rgba(156,163,175,1)"
+                  .content = "默认安装位置"
+                  .textAlignVertical = "middle"
+              <rectangle> '图层'  page=(120.0,374.0) size=(171,20)
+                  .width = "fill_container"
+                  .height = 20
+                  .fontSize = 13
+                  .fontFamily = "SourceHanSans-Regular"
+                  .lineHeight = 1.2
+                  .textAlign = "left"
+                  .fontFill = "rgba(31,41,55,1)"
+                  .content = "C:\\Program Files\\空中小火车"
+                  .textAlignVertical = "middle"
+          <frame> 'container'  page=(76.0,394.0) size=(536,54)
+              .width = "fill_container"
+              .height = "fit_content"
+              .padding = [16, 0, 0, 0]
+              .layout = "vertical"
+              .alignItems = "start"
+              .justifyContent = "start"
+            <frame> '信息行-空间'  page=(76.0,410.0) size=(536,38)
+                .width = "fill_container"
+                .height = "fit_content"
+                .layout = "horizontal"
+                .alignItems = "center"
+                .justifyContent = "start"
+                .gap = 12
+              <frame> '图标'  page=(76.0,413.0) size=(32,32)
+                  .width = 32
+                  .height = 32
+                  .fills = "rgba(230,244,255,1)"
+                  .cornerRadius = 9
+                  .layout = "horizontal"
+                  .alignItems = "center"
+                  .justifyContent = "center"
+                <paragraph> '图层'  page=(83.0,420.0) size=(18,18)
+                    .width = 18
+                    .height = "fit_content"
+                    .fontSize = 16
+                    .fontFamily = "remixicon"
+                    .lineHeight = 1.2
+                    .textAlign = "left"
+                    .content = ""
+                    .textAlignVertical = "middle"
+                    .fills = "rgba(22,119,255,1)"
+              <frame> '文本'  page=(120.0,410.0) size=(182,38)
+                  .width = 182
+                  .height = "fit_content"
+                  .layout = "vertical"
+                  .alignItems = "start"
+                  .justifyContent = "start"
+                <rectangle> '图层'  page=(120.0,410.0) size=(182,18)
+                    .width = "fill_container"
+                    .height = 18
+                    .fontSize = 12
+                    .fontFamily = "SourceHanSans-Regular"
+                    .lineHeight = 1.2
+                    .textAlign = "left"
+                    .fontFill = "rgba(156,163,175,1)"
+                    .content = "需要磁盘空间"
+                    .textAlignVertical = "middle"
+                <rectangle> '图层'  page=(120.0,428.0) size=(182,20)
+                    .width = "fill_container"
+                    .height = 20
+                    .fontSize = 13
+                    .fontFamily = "SourceHanSans-Regular"
+                    .lineHeight = 1.2
+                    .textAlign = "left"
+                    .fontFill = "rgba(31,41,55,1)"
+                    .content = "90.6 MB（本机可用 128.4 GB）"
+                    .textAlignVertical = "middle"
+          <frame> 'container'  page=(76.0,448.0) size=(536,54)
+              .width = "fill_container"
+              .height = "fit_content"
+              .padding = [16, 0, 0, 0]
+              .layout = "vertical"
+              .alignItems = "start"
+              .justifyContent = "start"
+            <frame> '信息行-版本'  page=(76.0,464.0) size=(536,38)
+                .width = "fill_container"
+                .height = "fit_content"
+                .layout = "horizontal"
+                .alignItems = "center"
+                .justifyContent = "start"
+                .gap = 12
+              <frame> '图标'  page=(76.0,467.0) size=(32,32)
+                  .width = 32
+                  .height = 32
+                  .fills = "rgba(230,244,255,1)"
+                  .cornerRadius = 9
+                  .layout = "horizontal"
+                  .alignItems = "center"
+                  .justifyContent = "center"
+                <paragraph> '图层'  page=(83.0,474.0) size=(18,18)
+                    .width = 18
+                    .height = "fit_content"
+                    .fontSize = 16
+                    .fontFamily = "remixicon"
+                    .lineHeight = 1.2
+                    .textAlign = "left"
+                    .content = ""
+                    .textAlignVertical = "middle"
+                    .fills = "rgba(22,119,255,1)"
+              <frame> '文本'  page=(120.0,464.0) size=(139,38)
+                  .width = 139
+                  .height = "fit_content"
+                  .layout = "vertical"
+                  .alignItems = "start"
+                  .justifyContent = "start"
+                <rectangle> '图层'  page=(120.0,464.0) size=(139,18)
+                    .width = "fill_container"
+                    .height = 18
+                    .fontSize = 12
+                    .fontFamily = "SourceHanSans-Regular"
+                    .lineHeight = 1.2
+                    .textAlign = "left"
+                    .fontFill = "rgba(156,163,175,1)"
+                    .content = "版本与发布者"
+                    .textAlignVertical = "middle"
+                <rectangle> '图层'  page=(120.0,482.0) size=(139,20)
+                    .width = "fill_container"
+                    .height = 20
+                    .fontSize = 13
+                    .fontFamily = "SourceHanSans-Regular"
+                    .lineHeight = 1.2
+                    .textAlign = "left"
+                    .fontFill = "rgba(31,41,55,1)"
+                    .content = "1.0.0 · 空中小火车团队"
+                    .textAlignVertical = "middle"
+      <frame> 'container'  page=(56.0,522.0) size=(576,62)
+          .width = "fill_container"
+          .height = "fit_content"
+          .padding = [20, 0, 0, 0]
+          .layout = "vertical"
+          .alignItems = "start"
+          .justifyContent = "start"
+        <frame> '下一步提示条'  page=(56.0,542.0) size=(576,42)
+            .width = "fill_container"
+            .height = "fit_content"
+            .fills = "rgba(255,251,230,1)"
+            .cornerRadius = 10
+            .padding = [12, 16, 12, 16]
+            .layout = "horizontal"
+            .alignItems = "center"
+            .justifyContent = "start"
+            .gap = 8
+          <paragraph> '图层'  page=(72.0,555.0) size=(16,16)
+              .width = 16
+              .height = "fit_content"
+              .fontSize = 14
+              .fontFamily = "remixicon"
+              .lineHeight = 1.2
+              .textAlign = "left"
+              .content = ""
+              .textAlignVertical = "middle"
+              .fills = "rgba(250,173,20,1)"
+          <rectangle> '图层'  page=(96.0,554.0) size=(331,18)
+              .width = 331
+              .height = "fit_content"
+              .fontSize = 12
+              .fontFamily = "SourceHanSans-Regular"
+              .lineHeight = 1.2
+              .textAlign = "left"
+              .fontFill = "rgba(124,96,22,1)"
+              .content = "下一步需要先阅读并同意「许可协议」，点击「下一步」继续。"
+              .textAlignVertical = "middle"
+    <frame> '底部按钮栏'  page=(24.0,616.0) size=(640,72)
+        .width = "fill_container"
+        .height = "fit_content"
+        .padding = [16, 32, 16, 32]
+        .layout = "horizontal"
+        .alignItems = "center"
+        .justifyContent = "space_between"
+      <rectangle> '图层'  page=(56.0,643.0) size=(86,18)
+          .width = 86
+          .height = "fit_content"
+          .fontSize = 12
+          .fontFamily = "SourceHanSans-Regular"
+          .lineHeight = 1.2
+          .textAlign = "left"
+          .fontFill = "rgba(156,163,175,1)"
+          .content = "第 1 步，共 5 步"
+          .textAlignVertical = "middle"
+      <frame> '按钮组'  page=(427.0,632.0) size=(205,40)
+          .width = "fit_content"
+          .height = "fit_content"
+          .layout = "horizontal"
+          .alignItems = "center"
+          .justifyContent = "start"
+          .gap = 12
+        <frame> '取消按钮'  page=(427.0,632.0) size=(77,40)
+            .width = "fit_content"
+            .height = 40
+            .stroke = {"align": "center", "thickness": 1, "lineCap": "butt", "lineJoin": "miter", "fills": "rgba(229,232,239,1)"}
+            .fills = "rgba(255,255,255,1)"
+            .cornerRadius = 8
+            .padding = [0, 24, 0, 24]
+            .layout = "horizontal"
+            .alignItems = "center"
+            .justifyContent = "center"
+          <rectangle> '图层'  page=(451.0,642.0) size=(29,20)
+              .width = 29
+              .height = "fit_content"
+              .fontSize = 14
+              .fontFamily = "SourceHanSans-Regular"
+              .lineHeight = 1.2
+              .textAlign = "left"
+              .fontFill = "rgba(75,85,99,1)"
+              .content = "取消"
+              .textAlignVertical = "middle"
+        <frame> '下一步按钮'  page=(516.0,632.0) size=(116,40)
+            .width = "fit_content"
+            .height = 40
+            .fills = "rgba(22,119,255,1)"
+            .effects = [{"offsetX": 0, "offsetY": 2, "blur": 6, "color": "rgba(22,119,255,0.3)", "type": "drop_shadow"}]
+            .cornerRadius = 8
+            .padding = [0, 24, 0, 24]
+            .layout = "horizontal"
+            .alignItems = "center"
+            .justifyContent = "center"
+            .gap = 8
+          <rectangle> '图层'  page=(540.0,642.0) size=(43,20)
+              .width = 43
+              .height = "fit_content"
+              .fontSize = 14
+              .fontFamily = "SourceHanSans-SemiBold"
+              .lineHeight = 1.2
+              .textAlign = "left"
+              .fontFill = "rgba(255,255,255,1)"
+              .content = "下一步"
+              .textAlignVertical = "middle"
+          <paragraph> '图层'  page=(591.0,644.0) size=(17,16)
+              .width = 17
+              .height = "fit_content"
+              .fontSize = 15
+              .fontFamily = "remixicon"
+              .lineHeight = 1.2
+              .textAlign = "left"
+              .content = ""
+              .textAlignVertical = "middle"
+              .fills = "rgba(255,255,255,1)"
+
+=== design nodes missing from meta ===
+  svg | '矢量' | c02f3d46-4512-4fc6-bce1-55df06cfd9a2
+  svg | '矢量' | 92214b6f-1a1a-4cb1-b18a-e5fcb4a492d5
+  svg | '矢量' | 0755eef4-224c-47da-b8f1-3672e6654028
+
+meta nodes: 82  design nodes missing: 3

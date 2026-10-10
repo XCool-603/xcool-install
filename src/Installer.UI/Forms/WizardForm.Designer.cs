@@ -56,7 +56,7 @@ namespace Installer.UI.Forms
             this.card.Shadow = 12;
             this.card.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
             this.card.ShadowOpacity = 0.18F;
-            this.card.Size = new System.Drawing.Size(640, 672);
+            this.card.Size = new System.Drawing.Size(640, 664);
             this.card.TabIndex = 0;
             //
             // cardLayout —— 品牌头 / 步骤条 / 内容 / 底栏
@@ -76,7 +76,7 @@ namespace Installer.UI.Forms
             this.cardLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 64F));
             this.cardLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.cardLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 72F));
-            this.cardLayout.Size = new System.Drawing.Size(640, 672);
+            this.cardLayout.Size = new System.Drawing.Size(640, 664);
             this.cardLayout.TabIndex = 0;
             //
             // headerView —— 蓝色品牌区
@@ -104,7 +104,7 @@ namespace Installer.UI.Forms
             this.pnlContent.Margin = new System.Windows.Forms.Padding(0);
             this.pnlContent.Name = "pnlContent";
             this.pnlContent.Padding = new System.Windows.Forms.Padding(32, 0, 32, 0);
-            this.pnlContent.Size = new System.Drawing.Size(640, 432);
+            this.pnlContent.Size = new System.Drawing.Size(640, 424);
             this.pnlContent.TabIndex = 2;
             //
             // footerLayout
@@ -115,7 +115,7 @@ namespace Installer.UI.Forms
             this.footerLayout.Controls.Add(this.lblStepInfo, 0, 0);
             this.footerLayout.Controls.Add(this.buttonFlow, 1, 0);
             this.footerLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.footerLayout.Location = new System.Drawing.Point(0, 600);
+            this.footerLayout.Location = new System.Drawing.Point(0, 592);
             this.footerLayout.Margin = new System.Windows.Forms.Padding(0);
             this.footerLayout.Name = "footerLayout";
             this.footerLayout.RowCount = 1;
@@ -194,11 +194,11 @@ namespace Installer.UI.Forms
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(247)))), ((int)(((byte)(250)))));
-            this.ClientSize = new System.Drawing.Size(688, 720);
+            this.ClientSize = new System.Drawing.Size(688, 712);
             this.Controls.Add(this.card);
             this.Font = new System.Drawing.Font("微软雅黑", 12F);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.MinimumSize = new System.Drawing.Size(688, 720);
+            this.MinimumSize = new System.Drawing.Size(688, 712);
             this.Name = "WizardForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "安装向导";

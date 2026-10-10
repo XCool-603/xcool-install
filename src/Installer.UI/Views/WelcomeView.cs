@@ -39,6 +39,11 @@ namespace Installer.UI.Views
             infoCard.Back = WizardTheme.SoftBack;
 
             // 信息卡每行的图标块：浅蓝底（只设 Back，设 BackColor 会把圆角盖成直角）
+            // 行容器默认底色是白的，会盖在信息卡的浅灰底上（只设 Back，不设 BackColor）
+            row1.Back = WizardTheme.SoftBack;
+            row2.Back = WizardTheme.SoftBack;
+            row3.Back = WizardTheme.SoftBack;
+
             boxDir.Back = WizardTheme.PrimarySoft;
             boxSpace.Back = WizardTheme.PrimarySoft;
             boxVersion.Back = WizardTheme.PrimarySoft;
