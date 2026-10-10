@@ -54,8 +54,10 @@ namespace Installer.UI.Forms
             this.card.Name = "card";
             this.card.Radius = 16;
             this.card.Shadow = 12;
-            this.card.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.card.ShadowOpacity = 0.18F;
+            this.card.ShadowOffsetY = 12;
+            this.card.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(24)))), ((int)(((byte)(40)))));
+            this.card.ShadowOpacity = 0.16F;
+            this.card.ShadowOpacityHover = 0.16F;
             this.card.Size = new System.Drawing.Size(640, 664);
             this.card.TabIndex = 0;
             //
@@ -113,13 +115,14 @@ namespace Installer.UI.Forms
             //
             this.footerLayout.ColumnCount = 2;
             this.footerLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.footerLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 330F));
+            this.footerLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 205F));
             this.footerLayout.Controls.Add(this.lblStepInfo, 0, 0);
             this.footerLayout.Controls.Add(this.buttonFlow, 1, 0);
             this.footerLayout.Dock = System.Windows.Forms.DockStyle.Fill;
             this.footerLayout.Location = new System.Drawing.Point(0, 592);
             this.footerLayout.Margin = new System.Windows.Forms.Padding(0);
             this.footerLayout.Name = "footerLayout";
+            this.footerLayout.Padding = new System.Windows.Forms.Padding(32, 16, 32, 16);
             this.footerLayout.BackColor = System.Drawing.Color.White;
             this.footerLayout.RowCount = 1;
             this.footerLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -141,15 +144,15 @@ namespace Installer.UI.Forms
             //
             // buttonFlow —— 右对齐按钮组
             //
-            this.buttonFlow.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.buttonFlow.Dock = System.Windows.Forms.DockStyle.Fill;
             this.buttonFlow.Controls.Add(this.btnPrimary);
             this.buttonFlow.Controls.Add(this.btnBack);
             this.buttonFlow.Controls.Add(this.btnCancel);
             this.buttonFlow.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.buttonFlow.Location = new System.Drawing.Point(370, 16);
+            this.buttonFlow.Location = new System.Drawing.Point(371, 0);
             this.buttonFlow.Margin = new System.Windows.Forms.Padding(0, 0, 0, 0);
             this.buttonFlow.Name = "buttonFlow";
-            this.buttonFlow.Size = new System.Drawing.Size(246, 40);
+            this.buttonFlow.Size = new System.Drawing.Size(205, 40);
             this.buttonFlow.TabIndex = 1;
             this.buttonFlow.WrapContents = false;
             //
@@ -159,7 +162,7 @@ namespace Installer.UI.Forms
             this.btnPrimary.Margin = new System.Windows.Forms.Padding(12, 0, 0, 0);
             this.btnPrimary.Name = "btnPrimary";
             this.btnPrimary.Radius = 8;
-            this.btnPrimary.Size = new System.Drawing.Size(120, 40);
+            this.btnPrimary.Size = new System.Drawing.Size(116, 40);
             this.btnPrimary.TabIndex = 0;
             this.btnPrimary.Text = "下一步";
             this.btnPrimary.IconSvg = "<svg viewBox=\"0 0 16 16\"><path d=\"M3 8h9.4M8.6 4.2 12.8 8l-4.2 3.8\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>";
@@ -174,7 +177,7 @@ namespace Installer.UI.Forms
             this.btnBack.Margin = new System.Windows.Forms.Padding(12, 0, 0, 0);
             this.btnBack.Name = "btnBack";
             this.btnBack.Radius = 8;
-            this.btnBack.Size = new System.Drawing.Size(100, 40);
+            this.btnBack.Size = new System.Drawing.Size(90, 40);
             this.btnBack.TabIndex = 1;
             this.btnBack.Text = "上一步";
             this.btnBack.Click += new System.EventHandler(this.BtnBackClick);
@@ -187,7 +190,7 @@ namespace Installer.UI.Forms
             this.btnCancel.Margin = new System.Windows.Forms.Padding(12, 0, 0, 0);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Radius = 8;
-            this.btnCancel.Size = new System.Drawing.Size(100, 40);
+            this.btnCancel.Size = new System.Drawing.Size(77, 40);
             this.btnCancel.TabIndex = 2;
             this.btnCancel.Text = "取消";
             this.btnCancel.Click += new System.EventHandler(this.BtnCancelClick);
