@@ -61,7 +61,6 @@ namespace Installer.UI.Forms
             //
             // cardLayout —— 品牌头 / 步骤条 / 内容 / 底栏
             //
-            this.cardLayout.BackColor = System.Drawing.Color.White;
             this.cardLayout.ColumnCount = 1;
             this.cardLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.cardLayout.Controls.Add(this.headerView, 0, 0);

@@ -29,54 +29,38 @@ namespace Installer.UI.Views
         private void InitializeComponent()
         {
             this.brandPanel = new AntdUI.Panel();
-            this.layout = new System.Windows.Forms.TableLayoutPanel();
             this.iconPanel = new AntdUI.Panel();
             this.lblIcon = new AntdUI.Label();
             this.lblProduct = new AntdUI.Label();
             this.lblSubtitle = new AntdUI.Label();
             this.brandPanel.SuspendLayout();
-            this.layout.SuspendLayout();
             this.iconPanel.SuspendLayout();
             this.SuspendLayout();
             //
             // brandPanel —— 蓝色品牌区，上方两角随卡片圆角
             //
-            this.brandPanel.Controls.Add(this.layout);
+            // 注意：这里**故意不用内层 TableLayoutPanel**。
+            // 内层容器会用它自己的不透明背景铺满整个品牌区，
+            // 把 AntdUI.Panel 的圆角填充盖成直角（渲染出来就是方块）。
+            // 品牌区是固定尺寸区域，三个元素直接绝对定位即可。
+            //
+            this.brandPanel.Controls.Add(this.iconPanel);
+            this.brandPanel.Controls.Add(this.lblProduct);
+            this.brandPanel.Controls.Add(this.lblSubtitle);
             this.brandPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.brandPanel.Location = new System.Drawing.Point(0, 0);
             this.brandPanel.Margin = new System.Windows.Forms.Padding(0);
             this.brandPanel.Name = "brandPanel";
-            this.brandPanel.Padding = new System.Windows.Forms.Padding(32, 24, 32, 24);
             this.brandPanel.Radius = 16;
             this.brandPanel.RadiusAlign = AntdUI.TAlignRound.Top;
             this.brandPanel.Size = new System.Drawing.Size(640, 104);
             this.brandPanel.TabIndex = 0;
             //
-            // layout
-            //
-            this.layout.BackColor = System.Drawing.Color.Transparent;
-            this.layout.ColumnCount = 2;
-            this.layout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 72F));
-            this.layout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.layout.Controls.Add(this.iconPanel, 0, 0);
-            this.layout.Controls.Add(this.lblProduct, 1, 0);
-            this.layout.Controls.Add(this.lblSubtitle, 1, 1);
-            this.layout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.layout.Location = new System.Drawing.Point(32, 24);
-            this.layout.Margin = new System.Windows.Forms.Padding(0);
-            this.layout.Name = "layout";
-            this.layout.RowCount = 2;
-            this.layout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.layout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
-            this.layout.SetRowSpan(this.iconPanel, 2);
-            this.layout.Size = new System.Drawing.Size(576, 56);
-            this.layout.TabIndex = 0;
-            //
-            // iconPanel —— 48x48 圆角块（白 20% 叠在品牌蓝上）
+            // iconPanel —— 56x56 圆角块（白 18% 叠在品牌蓝上）
             //
             this.iconPanel.Controls.Add(this.lblIcon);
-            this.iconPanel.Location = new System.Drawing.Point(0, 0);
-            this.iconPanel.Margin = new System.Windows.Forms.Padding(0, 0, 16, 0);
+            this.iconPanel.Location = new System.Drawing.Point(32, 24);
+            this.iconPanel.Margin = new System.Windows.Forms.Padding(0);
             this.iconPanel.Name = "iconPanel";
             this.iconPanel.Radius = 16;
             this.iconPanel.Size = new System.Drawing.Size(56, 56);
@@ -96,27 +80,25 @@ namespace Installer.UI.Views
             this.lblIcon.TabIndex = 0;
             this.lblIcon.Text = " ";
             //
-            // lblProduct —— 产品名 18F Bold 白
+            // lblProduct —— 产品名 20px = 15pt SemiBold 白
             //
-            this.lblProduct.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblProduct.AutoSize = true;
             this.lblProduct.Font = new System.Drawing.Font("微软雅黑", 15F, System.Drawing.FontStyle.Bold);
-            this.lblProduct.Location = new System.Drawing.Point(72, 0);
+            this.lblProduct.Location = new System.Drawing.Point(104, 26);
             this.lblProduct.Margin = new System.Windows.Forms.Padding(0);
             this.lblProduct.Name = "lblProduct";
-            this.lblProduct.Size = new System.Drawing.Size(200, 30);
+            this.lblProduct.Size = new System.Drawing.Size(200, 26);
             this.lblProduct.TabIndex = 1;
             this.lblProduct.Text = "产品名称";
             //
-            // lblSubtitle —— 「安装向导 · 版本 1.0.0」
+            // lblSubtitle —— 「安装向导 · 版本 1.0.0」13px = 9.75pt
             //
-            this.lblSubtitle.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblSubtitle.AutoSize = true;
             this.lblSubtitle.Font = new System.Drawing.Font("微软雅黑", 9.75F);
-            this.lblSubtitle.Location = new System.Drawing.Point(72, 30);
+            this.lblSubtitle.Location = new System.Drawing.Point(104, 58);
             this.lblSubtitle.Margin = new System.Windows.Forms.Padding(0);
             this.lblSubtitle.Name = "lblSubtitle";
-            this.lblSubtitle.Size = new System.Drawing.Size(200, 21);
+            this.lblSubtitle.Size = new System.Drawing.Size(200, 17);
             this.lblSubtitle.TabIndex = 2;
             this.lblSubtitle.Text = "安装向导 · 版本 1.0.0";
             //
@@ -130,8 +112,7 @@ namespace Installer.UI.Views
             this.Name = "WizardHeaderView";
             this.Size = new System.Drawing.Size(640, 104);
             this.brandPanel.ResumeLayout(false);
-            this.layout.ResumeLayout(false);
-            this.layout.PerformLayout();
+            this.brandPanel.PerformLayout();
             this.iconPanel.ResumeLayout(false);
             this.ResumeLayout(false);
         }
@@ -139,7 +120,6 @@ namespace Installer.UI.Views
         #endregion
 
         private AntdUI.Panel brandPanel;
-        private System.Windows.Forms.TableLayoutPanel layout;
         private AntdUI.Panel iconPanel;
         private AntdUI.Label lblIcon;
         private AntdUI.Label lblProduct;

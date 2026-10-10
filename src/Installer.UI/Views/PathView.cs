@@ -153,7 +153,6 @@ namespace Installer.UI.Views
         public void ApplyAccent(Color accent)
         {
             infoBar.Back = WizardTheme.InfoBack;
-            infoBar.BackColor = WizardTheme.InfoBack;
             lblInfo.ForeColor = WizardTheme.InfoText;
 
             lblTitle.ForeColor = WizardTheme.TextTitle;

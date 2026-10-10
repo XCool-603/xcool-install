@@ -126,7 +126,6 @@ namespace Installer.UI.Views
             _accent = accent;
 
             statsCard.Back = WizardTheme.SoftBack;
-            statsCard.BackColor = WizardTheme.SoftBack;
 
             lblTitle.ForeColor = WizardTheme.TextTitle;
             lblSubtitle.ForeColor = WizardTheme.TextBody;

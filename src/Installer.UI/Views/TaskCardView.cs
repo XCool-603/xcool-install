@@ -65,7 +65,6 @@ namespace Installer.UI.Views
         public void ApplyAccent(Color accent)
         {
             cardPanel.Back = WizardTheme.SoftBack;
-            cardPanel.BackColor = WizardTheme.SoftBack;
         }
     }
 }

@@ -68,6 +68,7 @@ namespace Installer.UI.Forms
             _presenter = new WizardPresenter(manifest, table, defaultInstallDir);
 
             InitializeComponent();
+            ApplyCardRegion();
 
             ApplyAppearance();
             BuildViews();
@@ -89,6 +90,32 @@ namespace Installer.UI.Forms
 
         /// <summary>当前主色（安装 = 蓝，卸载 = 红）。</summary>
         private Color _accent = WizardTheme.Primary;
+
+        /// <summary>
+        /// 把卡片裁成圆角。
+        ///
+        /// 为什么要手动裁：AntdUI.Panel 的 Radius 只作用于它**自己**的填充，
+        /// 而卡片里铺满了 cardLayout（TableLayoutPanel）和品牌区的 Panel，
+        /// 它们的直角会把卡片的圆角盖掉。用 Region 裁剪整个卡片（含子控件）才有效。
+        /// </summary>
+        private void ApplyCardRegion()
+        {
+            var r = Common.WizardTheme.CardRadius;
+            using (var path = new System.Drawing.Drawing2D.GraphicsPath())
+            {
+                var w = card.Width;
+                var h = card.Height;
+                var d = r * 2;
+
+                path.AddArc(0, 0, d, d, 180, 90);
+                path.AddArc(w - d, 0, d, d, 270, 90);
+                path.AddArc(w - d, h - d, d, d, 0, 90);
+                path.AddArc(0, h - d, d, d, 90, 90);
+                path.CloseFigure();
+
+                card.Region = new System.Drawing.Region(path);
+            }
+        }
 
         private void ApplyAppearance()
         {
@@ -747,6 +774,12 @@ namespace Installer.UI.Forms
         }
 
         /// <summary>关闭前拦截：安装/卸载中不允许直接关。</summary>
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            ApplyCardRegion();
+        }
+
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             if (!_presenter.CanClose && !_finished)

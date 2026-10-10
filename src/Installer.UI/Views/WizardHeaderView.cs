@@ -24,12 +24,11 @@ namespace Installer.UI.Views
         public void ApplyAccent(Color accent)
         {
             brandPanel.Back = accent;
-            brandPanel.BackColor = accent;   // 子控件继承的是 BackColor，两个都要设
+            // 判定性实验：暂时不设 WinForms 的 BackColor
 
             // 图标块是「白 20% 叠在主色上」，用实色近似（AntdUI.Panel.Back 不吃 alpha）
             var iconBack = Blend(accent, Color.White, 0.20);
             iconPanel.Back = iconBack;
-            iconPanel.BackColor = iconBack;
 
             // 副标题比产品名淡一档
             lblSubtitle.ForeColor = Blend(accent, Color.White, 0.78);

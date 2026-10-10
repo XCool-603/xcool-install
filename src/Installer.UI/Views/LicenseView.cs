@@ -70,7 +70,6 @@ namespace Installer.UI.Views
         public void ApplyAccent(Color accent)
         {
             acceptPanel.Back = WizardTheme.SoftBack;
-            acceptPanel.BackColor = WizardTheme.SoftBack;
 
             lblTitle.ForeColor = WizardTheme.TextTitle;
             lblSubtitle.ForeColor = WizardTheme.TextBody;

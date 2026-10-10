@@ -109,10 +109,8 @@ namespace Installer.UI.Views
         public void ApplyAccent(Color accent)
         {
             badgePanel.Back = accent;
-            badgePanel.BackColor = accent;
 
             runPanel.Back = WizardTheme.SoftBack;
-            runPanel.BackColor = WizardTheme.SoftBack;
 
             lblTitle.ForeColor = WizardTheme.TextTitle;
             lblBody.ForeColor = WizardTheme.TextBody;

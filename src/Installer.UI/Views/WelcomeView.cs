@@ -37,10 +37,8 @@ namespace Installer.UI.Views
         public void ApplyAccent(Color accent)
         {
             infoCard.Back = WizardTheme.SoftBack;
-            infoCard.BackColor = WizardTheme.SoftBack;
 
             hintPanel.Back = WizardTheme.WarnBack;
-            hintPanel.BackColor = WizardTheme.WarnBack;
             lblHint.ForeColor = WizardTheme.WarnText;
 
             lblTitle.ForeColor = WizardTheme.TextTitle;
