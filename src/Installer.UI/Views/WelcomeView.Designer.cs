@@ -45,6 +45,7 @@ namespace Installer.UI.Views
         {
             this.lblTitle = new AntdUI.Label();
             this.lblBody = new AntdUI.Label();
+            this.lblBody2 = new AntdUI.Label();
             this.infoCard = new AntdUI.Panel();
             this.row1 = new AntdUI.Panel();
             this.boxDir = new AntdUI.Panel();
@@ -95,9 +96,20 @@ namespace Installer.UI.Views
             this.lblBody.Location = new System.Drawing.Point(0, 70);
             this.lblBody.Margin = new System.Windows.Forms.Padding(0);
             this.lblBody.Name = "lblBody";
-            this.lblBody.Size = new System.Drawing.Size(576, 50);
+            this.lblBody.Size = new System.Drawing.Size(576, 22);
             this.lblBody.TabIndex = 1;
             this.lblBody.Text = "";
+            //
+            // lblBody2 —— 设计稿 (56,290) 576x22，13px = 9.75pt #4B5563
+            //
+            this.lblBody2.AutoSize = false;
+            this.lblBody2.Font = new System.Drawing.Font("微软雅黑", 9.75F);
+            this.lblBody2.Location = new System.Drawing.Point(0, 98);
+            this.lblBody2.Margin = new System.Windows.Forms.Padding(0);
+            this.lblBody2.Name = "lblBody2";
+            this.lblBody2.Size = new System.Drawing.Size(576, 22);
+            this.lblBody2.TabIndex = 2;
+            this.lblBody2.Text = "";
             //
             // infoCard —— 设计稿 (56,336) 576x186，圆角 14，底 #F5F7FA，内边距 20
             //
@@ -304,6 +316,7 @@ namespace Installer.UI.Views
             this.BackColor = System.Drawing.Color.White;
             this.Controls.Add(this.hintPanel);
             this.Controls.Add(this.infoCard);
+            this.Controls.Add(this.lblBody2);
             this.Controls.Add(this.lblBody);
             this.Controls.Add(this.lblTitle);
             this.Font = new System.Drawing.Font("微软雅黑", 9.75F);
@@ -324,6 +337,7 @@ namespace Installer.UI.Views
 
         private AntdUI.Label lblTitle;
         private AntdUI.Label lblBody;
+        private AntdUI.Label lblBody2;
         private AntdUI.Panel infoCard;
         private AntdUI.Panel row1;
         private AntdUI.Panel boxDir;

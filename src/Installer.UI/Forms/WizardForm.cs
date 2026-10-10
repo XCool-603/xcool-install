@@ -302,7 +302,8 @@ namespace Installer.UI.Forms
                         _presenter.Text("Welcome.Title"), _presenter.ProductName);
                     _welcomeView.Body = string.Format(CultureInfo.CurrentCulture,
                         _presenter.Text("Welcome.Body"), _presenter.ProductName, _presenter.ProductVersion)
-                        + "\r\n\r\n" + _presenter.Text("Welcome.Body2");
+;
+                    _welcomeView.Body2 = _presenter.Text("Welcome.Body2");
                     _welcomeView.ApplyCaptions(_presenter.Text);
                     _welcomeView.DirValue = _presenter.Options.InstallDir;
                     _welcomeView.SpaceValue = BuildSpaceText();

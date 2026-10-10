@@ -26,11 +26,18 @@ namespace Installer.UI.Views
             set { lblTitle.Text = value; }
         }
 
-        /// <summary>正文（可含换行）。</summary>
+        /// <summary>正文第一段。</summary>
         public string Body
         {
             get { return lblBody.Text; }
             set { lblBody.Text = value; }
+        }
+
+        /// <summary>正文第二段（设计稿是独立一段，不是同一段里的换行）。</summary>
+        public string Body2
+        {
+            get { return lblBody2.Text; }
+            set { lblBody2.Text = value; }
         }
 
         /// <summary>设置主色（安装 = 蓝，卸载 = 红）。</summary>
