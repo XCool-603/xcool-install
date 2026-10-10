@@ -75,10 +75,15 @@ namespace Installer.UI.Common
             Add(t, "Wizard.StepSettings", "安装设置", "Setup");
             Add(t, "Step.Install", "正在安装", "Installing");
 
-            Add(t, "Welcome.Title", "欢迎使用", "Welcome");
+            // 文案照抄设计稿第 3 版（欢迎页），不要自己改写
+            Add(t, "Welcome.Title", "欢迎使用「{0}」安装向导", "Welcome to the {0} Setup Wizard");
             Add(t, "Welcome.Body",
-                "这个向导将引导你完成安装。\r\n\r\n点击「下一步」继续。",
-                "This wizard will guide you through the installation.\r\n\r\nClick Next to continue.");
+                "这个向导将引导你完成「{0} {1}」的安装，整个过程大约需要 1 分钟。",
+                "This wizard will install {0} {1}. It takes about a minute.");
+            Add(t, "Welcome.Body2",
+                "继续之前，建议先关闭其他正在运行的程序，避免安装过程中出现文件占用。",
+                "Before continuing, close any running instances to avoid file locks.");
+            Add(t, "Welcome.SpaceValue", "{0}（本机可用 {1}）", "{0} ({1} free on this PC)");
 
             Add(t, "License.Title", "许可协议", "License Agreement");
             Add(t, "License.Accept", "我已阅读并接受许可协议", "I accept the terms of the license agreement");

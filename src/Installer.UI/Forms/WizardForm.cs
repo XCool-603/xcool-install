@@ -298,8 +298,11 @@ namespace Installer.UI.Forms
             {
                 case WizardPage.Welcome:
                     ShowView(_welcomeView);
-                    _welcomeView.Title = _presenter.Text("Welcome.Title") + " " + _presenter.ProductName;
-                    _welcomeView.Body = _presenter.Text("Welcome.Body");
+                    _welcomeView.Title = string.Format(CultureInfo.CurrentCulture,
+                        _presenter.Text("Welcome.Title"), _presenter.ProductName);
+                    _welcomeView.Body = string.Format(CultureInfo.CurrentCulture,
+                        _presenter.Text("Welcome.Body"), _presenter.ProductName, _presenter.ProductVersion)
+                        + "\r\n\r\n" + _presenter.Text("Welcome.Body2");
                     _welcomeView.ApplyCaptions(_presenter.Text);
                     _welcomeView.DirValue = _presenter.Options.InstallDir;
                     _welcomeView.SpaceValue = BuildSpaceText();
@@ -467,8 +470,8 @@ namespace Installer.UI.Forms
                     need += f.Size;
                 }
 
-                return string.Format(CultureInfo.CurrentCulture, _presenter.Text("Path.Space"),
-                    FormatSize(free), FormatSize(need));
+                return string.Format(CultureInfo.CurrentCulture, _presenter.Text("Welcome.SpaceValue"),
+                    FormatSize(need), FormatSize(free));
             }
             catch (IOException)
             {
