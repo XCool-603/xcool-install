@@ -209,21 +209,43 @@ namespace Installer.UI.Presenters
                     case WizardPage.Path:
                     case WizardPage.Options:
                         // 设计稿把「安装位置」与「附加任务」合成一步「安装设置」
-                        return 2;
+                        // 没有许可协议时许可页被跳过，后面的步骤号整体前移一位
+                        return _licenseRequired ? 2 : 1;
                     case WizardPage.Installing:
-                        return 3;
+                        return _licenseRequired ? 3 : 2;
                     case WizardPage.Finish:
-                        return 4;
+                        return _licenseRequired ? 4 : 3;
                     default:
                         return -1;
                 }
             }
         }
 
+        /// <summary>
+        /// 当前流程实际会经过的步骤文案 key。
+        /// 没勾「必须接受许可」时许可页会被跳过，步骤条就应该是 4 步而不是 5 步 ——
+        /// 否则会看到「欢迎」直接跳到「安装设置」，中间那格永远高亮不了。
+        /// </summary>
+        /// <summary>清单是否要求必须接受许可协议。</summary>
+        public bool LicenseRequired
+        {
+            get { return _licenseRequired; }
+        }
+
+        public string[] StepKeys
+        {
+            get
+            {
+                return _licenseRequired
+                    ? new[] { "Wizard.StepWelcome", "Step.License", "Wizard.StepSettings", "Step.Install", "Wizard.Finish" }
+                    : new[] { "Wizard.StepWelcome", "Wizard.StepSettings", "Step.Install", "Wizard.Finish" };
+            }
+        }
+
         /// <summary>步骤指示器的条目数。</summary>
         public int StepCount
         {
-            get { return 5; }
+            get { return StepKeys.Length; }
         }
 
         // ─────────────────────────────────────────────────────────────

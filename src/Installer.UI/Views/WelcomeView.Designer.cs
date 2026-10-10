@@ -68,10 +68,10 @@ namespace Installer.UI.Views
             this.rootLayout.Location = new System.Drawing.Point(0, 0);
             this.rootLayout.Name = "rootLayout";
             this.rootLayout.RowCount = 5;
-            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 96F));
+            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 34F));
+            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 86F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 186F));
-            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 56F));
+            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.rootLayout.Size = new System.Drawing.Size(600, 400);
             this.rootLayout.TabIndex = 0;
@@ -303,7 +303,7 @@ namespace Installer.UI.Views
             this.hintPanel.Controls.Add(this.lblHint);
             this.hintPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.hintPanel.Location = new System.Drawing.Point(0, 322);
-            this.hintPanel.Margin = new System.Windows.Forms.Padding(0, 12, 0, 0);
+            this.hintPanel.Margin = new System.Windows.Forms.Padding(0, 20, 0, 0);
             this.hintPanel.Name = "hintPanel";
             this.hintPanel.Padding = new System.Windows.Forms.Padding(14, 10, 14, 10);
             this.hintPanel.Radius = 8;

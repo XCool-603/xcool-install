@@ -250,7 +250,10 @@ namespace Installer.UI.Forms
                     _welcomeView.DirValue = _presenter.Options.InstallDir;
                     _welcomeView.SpaceValue = BuildSpaceText();
                     _welcomeView.VersionValue = _presenter.ProductVersion + " · " + _presenter.Publisher;
-                    _welcomeView.Hint = _presenter.Text("Welcome.Hint");
+                    // 没有许可协议时别提示「下一步要先同意许可协议」
+                    _welcomeView.Hint = _presenter.LicenseRequired
+                        ? _presenter.Text("Welcome.Hint")
+                        : _presenter.Text("Welcome.HintNoLicense");
                     break;
 
                 case WizardPage.License:
@@ -506,10 +509,11 @@ namespace Installer.UI.Forms
         /// </summary>
         private void LocalizeSteps()
         {
-            var titles = new string[StepKeys.Length];
-            for (var i = 0; i < StepKeys.Length; i++)
+            var keys = _presenter.StepKeys;
+            var titles = new string[keys.Length];
+            for (var i = 0; i < keys.Length; i++)
             {
-                titles[i] = _presenter.Text(StepKeys[i]);
+                titles[i] = _presenter.Text(keys[i]);
             }
 
             stepBar.Steps = titles;

@@ -32,6 +32,8 @@ namespace Installer.UI.Common
             Add(t, "Wizard.Retry", "重试", "Retry");
 
             Add(t, "Wizard.StepInfo", "第 {0} 步，共 {1} 步", "Step {0} of {1}");
+            Add(t, "Welcome.HintNoLicense", "确认安装位置与附加任务后，点击「下一步」开始安装。",
+                "Review the install location and tasks, then click Next to begin.");
             Add(t, "Finish.RunHint", "点击「完成」后将自动启动程序", "The app will start after you click Finish");
             Add(t, "Finish.UninstallHint", "如需卸载，可在「设置 → 应用 → 已安装的应用」中找到「{0}」。",
                 "To uninstall, find {0} in Settings > Apps.");
