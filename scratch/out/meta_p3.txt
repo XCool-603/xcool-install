@@ -1,0 +1,18 @@
+        <frame> name='内容区' x=320 y=485.5 w=640 h=635
+            <frame> name='区块-安装位置' x=288 y=96 w=576 h=144
+                <frame> name='路径输入行' x=288 y=32 w=576 h=40
+                  <frame> name='路径输入框' x=238 y=20 w=476 h=40
+                  <frame> name='浏览按钮' x=532 y=20 w=88 h=40
+                <frame> name='磁盘信息行' x=288 y=19 w=576 h=18
+                <frame> name='快捷目录列表' x=288 y=27 w=576 h=30
+                  <frame> name='目录标签-Program Files' x=60.5 y=15 w=121 h=30
+            <text-rect> name='分隔线' x=288 y=24.5 w=576 h=1
+                <frame> name='任务行1' x=288 y=46 w=576 h=68
+                  <frame> name='任务-桌面快捷方式' x=141 y=34 w=282 h=68
+                    <frame> name='勾选框' x=23 y=34 w=18 h=18
+                    <frame> name='勾选框' x=23 y=34 w=18 h=18
+                    <text-rect> name='勾选框' x=23.5 y=34 w=19 h=18
+                    <frame> name='勾选框' x=23 y=34 w=18 h=18
+            <frame> name='选项组' x=288 y=40 w=576 h=40
+              <text-rect> name='勾选框' x=9.5 y=20 w=19 h=18
+            <frame> name='汇总条' x=288 y=41 w=576 h=42

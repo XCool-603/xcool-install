@@ -1,0 +1,685 @@
+====================================================================================================
+### p1  root=空中小火车-安装向导-欢迎 3 688xfit_content
+====================================================================================================
+[frame] 空中小火车-安装向导-欢迎 3
+    id="c4e35ccf-10d2-4dd8-bdde-e05bdf830f31" | width=688 | height="fit_content" | x=13819 | y=639 | layout="vertical" | padding=24 | alignItems="start" | justifyContent="start" | fills="rgba(245,247,250,1)"
+  [frame] 安装向导窗口
+      id="58df16f7-c9c1-4b11-ba72-0451d36f51ab" | width=640 | height="fit_content" | layout="vertical" | alignItems="start" | justifyContent="start" | cornerRadius=16 | fills="rgba(255,255,255,1)" | effects=[{"offsetX": 0, "offsetY": 12, "blur": 40, "color": "rgba(16,24,40,0.16)", "type": "drop_shadow"}]
+    [frame] 顶部横幅
+        id="a83b11b6-8fca-4b11-a307-9c658f8e2404" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=[24, 32, 24, 32] | gap=16 | alignItems="center" | justifyContent="start" | fills="rgba(22,119,255,1)"
+      [frame] 应用图标容器
+          id="98a01da5-16b7-4fde-ad80-07f5bc6b3086" | width=56 | height=56 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=16 | fills="rgba(255,255,255,0.18)"
+        [frame] 应用图标
+            id="f6cd6a12-ef39-4bd8-976f-b6957a0071f0" | width="fit_content" | height="fit_content"
+          [svg] 矢量
+              id="c02f3d46-4512-4fc6-bce1-55df06cfd9a2" | width=16 | height=8 | x=8 | y=7 | fills="#FFFFFF" | opacity=0.95 | content="<svg  width=\"16\" height=\"8\" viewBox=\"-8 -4 16 8\" xmlns=\"http://www.w3.org/2000/svg\">\n<g transform=\"matrix(1 0 0 1 0 0)\"  >\n<path style=\"stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 0.95;\" vector-effect=\"non-scaling-stroke\"  transform=\" translate(-16, -11)\" d=\"M 16 7 L 24 11 L 16 15 L 8 11 Z\" stroke-linecap=\"round\" />\n</g>\n</svg>"
+          [svg] 矢量
+              id="92214b6f-1a1a-4cb1-b18a-e5fcb4a492d5" | width=8 | height=14 | x=8 | y=11 | fills="#FFFFFF" | opacity=0.72 | content="<svg  width=\"8\" height=\"14\" viewBox=\"-4 -7 8 14\" xmlns=\"http://www.w3.org/2000/svg\">\n<g transform=\"matrix(1 0 0 1 0 0)\"  >\n<path style=\"stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 0.72;\" vector-effect=\"non-scaling-stroke\"  transform=\" translate(-12, -18)\" d=\"M 8 11 L 16 15 L 16 25 L 8 21 Z\" stroke-linecap=\"round\" />\n</g>\n</svg>"
+          [svg] 矢量
+              id="0755eef4-224c-47da-b8f1-3672e6654028" | width=8 | height=14 | x=16 | y=11 | fills="#FFFFFF" | opacity=0.52 | content="<svg  width=\"8\" height=\"14\" viewBox=\"-4 -7 8 14\" xmlns=\"http://www.w3.org/2000/svg\">\n<g transform=\"matrix(1 0 0 1 0 0)\"  >\n<path style=\"stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 0.52;\" vector-effect=\"non-scaling-stroke\"  transform=\" translate(-20, -18)\" d=\"M 24 11 L 16 15 L 16 25 L 24 21 Z\" stroke-linecap=\"round\" />\n</g>\n</svg>"
+      [frame] 标题区
+          id="830c0140-5a32-4bba-a93e-79624be33103" | width=129 | height="fit_content" | layout="vertical" | alignItems="start" | justifyContent="start"
+        [rectangle] 图层
+            id="7950444c-6498-4937-b2f3-1bab35739229" | width="fill_container" | height=28 | fontFamily="SourceHanSans-SemiBold" | fontSize=20 | lineHeight=1.2 | fontFill="rgba(255,255,255,1)" | textAlign="left" | textAlignVertical="middle" | content="空中小火车"
+        [frame] container
+            id="bcb2d191-55d3-4949-989e-c2eca41ce4c0" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[4, 0, 0, 0] | alignItems="start" | justifyContent="start"
+          [rectangle] 图层
+              id="78bfdbaa-4baf-435e-816f-42f239784ef4" | width="fill_container" | height=20 | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(255,255,255,1)" | textAlign="left" | textAlignVertical="middle" | content="安装向导 · 版本 1.0.0"
+    [frame] 步骤条
+        id="b9518d9f-9033-4950-aae6-27cae9dd3796" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=[20, 32, 20, 32] | alignItems="center" | justifyContent="start"
+      [frame] 步骤-欢迎
+          id="02f4c786-d509-4f6f-bfbc-4ac7f868ed2f" | width="fit_content" | height="fit_content" | layout="horizontal" | gap=8 | alignItems="center" | justifyContent="start"
+        [frame] 步骤标记
+            id="71ce200b-055f-4280-9746-d55133d27915" | width=24 | height=24 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=12 | fills="rgba(22,119,255,1)"
+          [rectangle] 图层
+              id="31cfef7f-d608-44fa-ad79-38077b77c59e" | width=9 | height="fit_content" | fontFamily="SourceHanSans-SemiBold" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(255,255,255,1)" | textAlign="left" | textAlignVertical="middle" | content="1"
+        [rectangle] 图层
+            id="0b0bf707-c413-486e-8d40-1115cdc892e1" | width=27 | height="fit_content" | fontFamily="SourceHanSans-SemiBold" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(22,119,255,1)" | textAlign="left" | textAlignVertical="middle" | content="欢迎"
+      [frame] container
+          id="1fdea983-daa1-4834-8d19-90071105dde6" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=[0, 0, 0, 12] | alignItems="start" | justifyContent="start"
+        [rectangle] 连接线
+            id="34c7ea69-0af3-4d67-b5fb-ca7f8dcd67e1" | width="fill_container" | height=2 | fills="rgba(229,232,239,1)"
+      [frame] container
+          id="774ea819-f24e-4066-b7e4-96d21eb42116" | width="fit_content" | height="fit_content" | layout="horizontal" | padding=[0, 0, 0, 12] | alignItems="start" | justifyContent="start"
+        [frame] 步骤-许可协议
+            id="5138918c-04fc-41ac-a640-b4f4684d48fc" | width="fit_content" | height="fit_content" | layout="horizontal" | gap=8 | alignItems="center" | justifyContent="start"
+          [frame] 步骤标记
+              id="e5fc4b45-b33b-499c-a20f-e0d323dda5ce" | width=24 | height=24 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=12 | fills="rgba(255,255,255,1)" | stroke={"align": "center", "thickness": 1, "lineCap": "butt", "lineJoin": "miter", "fills": "rgba(208,213,221,1)"}
+            [rectangle] 图层
+                id="dde5c531-2849-4737-a944-049432b02f87" | width=9 | height="fit_content" | fontFamily="SourceHanSans-SemiBold" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="2"
+          [rectangle] 图层
+              id="70308204-f587-4d68-809c-c95206f23998" | width=53 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="许可协议"
+      [frame] container
+          id="0014d6e3-8b29-4876-b63d-25a10723f9b2" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=[0, 0, 0, 12] | alignItems="start" | justifyContent="start"
+        [rectangle] 连接线
+            id="b5c6eb8a-c199-49b2-a0d4-683dbd91a370" | width="fill_container" | height=2 | fills="rgba(229,232,239,1)"
+      [frame] container
+          id="a33af579-e105-4c05-80a6-1a625569b13a" | width="fit_content" | height="fit_content" | layout="horizontal" | padding=[0, 0, 0, 12] | alignItems="start" | justifyContent="start"
+        [frame] 步骤-安装设置
+            id="4c13b0ec-30ac-42a4-86f2-a1adc325eed5" | width="fit_content" | height="fit_content" | layout="horizontal" | gap=8 | alignItems="center" | justifyContent="start"
+          [frame] 步骤标记
+              id="f9dea2ed-efba-48f5-a510-31c07b072638" | width=24 | height=24 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=12 | fills="rgba(255,255,255,1)" | stroke={"align": "center", "thickness": 1, "lineCap": "butt", "lineJoin": "miter", "fills": "rgba(208,213,221,1)"}
+            [rectangle] 图层
+                id="f0627b52-332d-449c-9fe0-0edc327db832" | width=9 | height="fit_content" | fontFamily="SourceHanSans-SemiBold" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="3"
+          [rectangle] 图层
+              id="280879c5-aa74-4cf5-9db5-4cb4b73e6eaa" | width=53 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="安装设置"
+      [frame] container
+          id="3280f291-adae-4e26-b7eb-1162a925e27d" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=[0, 0, 0, 12] | alignItems="start" | justifyContent="start"
+        [rectangle] 连接线
+            id="f53bc5ba-e300-4e2d-80dc-09da88d6457d" | width="fill_container" | height=2 | fills="rgba(229,232,239,1)"
+      [frame] container
+          id="64d5d7b4-0b16-41a3-9c55-31797c337c37" | width="fit_content" | height="fit_content" | layout="horizontal" | padding=[0, 0, 0, 12] | alignItems="start" | justifyContent="start"
+        [frame] 步骤-正在安装
+            id="6f9da656-4b45-4d23-9b8d-3514c7eb18e4" | width="fit_content" | height="fit_content" | layout="horizontal" | gap=8 | alignItems="center" | justifyContent="start"
+          [frame] 步骤标记
+              id="e08a9d2c-a397-4ca0-836d-d368fc7403eb" | width=24 | height=24 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=12 | fills="rgba(255,255,255,1)" | stroke={"align": "center", "thickness": 1, "lineCap": "butt", "lineJoin": "miter", "fills": "rgba(208,213,221,1)"}
+            [rectangle] 图层
+                id="23331bba-3fec-44f3-a559-761dd75f646f" | width=9 | height="fit_content" | fontFamily="SourceHanSans-SemiBold" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="4"
+          [rectangle] 图层
+              id="eb26f9b7-d710-4a94-8900-0cc3b0dc1c08" | width=53 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="正在安装"
+      [frame] container
+          id="59a63e62-468f-43b5-aa9a-28437189207b" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=[0, 0, 0, 12] | alignItems="start" | justifyContent="start"
+        [rectangle] 连接线
+            id="c9fab7c8-dd62-4140-a724-55f67c8b4f3e" | width="fill_container" | height=2 | fills="rgba(229,232,239,1)"
+      [frame] container
+          id="e5d71659-7dd2-4801-95a4-f0c958402202" | width="fit_content" | height="fit_content" | layout="horizontal" | padding=[0, 0, 0, 12] | alignItems="start" | justifyContent="start"
+        [frame] 步骤-完成
+            id="be574546-ddac-40c0-bc42-fb3be68a868f" | width="fit_content" | height="fit_content" | layout="horizontal" | gap=8 | alignItems="center" | justifyContent="start"
+          [frame] 步骤标记
+              id="49284dc9-1463-4eb7-aeff-c9425d7f2ec3" | width=24 | height=24 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=12 | fills="rgba(255,255,255,1)" | stroke={"align": "center", "thickness": 1, "lineCap": "butt", "lineJoin": "miter", "fills": "rgba(208,213,221,1)"}
+            [rectangle] 图层
+                id="094c801f-7749-4578-99b5-596d234f081e" | width=9 | height="fit_content" | fontFamily="SourceHanSans-SemiBold" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="5"
+          [rectangle] 图层
+              id="c949fb87-d867-48ba-a304-290cbbae4e01" | width=27 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="完成"
+    [frame] 内容区
+        id="f9b69d3a-b718-41f1-9510-c44f77a053be" | width="fill_container" | height="fit_content" | layout="vertical" | padding=32 | alignItems="start" | justifyContent="start"
+      [rectangle] 图层
+          id="5a3942bd-e577-4b54-bf20-440f23635e92" | width="fill_container" | height=26 | fontFamily="SourceHanSans-SemiBold" | fontSize=18 | lineHeight=1.2 | fontFill="rgba(31,41,55,1)" | textAlign="left" | textAlignVertical="middle" | content="欢迎使用「空中小火车」安装向导"
+      [frame] container
+          id="ecd0db67-21e6-46d8-a201-87c32521cd26" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[12, 0, 0, 0] | alignItems="start" | justifyContent="start"
+        [rectangle] 图层
+            id="3d8f1890-7f5b-461c-8313-2d8e151118c7" | width="fill_container" | height=22 | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(75,85,99,1)" | textAlign="left" | textAlignVertical="middle" | content="这个向导将引导你完成「空中小火车 1.0.0」的安装，整个过程大约需要 1 分钟。"
+      [frame] container
+          id="c1a5ea11-6e24-4eec-9760-52aa8d7eaabc" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[6, 0, 0, 0] | alignItems="start" | justifyContent="start"
+        [rectangle] 图层
+            id="8c5257ba-436a-4078-a5db-63e1f9dbea2f" | width="fill_container" | height=22 | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(75,85,99,1)" | textAlign="left" | textAlignVertical="middle" | content="继续之前，建议先关闭其他正在运行的程序，避免安装过程中出现文件占用。"
+      [frame] container
+          id="cdf3e99a-736a-41bb-9b83-360d0d16f2a5" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[24, 0, 0, 0] | alignItems="start" | justifyContent="start"
+        [frame] 信息卡
+            id="f614b0b3-c650-40c9-ba4e-7593337195f5" | width="fill_container" | height="fit_content" | layout="vertical" | padding=20 | alignItems="start" | justifyContent="start" | cornerRadius=14 | fills="rgba(245,247,250,1)"
+          [frame] 信息行-安装位置
+              id="0f4ebed4-40e2-4b8c-9f9f-cd04cbf27bd0" | width="fill_container" | height="fit_content" | layout="horizontal" | gap=12 | alignItems="center" | justifyContent="start"
+            [frame] 图标
+                id="dcd8f2ff-2be7-4ca9-bee5-ea286a7a8382" | width=32 | height=32 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=9 | fills="rgba(230,244,255,1)"
+              [paragraph] 图层
+                  id="229c85b4-ef6f-44bb-97a1-c0f33437d780" | width=18 | height="fit_content" | fills="rgba(22,119,255,1)" | fontFamily="remixicon" | fontSize=16 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+            [frame] 文本
+                id="f45ecfc0-6e3f-42ed-8668-d1ccdfacfe9f" | width=171 | height="fit_content" | layout="vertical" | alignItems="start" | justifyContent="start"
+              [rectangle] 图层
+                  id="b574f727-bfd2-45e8-aa6c-885fb13470dc" | width="fill_container" | height=18 | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="默认安装位置"
+              [rectangle] 图层
+                  id="be4e7a98-1db1-465c-98a4-ffa596ff59b9" | width="fill_container" | height=20 | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(31,41,55,1)" | textAlign="left" | textAlignVertical="middle" | content="C:\\Program Files\\空中小火车"
+          [frame] container
+              id="51b685a2-ed42-4e9b-a264-f17f67257e0a" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[16, 0, 0, 0] | alignItems="start" | justifyContent="start"
+            [frame] 信息行-空间
+                id="b4773e51-921a-4ae5-949d-1dacd4133367" | width="fill_container" | height="fit_content" | layout="horizontal" | gap=12 | alignItems="center" | justifyContent="start"
+              [frame] 图标
+                  id="9eb7548f-bc79-4f5a-91d9-f3ec25eaa9f3" | width=32 | height=32 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=9 | fills="rgba(230,244,255,1)"
+                [paragraph] 图层
+                    id="1c71b251-f4eb-43a9-9b0f-180f6824902d" | width=18 | height="fit_content" | fills="rgba(22,119,255,1)" | fontFamily="remixicon" | fontSize=16 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+              [frame] 文本
+                  id="a53f8b35-9fc4-46e9-a6a2-3d1796275f6f" | width=182 | height="fit_content" | layout="vertical" | alignItems="start" | justifyContent="start"
+                [rectangle] 图层
+                    id="52ba9d62-d67b-4870-90bb-d8b862504cca" | width="fill_container" | height=18 | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="需要磁盘空间"
+                [rectangle] 图层
+                    id="a1633806-e97d-4325-a21f-663e49e63747" | width="fill_container" | height=20 | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(31,41,55,1)" | textAlign="left" | textAlignVertical="middle" | content="90.6 MB（本机可用 128.4 GB）"
+          [frame] container
+              id="cfd2c3ca-1bfd-4d3d-93f8-3ff97750d00a" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[16, 0, 0, 0] | alignItems="start" | justifyContent="start"
+            [frame] 信息行-版本
+                id="a06b2b89-0b22-4cca-92c2-97fc9098bf3e" | width="fill_container" | height="fit_content" | layout="horizontal" | gap=12 | alignItems="center" | justifyContent="start"
+              [frame] 图标
+                  id="d027b230-74a2-4ecc-afce-daacea7f73cd" | width=32 | height=32 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=9 | fills="rgba(230,244,255,1)"
+                [paragraph] 图层
+                    id="40ccb830-116f-4a76-b682-76db85f295bd" | width=18 | height="fit_content" | fills="rgba(22,119,255,1)" | fontFamily="remixicon" | fontSize=16 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+              [frame] 文本
+                  id="1abab5e2-a31d-4741-8824-62d69f0c9cc2" | width=139 | height="fit_content" | layout="vertical" | alignItems="start" | justifyContent="start"
+                [rectangle] 图层
+                    id="fb05c3dc-0a7e-4320-a448-01528f529e1f" | width="fill_container" | height=18 | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="版本与发布者"
+                [rectangle] 图层
+                    id="a34db3a6-fe62-44dd-9b9e-2e7541e37222" | width="fill_container" | height=20 | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(31,41,55,1)" | textAlign="left" | textAlignVertical="middle" | content="1.0.0 · 空中小火车团队"
+      [frame] container
+          id="36a38944-0091-4a18-b53a-3aa6d2cc4e88" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[20, 0, 0, 0] | alignItems="start" | justifyContent="start"
+        [frame] 下一步提示条
+            id="0ceeb3d6-6e50-4e8a-bc83-7923f932b0c0" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=[12, 16, 12, 16] | gap=8 | alignItems="center" | justifyContent="start" | cornerRadius=10 | fills="rgba(255,251,230,1)"
+          [paragraph] 图层
+              id="76e4f16b-cbf2-4c8d-98aa-b641385fa56a" | width=16 | height="fit_content" | fills="rgba(250,173,20,1)" | fontFamily="remixicon" | fontSize=14 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+          [rectangle] 图层
+              id="3bdf86ad-64f8-4736-8b25-218c1296ce27" | width=331 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(124,96,22,1)" | textAlign="left" | textAlignVertical="middle" | content="下一步需要先阅读并同意「许可协议」，点击「下一步」继续。"
+    [frame] 底部按钮栏
+        id="7db07b7b-82d6-4e14-802f-191cf352d0cf" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=[16, 32, 16, 32] | alignItems="center" | justifyContent="space_between"
+      [rectangle] 图层
+          id="d5b0c1a8-25b2-4862-af82-f973680c238c" | width=86 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="第 1 步，共 5 步"
+      [frame] 按钮组
+          id="2fe9a540-62a3-46fd-9f8d-9f2ab853dd22" | width="fit_content" | height="fit_content" | layout="horizontal" | gap=12 | alignItems="center" | justifyContent="start"
+        [frame] 取消按钮
+            id="48c10a51-7b87-4a60-a135-746e0ad60087" | width="fit_content" | height=40 | layout="horizontal" | padding=[0, 24, 0, 24] | alignItems="center" | justifyContent="center" | cornerRadius=8 | fills="rgba(255,255,255,1)" | stroke={"align": "center", "thickness": 1, "lineCap": "butt", "lineJoin": "miter", "fills": "rgba(229,232,239,1)"}
+          [rectangle] 图层
+              id="5cf93dbf-2e19-41c6-92de-18c0df5bc191" | width=29 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=14 | lineHeight=1.2 | fontFill="rgba(75,85,99,1)" | textAlign="left" | textAlignVertical="middle" | content="取消"
+        [frame] 下一步按钮
+            id="6867cf05-4658-49a8-8924-9b8e9325b9d7" | width="fit_content" | height=40 | layout="horizontal" | padding=[0, 24, 0, 24] | gap=8 | alignItems="center" | justifyContent="center" | cornerRadius=8 | fills="rgba(22,119,255,1)" | effects=[{"offsetX": 0, "offsetY": 2, "blur": 6, "color": "rgba(22,119,255,0.3)", "type": "drop_shadow"}]
+          [rectangle] 图层
+              id="3c205cac-b9d0-4728-b287-ec559bc029b5" | width=43 | height="fit_content" | fontFamily="SourceHanSans-SemiBold" | fontSize=14 | lineHeight=1.2 | fontFill="rgba(255,255,255,1)" | textAlign="left" | textAlignVertical="middle" | content="下一步"
+          [paragraph] 图层
+              id="e0504505-bfab-40a3-9dc0-8a0d38bb42b3" | width=17 | height="fit_content" | fills="rgba(255,255,255,1)" | fontFamily="remixicon" | fontSize=15 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+====================================================================================================
+### p2  root=空中小火车-安装向导-许可协议 688xfit_content
+====================================================================================================
+[frame] 空中小火车-安装向导-许可协议
+    id="fbb4920b-df1f-4585-a84d-8833fa4dabb2" | width=688 | height="fit_content" | x=14527 | y=639 | layout="vertical" | padding=24 | alignItems="start" | justifyContent="start" | fills="rgba(245,247,250,1)"
+  [frame] 安装向导窗口
+      id="a4fbe5a1-2b62-4214-b0f5-32f55ba9bf26" | width=640 | height="fit_content" | layout="vertical" | alignItems="start" | justifyContent="start" | cornerRadius=16 | fills="rgba(255,255,255,1)" | effects=[{"offsetX": 0, "offsetY": 12, "blur": 40, "color": "rgba(16,24,40,0.16)", "type": "drop_shadow"}]
+    [frame] 顶部横幅
+        id="7a01ac70-9807-4e5c-ab23-206b4b1b1061" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=[24, 32, 24, 32] | gap=16 | alignItems="center" | justifyContent="start" | fills="rgba(22,119,255,1)"
+      [frame] 应用图标容器
+          id="cc8082b5-831d-467f-8c70-50dacff10ae3" | width=56 | height=56 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=16 | fills="rgba(255,255,255,0.18)"
+        [frame] 应用图标
+            id="3fd81c29-c63f-434d-b7d2-2dca821bde95" | width="fit_content" | height="fit_content"
+          [svg] 矢量
+              id="8c0eb72d-de32-4f34-bffa-b07e72184cd1" | width=16 | height=8 | x=8 | y=7 | fills="#FFFFFF" | opacity=0.95 | content="<svg  width=\"16\" height=\"8\" viewBox=\"-8 -4 16 8\" xmlns=\"http://www.w3.org/2000/svg\">\n<g transform=\"matrix(1 0 0 1 0 0)\"  >\n<path style=\"stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 0.95;\" vector-effect=\"non-scaling-stroke\"  transform=\" translate(-16, -11)\" d=\"M 16 7 L 24 11 L 16 15 L 8 11 Z\" stroke-linecap=\"round\" />\n</g>\n</svg>"
+          [svg] 矢量
+              id="b43f0523-2f54-4480-9200-f188d6211fdd" | width=8 | height=14 | x=8 | y=11 | fills="#FFFFFF" | opacity=0.72 | content="<svg  width=\"8\" height=\"14\" viewBox=\"-4 -7 8 14\" xmlns=\"http://www.w3.org/2000/svg\">\n<g transform=\"matrix(1 0 0 1 0 0)\"  >\n<path style=\"stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 0.72;\" vector-effect=\"non-scaling-stroke\"  transform=\" translate(-12, -18)\" d=\"M 8 11 L 16 15 L 16 25 L 8 21 Z\" stroke-linecap=\"round\" />\n</g>\n</svg>"
+          [svg] 矢量
+              id="604a81b5-9ef0-4f04-9370-3aa711d82a14" | width=8 | height=14 | x=16 | y=11 | fills="#FFFFFF" | opacity=0.52 | content="<svg  width=\"8\" height=\"14\" viewBox=\"-4 -7 8 14\" xmlns=\"http://www.w3.org/2000/svg\">\n<g transform=\"matrix(1 0 0 1 0 0)\"  >\n<path style=\"stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 0.52;\" vector-effect=\"non-scaling-stroke\"  transform=\" translate(-20, -18)\" d=\"M 24 11 L 16 15 L 16 25 L 24 21 Z\" stroke-linecap=\"round\" />\n</g>\n</svg>"
+      [frame] 标题区
+          id="2a38c054-f14c-4721-bb1a-f02223fb08ae" | width=129 | height="fit_content" | layout="vertical" | alignItems="start" | justifyContent="start"
+        [rectangle] 图层
+            id="a0296e44-7c61-4227-b173-b06ebfa03956" | width="fill_container" | height=28 | fontFamily="SourceHanSans-SemiBold" | fontSize=20 | lineHeight=1.2 | fontFill="rgba(255,255,255,1)" | textAlign="left" | textAlignVertical="middle" | content="空中小火车"
+        [frame] container
+            id="fb83cb3b-14a5-44eb-a13f-39052a5cf076" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[4, 0, 0, 0] | alignItems="start" | justifyContent="start"
+          [rectangle] 图层
+              id="cae45be0-7fc8-4bd5-bc9e-9bc72adedafd" | width="fill_container" | height=20 | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(255,255,255,1)" | textAlign="left" | textAlignVertical="middle" | content="安装向导 · 版本 1.0.0"
+    [frame] 步骤条
+        id="80e757fa-8740-487f-8a99-f1c3a3b67a35" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=[20, 32, 20, 32] | alignItems="center" | justifyContent="start"
+      [frame] 步骤-欢迎
+          id="8548750e-e5a6-42ac-9129-5f05413b08ae" | width="fit_content" | height="fit_content" | layout="horizontal" | gap=8 | alignItems="center" | justifyContent="start"
+        [frame] 步骤标记-已完成
+            id="1df65c0b-de16-4ced-b2a7-bcd6afe04e0e" | width=24 | height=24 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=12 | fills="rgba(82,196,26,1)"
+          [paragraph] 图层
+              id="d299e146-a7fd-4151-b8c9-fc7bfe4bd1b8" | width=15 | height="fit_content" | fills="rgba(255,255,255,1)" | fontFamily="remixicon" | fontSize=13 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+        [rectangle] 图层
+            id="97c8b047-95f8-41e0-83b1-78a4d54ee105" | width=27 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(75,85,99,1)" | textAlign="left" | textAlignVertical="middle" | content="欢迎"
+      [frame] container
+          id="6c80a907-65a6-4524-a6fa-eeec13606017" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=[0, 0, 0, 12] | alignItems="start" | justifyContent="start"
+        [rectangle] 连接线
+            id="5f15700b-1e6c-43c5-809c-12f892d3b43c" | width="fill_container" | height=2 | fills="rgba(82,196,26,1)"
+      [frame] container
+          id="5a89d9fd-ecf9-40bd-a781-5c3918349b7c" | width="fit_content" | height="fit_content" | layout="horizontal" | padding=[0, 0, 0, 12] | alignItems="start" | justifyContent="start"
+        [frame] 步骤-许可协议
+            id="1f8a07f5-2405-4f42-9d8b-431230505a19" | width="fit_content" | height="fit_content" | layout="horizontal" | gap=8 | alignItems="center" | justifyContent="start"
+          [frame] 步骤标记
+              id="b218f6b0-7953-42e2-90c1-80304447fc35" | width=24 | height=24 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=12 | fills="rgba(22,119,255,1)"
+            [rectangle] 图层
+                id="a49f1b62-a5a3-4faa-8a8a-e5641c669293" | width=9 | height="fit_content" | fontFamily="SourceHanSans-SemiBold" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(255,255,255,1)" | textAlign="left" | textAlignVertical="middle" | content="2"
+          [rectangle] 图层
+              id="9fe8906c-8d81-4d13-b4d8-999a6680b837" | width=53 | height="fit_content" | fontFamily="SourceHanSans-SemiBold" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(22,119,255,1)" | textAlign="left" | textAlignVertical="middle" | content="许可协议"
+      [frame] container
+          id="fec6bc4a-3d38-40c6-ab8e-be6cd5e43eda" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=[0, 0, 0, 12] | alignItems="start" | justifyContent="start"
+        [rectangle] 连接线
+            id="45ed698c-b0b0-4ea9-82bc-dcc9666b7fa6" | width="fill_container" | height=2 | fills="rgba(229,232,239,1)"
+      [frame] container
+          id="a988126a-7c84-43a4-985e-e613ff7ba53d" | width="fit_content" | height="fit_content" | layout="horizontal" | padding=[0, 0, 0, 12] | alignItems="start" | justifyContent="start"
+        [frame] 步骤-安装设置
+            id="f484bde7-738b-43e9-9527-05f545297aab" | width="fit_content" | height="fit_content" | layout="horizontal" | gap=8 | alignItems="center" | justifyContent="start"
+          [frame] 步骤标记
+              id="751a36d1-a55c-46a3-8ecd-66b416f4bb8d" | width=24 | height=24 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=12 | fills="rgba(255,255,255,1)" | stroke={"align": "center", "thickness": 1, "lineCap": "butt", "lineJoin": "miter", "fills": "rgba(208,213,221,1)"}
+            [rectangle] 图层
+                id="8b8c52ad-40be-4df5-a776-31554f855ce8" | width=9 | height="fit_content" | fontFamily="SourceHanSans-SemiBold" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="3"
+          [rectangle] 图层
+              id="25f371f8-f342-4009-8d80-fdfcd6dabd13" | width=53 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="安装设置"
+      [frame] container
+          id="e692738d-b2d6-4e75-8b34-3e4a36441748" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=[0, 0, 0, 12] | alignItems="start" | justifyContent="start"
+        [rectangle] 连接线
+            id="7d7cbb35-f06f-4683-9fe0-359813ee299d" | width="fill_container" | height=2 | fills="rgba(229,232,239,1)"
+      [frame] container
+          id="ed4cefee-a825-4b29-8b7e-455db045874d" | width="fit_content" | height="fit_content" | layout="horizontal" | padding=[0, 0, 0, 12] | alignItems="start" | justifyContent="start"
+        [frame] 步骤-正在安装
+            id="49949c42-bf31-4956-9768-3030a9cb74bb" | width="fit_content" | height="fit_content" | layout="horizontal" | gap=8 | alignItems="center" | justifyContent="start"
+          [frame] 步骤标记
+              id="3c580441-2209-4576-af36-a942b1766fcf" | width=24 | height=24 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=12 | fills="rgba(255,255,255,1)" | stroke={"align": "center", "thickness": 1, "lineCap": "butt", "lineJoin": "miter", "fills": "rgba(208,213,221,1)"}
+            [rectangle] 图层
+                id="f82d363a-0692-4c42-9a4f-e2bcabca02fb" | width=9 | height="fit_content" | fontFamily="SourceHanSans-SemiBold" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="4"
+          [rectangle] 图层
+              id="240ac086-6f2a-41f5-9dad-ce0523668131" | width=53 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="正在安装"
+      [frame] container
+          id="9aa1d3a2-fe55-4fc7-aa42-16429c4409f9" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=[0, 0, 0, 12] | alignItems="start" | justifyContent="start"
+        [rectangle] 连接线
+            id="24ed2038-6a81-4f8a-8f42-657c96c3aa4b" | width="fill_container" | height=2 | fills="rgba(229,232,239,1)"
+      [frame] container
+          id="ec0367e1-c952-4baf-936b-a3f62700f416" | width="fit_content" | height="fit_content" | layout="horizontal" | padding=[0, 0, 0, 12] | alignItems="start" | justifyContent="start"
+        [frame] 步骤-完成
+            id="feadfac8-ad92-47cb-aa2f-c8f7c908ee29" | width="fit_content" | height="fit_content" | layout="horizontal" | gap=8 | alignItems="center" | justifyContent="start"
+          [frame] 步骤标记
+              id="ef84ae44-7ab2-4281-897c-fef5a088d19b" | width=24 | height=24 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=12 | fills="rgba(255,255,255,1)" | stroke={"align": "center", "thickness": 1, "lineCap": "butt", "lineJoin": "miter", "fills": "rgba(208,213,221,1)"}
+            [rectangle] 图层
+                id="174aa194-981a-459f-a938-89d4cc3d921b" | width=9 | height="fit_content" | fontFamily="SourceHanSans-SemiBold" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="5"
+          [rectangle] 图层
+              id="3f1a80bf-fcfb-4c66-8fc5-427aebb874cd" | width=27 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="完成"
+    [frame] 内容区
+        id="bbf835b7-3c0c-43b4-a5e7-166ef3e71643" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[28, 32, 28, 32] | alignItems="start" | justifyContent="start"
+      [rectangle] 图层
+          id="5ad104f4-0e9d-431a-a0c0-4b970434a53a" | width="fill_container" | height=26 | fontFamily="SourceHanSans-SemiBold" | fontSize=18 | lineHeight=1.2 | fontFill="rgba(31,41,55,1)" | textAlign="left" | textAlignVertical="middle" | content="许可协议"
+      [frame] container
+          id="5e7d6c38-f70f-4751-b576-1df77ef14974" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[10, 0, 0, 0] | alignItems="start" | justifyContent="start"
+        [rectangle] 图层
+            id="3016e63e-e832-4231-aac2-3faea7bae4fa" | width="fill_container" | height=22 | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(75,85,99,1)" | textAlign="left" | textAlignVertical="middle" | content="请仔细阅读下面的许可协议。安装「空中小火车」前，你需要接受本协议的全部条款。"
+      [frame] container
+          id="74346f7d-712b-4d5f-b1cb-54198dc9dc12" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[16, 0, 0, 0] | alignItems="start" | justifyContent="start"
+        [frame] 协议正文框
+            id="91726109-7773-4581-abe1-1c4d98ad50f4" | width="fill_container" | height="fit_content" | layout="vertical" | padding=20 | alignItems="start" | justifyContent="start" | cornerRadius=12 | fills="rgba(250,251,252,1)" | stroke={"align": "center", "thickness": 1, "lineCap": "butt", "lineJoin": "miter", "fills": "rgba(229,232,239,1)"}
+          [frame] 协议抬头
+              id="8bb1f422-e1e4-483b-8eab-e9e7d700723e" | width="fill_container" | height="fit_content" | layout="horizontal" | gap=8 | alignItems="center" | justifyContent="start"
+            [paragraph] 图层
+                id="73f45b89-a408-4cc0-8303-34037693519b" | width=17 | height="fit_content" | fills="rgba(22,119,255,1)" | fontFamily="remixicon" | fontSize=15 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+            [rectangle] 图层
+                id="ea47bdc6-a60b-4451-a1f8-56a0c0b0acce" | width=173 | height="fit_content" | fontFamily="SourceHanSans-SemiBold" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(31,41,55,1)" | textAlign="left" | textAlignVertical="middle" | content="空中小火车 最终用户许可协议"
+          [frame] container
+              id="7687831d-a361-4bb1-87fb-8e93f118e291" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[14, 0, 0, 0] | alignItems="start" | justifyContent="start"
+            [frame] 协议条款1
+                id="1762cb26-bdff-47a8-8df8-b69bbf836419" | width="fill_container" | height="fit_content" | layout="vertical" | alignItems="start" | justifyContent="start"
+              [rectangle] 图层
+                  id="ef3e5074-aa86-42d1-9fed-304ab7a00545" | width="fill_container" | height=18 | fontFamily="SourceHanSans-SemiBold" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(31,41,55,1)" | textAlign="left" | textAlignVertical="middle" | content="1. 授权范围"
+              [frame] container
+                  id="23ffb33d-7ead-4fb6-b9d3-8530e0cc9b70" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[4, 0, 0, 0] | alignItems="start" | justifyContent="start"
+                [rectangle] 图层
+                    id="7f5a4cd9-bdf5-4b24-b83b-1fd6a6631703" | width="fill_container" | height=40 | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(75,85,99,1)" | textAlign="left" | textAlignVertical="middle" | content="本协议授予你在一台设备上安装并使用「空中小火车」的非独占、不可转让的权利。你可以为备份目的复制一份安装包，但不得对外分发。"
+          [frame] container
+              id="9bb65a8c-0d35-41c7-ac94-ebc158e4db63" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[12, 0, 0, 0] | alignItems="start" | justifyContent="start"
+            [frame] 协议条款2
+                id="e8d212a8-0e9e-4ab3-b3f5-99e9cc110760" | width="fill_container" | height="fit_content" | layout="vertical" | alignItems="start" | justifyContent="start"
+              [rectangle] 图层
+                  id="969c3af2-d9d3-4576-a830-5de6ff85e359" | width="fill_container" | height=18 | fontFamily="SourceHanSans-SemiBold" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(31,41,55,1)" | textAlign="left" | textAlignVertical="middle" | content="2. 使用限制"
+              [frame] container
+                  id="171324a6-63be-4370-b138-02eb87170610" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[4, 0, 0, 0] | alignItems="start" | justifyContent="start"
+                [rectangle] 图层
+                    id="08528ceb-23b4-4eaf-8483-abdfd0d49f54" | width="fill_container" | height=40 | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(75,85,99,1)" | textAlign="left" | textAlignVertical="middle" | content="你不得对本软件进行反向工程、反编译或反汇编，不得移除或修改软件中的版权声明与标识，不得将本软件用于任何违法用途。"
+          [frame] container
+              id="3768cb83-95a4-40b4-9d5a-567b9a6eef76" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[12, 0, 0, 0] | alignItems="start" | justifyContent="start"
+            [frame] 协议条款3
+                id="a54c886f-7b28-4e42-aaf8-d56a8e52ad39" | width="fill_container" | height="fit_content" | layout="vertical" | alignItems="start" | justifyContent="start"
+              [rectangle] 图层
+                  id="7269fba4-11ff-4843-820d-e848c1a60432" | width="fill_container" | height=18 | fontFamily="SourceHanSans-SemiBold" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(31,41,55,1)" | textAlign="left" | textAlignVertical="middle" | content="3. 数据与隐私"
+              [frame] container
+                  id="7371d2bb-e3e4-4c52-877e-a84b7ee1edcf" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[4, 0, 0, 0] | alignItems="start" | justifyContent="start"
+                [rectangle] 图层
+                    id="652edb8f-b04a-4346-aa8c-c48dc97e604b" | width="fill_container" | height=40 | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(75,85,99,1)" | textAlign="left" | textAlignVertical="middle" | content="本软件会在本地保存你的配置信息与操作记录，不会在未经许可的情况下上传到服务器。相关数据仅用于改善软件功能。"
+          [frame] container
+              id="9de68daf-2dba-4217-8010-64e16cb43e5a" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[12, 0, 0, 0] | alignItems="start" | justifyContent="start"
+            [frame] 协议条款4
+                id="179ffd9f-b1eb-42c8-b32a-a1e7e2bdbce7" | width="fill_container" | height="fit_content" | layout="vertical" | alignItems="start" | justifyContent="start"
+              [rectangle] 图层
+                  id="2e837f6b-4ea1-486d-a64e-50184faa7234" | width="fill_container" | height=18 | fontFamily="SourceHanSans-SemiBold" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(31,41,55,1)" | textAlign="left" | textAlignVertical="middle" | content="4. 免责声明"
+              [frame] container
+                  id="90b6cabc-6a64-42a3-9fe8-a20eee54561b" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[4, 0, 0, 0] | alignItems="start" | justifyContent="start"
+                [rectangle] 图层
+                    id="ef5c237b-d679-40f8-998a-2e147feca728" | width="fill_container" | height=40 | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(75,85,99,1)" | textAlign="left" | textAlignVertical="middle" | content="本软件按「现状」提供，不对其适用性、稳定性作出明示或默示的担保。因使用本软件产生的数据丢失或其他损失，开发者不承担相应责任。"
+          [frame] container
+              id="049ad266-a9c0-42dc-adf8-658d4c7b22ef" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[12, 0, 0, 0] | alignItems="start" | justifyContent="start"
+            [frame] 协议条款5
+                id="86ea1b41-a7e9-4752-96f9-e6f34bbc8931" | width="fill_container" | height="fit_content" | layout="vertical" | alignItems="start" | justifyContent="start"
+              [rectangle] 图层
+                  id="78514451-83e0-4896-b431-bec464b50b0a" | width="fill_container" | height=18 | fontFamily="SourceHanSans-SemiBold" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(31,41,55,1)" | textAlign="left" | textAlignVertical="middle" | content="5. 协议终止"
+              [frame] container
+                  id="818869e7-8775-4584-a886-059d81c09b07" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[4, 0, 0, 0] | alignItems="start" | justifyContent="start"
+                [rectangle] 图层
+                    id="1c04a27d-94fc-4f87-b20a-367b9f1bba8a" | width="fill_container" | height=40 | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(75,85,99,1)" | textAlign="left" | textAlignVertical="middle" | content="如果你违反本协议的任何条款，本协议授予的使用权将自动终止。终止后你应停止使用并卸载本软件。"
+          [frame] container
+              id="265da7ce-1b2b-424a-bd12-b263416083c8" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[12, 0, 0, 0] | alignItems="start" | justifyContent="start"
+            [frame] 协议条款6
+                id="f3debf0f-daea-4dfc-b574-86cf8f07cc9e" | width="fill_container" | height="fit_content" | layout="vertical" | alignItems="start" | justifyContent="start"
+              [rectangle] 图层
+                  id="78d430c4-74dc-4275-8c26-9aacea32adca" | width="fill_container" | height=18 | fontFamily="SourceHanSans-SemiBold" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(31,41,55,1)" | textAlign="left" | textAlignVertical="middle" | content="6. 其他约定"
+              [frame] container
+                  id="23fc12a0-b489-4500-83ee-acc8fe37ac1a" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[4, 0, 0, 0] | alignItems="start" | justifyContent="start"
+                [rectangle] 图层
+                    id="05d7558a-fa7a-4606-9b71-39c85a0c8d4b" | width="fill_container" | height=40 | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(75,85,99,1)" | textAlign="left" | textAlignVertical="middle" | content="安装并继续使用本软件，即表示你已阅读并同意上述全部条款。本协议内容如发生变更，将在新版本中进行说明。"
+      [frame] container
+          id="afd1c094-a881-49b4-9a56-9be957624d1f" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[20, 0, 0, 0] | alignItems="start" | justifyContent="start"
+        [frame] 同意条款行
+            id="4cf4f2ae-98e7-4441-9172-21e94c4021e6" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=[14, 16, 14, 16] | gap=12 | alignItems="center" | justifyContent="start" | cornerRadius=12 | fills="rgba(245,247,250,1)"
+          [frame] 勾选框
+              id="052b5f7c-613f-4a0e-9c2f-e0d91cf32f54" | width=18 | height=18 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=4 | fills="rgba(22,119,255,1)"
+            [paragraph] 图层
+                id="961988e3-db65-4dc8-abf8-7d6a6490c7de" | width=14 | height="fit_content" | fills="rgba(255,255,255,1)" | fontFamily="remixicon" | fontSize=12 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+          [frame] 文本
+              id="1ab059d8-01b6-41e7-9c2c-23eaa4f3ec49" | width=324 | height="fit_content" | layout="vertical" | alignItems="start" | justifyContent="start"
+            [rectangle] 图层
+                id="582352ea-3070-41e7-8a3e-862955abe0d7" | width="fill_container" | height=20 | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(31,41,55,1)" | textAlign="left" | textAlignVertical="middle" | content="我已阅读并同意「空中小火车」许可协议"
+            [frame] container
+                id="f11fef76-27d0-4a69-8327-825045b08084" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[2, 0, 0, 0] | alignItems="start" | justifyContent="start"
+              [rectangle] 图层
+                  id="587a9022-b37c-43ac-a758-75cb74011669" | width="fill_container" | height=18 | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="勾选后才能继续安装；若不同意，可点击「取消」退出安装。"
+    [frame] 底部按钮栏
+        id="5123af65-2ef4-496d-9117-8d6b977e650f" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=[16, 32, 16, 32] | alignItems="center" | justifyContent="space_between"
+      [rectangle] 图层
+          id="731b284e-bc59-45da-9f4d-6f8658017923" | width=86 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="第 2 步，共 5 步"
+      [frame] 按钮组
+          id="8b81bf3b-1642-4cb7-88d1-6c0983ed2aad" | width="fit_content" | height="fit_content" | layout="horizontal" | gap=12 | alignItems="center" | justifyContent="start"
+        [frame] 取消按钮
+            id="f533c314-7617-4fc4-80a5-2c79c4fe1cd3" | width="fit_content" | height=40 | layout="horizontal" | padding=[0, 24, 0, 24] | alignItems="center" | justifyContent="center" | cornerRadius=8 | fills="rgba(255,255,255,1)" | stroke={"align": "center", "thickness": 1, "lineCap": "butt", "lineJoin": "miter", "fills": "rgba(229,232,239,1)"}
+          [rectangle] 图层
+              id="a9594068-1e78-48c7-927b-653fedaa4684" | width=29 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=14 | lineHeight=1.2 | fontFill="rgba(75,85,99,1)" | textAlign="left" | textAlignVertical="middle" | content="取消"
+        [frame] 上一步按钮
+            id="e58c0123-440f-433c-8aac-25c4fc8109ee" | width="fit_content" | height=40 | layout="horizontal" | padding=[0, 20, 0, 20] | gap=8 | alignItems="center" | justifyContent="center" | cornerRadius=8 | fills="rgba(255,255,255,1)" | stroke={"align": "center", "thickness": 1, "lineCap": "butt", "lineJoin": "miter", "fills": "rgba(229,232,239,1)"}
+          [paragraph] 图层
+              id="4d8319b3-e896-46df-89de-3d965141dc45" | width=17 | height="fit_content" | fills="rgba(75,85,99,1)" | fontFamily="remixicon" | fontSize=15 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+          [rectangle] 图层
+              id="a28b961f-ac05-4f2f-ba56-6e7bc91a2e7a" | width=43 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=14 | lineHeight=1.2 | fontFill="rgba(75,85,99,1)" | textAlign="left" | textAlignVertical="middle" | content="上一步"
+        [frame] 下一步按钮
+            id="4f264aaf-b345-4146-a3e2-c1b5eb32db2a" | width="fit_content" | height=40 | layout="horizontal" | padding=[0, 24, 0, 24] | gap=8 | alignItems="center" | justifyContent="center" | cornerRadius=8 | fills="rgba(22,119,255,1)" | effects=[{"offsetX": 0, "offsetY": 2, "blur": 6, "color": "rgba(22,119,255,0.3)", "type": "drop_shadow"}]
+          [rectangle] 图层
+              id="2bbda791-9e89-4098-8a49-5d26d16d18e0" | width=43 | height="fit_content" | fontFamily="SourceHanSans-SemiBold" | fontSize=14 | lineHeight=1.2 | fontFill="rgba(255,255,255,1)" | textAlign="left" | textAlignVertical="middle" | content="下一步"
+          [paragraph] 图层
+              id="880a39ee-0a6d-40ad-b63e-da0cd1891e78" | width=17 | height="fit_content" | fills="rgba(255,255,255,1)" | fontFamily="remixicon" | fontSize=15 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+====================================================================================================
+### p3  root=空中小火车-安装向导-安装设置 2 688xfit_content
+====================================================================================================
+[frame] 空中小火车-安装向导-安装设置 2
+    id="0bd46b90-fe65-46bf-8021-756ce6fe6d56" | width=688 | height="fit_content" | x=15235 | y=639 | layout="vertical" | padding=24 | alignItems="start" | justifyContent="start" | fills="rgba(245,247,250,1)"
+  [frame] 安装向导窗口
+      id="a840d4f2-7947-40fa-9468-4b9209cd8d52" | width=640 | height="fit_content" | layout="vertical" | alignItems="start" | justifyContent="start" | cornerRadius=16 | fills="rgba(255,255,255,1)" | effects=[{"offsetX": 0, "offsetY": 12, "blur": 40, "color": "rgba(16,24,40,0.16)", "type": "drop_shadow"}]
+    [frame] 顶部横幅
+        id="1df92d87-bb97-43ec-92b2-67e69c72b5ea" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=[24, 32, 24, 32] | gap=16 | alignItems="center" | justifyContent="start" | fills="rgba(22,119,255,1)"
+      [frame] 应用图标容器
+          id="6601f305-ad14-4260-8c4a-b0dbb8908c5f" | width=56 | height=56 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=16 | fills="rgba(255,255,255,0.18)"
+        [frame] 应用图标
+            id="83de91f1-b14f-480e-9e55-8bb93c2ea9ee" | width="fit_content" | height="fit_content"
+          [svg] 矢量
+              id="eb59891b-bcfb-4d08-ac0f-9b9449de3785" | width=16 | height=8 | x=8 | y=7 | fills="#FFFFFF" | opacity=0.95 | content="<svg  width=\"16\" height=\"8\" viewBox=\"-8 -4 16 8\" xmlns=\"http://www.w3.org/2000/svg\">\n<g transform=\"matrix(1 0 0 1 0 0)\"  >\n<path style=\"stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 0.95;\" vector-effect=\"non-scaling-stroke\"  transform=\" translate(-16, -11)\" d=\"M 16 7 L 24 11 L 16 15 L 8 11 Z\" stroke-linecap=\"round\" />\n</g>\n</svg>"
+          [svg] 矢量
+              id="bf2f7d60-94c0-4516-8b9f-9c6932184362" | width=8 | height=14 | x=8 | y=11 | fills="#FFFFFF" | opacity=0.72 | content="<svg  width=\"8\" height=\"14\" viewBox=\"-4 -7 8 14\" xmlns=\"http://www.w3.org/2000/svg\">\n<g transform=\"matrix(1 0 0 1 0 0)\"  >\n<path style=\"stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 0.72;\" vector-effect=\"non-scaling-stroke\"  transform=\" translate(-12, -18)\" d=\"M 8 11 L 16 15 L 16 25 L 8 21 Z\" stroke-linecap=\"round\" />\n</g>\n</svg>"
+          [svg] 矢量
+              id="40617212-88ac-4b98-8a91-15628f422450" | width=8 | height=14 | x=16 | y=11 | fills="#FFFFFF" | opacity=0.52 | content="<svg  width=\"8\" height=\"14\" viewBox=\"-4 -7 8 14\" xmlns=\"http://www.w3.org/2000/svg\">\n<g transform=\"matrix(1 0 0 1 0 0)\"  >\n<path style=\"stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 0.52;\" vector-effect=\"non-scaling-stroke\"  transform=\" translate(-20, -18)\" d=\"M 24 11 L 16 15 L 16 25 L 24 21 Z\" stroke-linecap=\"round\" />\n</g>\n</svg>"
+      [frame] 标题区
+          id="d9a8800a-e3c5-4787-b43d-96d86f03f387" | width=129 | height="fit_content" | layout="vertical" | alignItems="start" | justifyContent="start"
+        [rectangle] 图层
+            id="8837a3e1-c353-4a48-b453-89044f49a695" | width="fill_container" | height=28 | fontFamily="SourceHanSans-SemiBold" | fontSize=20 | lineHeight=1.2 | fontFill="rgba(255,255,255,1)" | textAlign="left" | textAlignVertical="middle" | content="空中小火车"
+        [frame] container
+            id="e21a7cad-a992-4de2-b66d-a6614db4a1d9" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[4, 0, 0, 0] | alignItems="start" | justifyContent="start"
+          [rectangle] 图层
+              id="6d3e0a11-4f44-4bdb-82b3-4ca34b4e5fef" | width="fill_container" | height=20 | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(255,255,255,1)" | textAlign="left" | textAlignVertical="middle" | content="安装向导 · 版本 1.0.0"
+    [frame] 步骤条
+        id="ef1f875c-5a43-4578-97bb-168197abc59e" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=[20, 32, 20, 32] | alignItems="center" | justifyContent="start"
+      [frame] 步骤-欢迎
+          id="05c7d480-c825-4ceb-9965-0cb5d6291989" | width="fit_content" | height="fit_content" | layout="horizontal" | gap=8 | alignItems="center" | justifyContent="start"
+        [frame] 步骤标记-已完成
+            id="aaa1b057-b830-43b3-96c5-62a73596a0bd" | width=24 | height=24 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=12 | fills="rgba(82,196,26,1)"
+          [paragraph] 图层
+              id="67b287f5-94ea-4de6-b8ae-4d6252d493fa" | width=15 | height="fit_content" | fills="rgba(255,255,255,1)" | fontFamily="remixicon" | fontSize=13 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+        [rectangle] 图层
+            id="d1ce747c-4748-4422-ad31-ab2233a080ba" | width=27 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(75,85,99,1)" | textAlign="left" | textAlignVertical="middle" | content="欢迎"
+      [frame] container
+          id="47b6fc41-406a-4a17-95fc-e6c3af74d875" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=[0, 0, 0, 12] | alignItems="start" | justifyContent="start"
+        [rectangle] 连接线
+            id="02397442-3910-4484-8c19-7d7b9859a808" | width="fill_container" | height=2 | fills="rgba(82,196,26,1)"
+      [frame] container
+          id="7c63be9a-69b7-4739-a3b4-923d63ba2c8b" | width="fit_content" | height="fit_content" | layout="horizontal" | padding=[0, 0, 0, 12] | alignItems="start" | justifyContent="start"
+        [frame] 步骤-许可协议
+            id="c3c82b48-28e1-4e5c-98ae-5754c3b161fc" | width="fit_content" | height="fit_content" | layout="horizontal" | gap=8 | alignItems="center" | justifyContent="start"
+          [frame] 步骤标记-已完成
+              id="ab8dc732-d042-4bd2-8996-13dca6103625" | width=24 | height=24 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=12 | fills="rgba(82,196,26,1)"
+            [paragraph] 图层
+                id="9c7fad72-2d76-42a8-b35a-fa8d220c2705" | width=15 | height="fit_content" | fills="rgba(255,255,255,1)" | fontFamily="remixicon" | fontSize=13 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+          [rectangle] 图层
+              id="a161b017-9d21-45eb-85da-c5f28cd02608" | width=53 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(75,85,99,1)" | textAlign="left" | textAlignVertical="middle" | content="许可协议"
+      [frame] container
+          id="e519b6bf-3f9b-4efb-9173-9d4e24afe226" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=[0, 0, 0, 12] | alignItems="start" | justifyContent="start"
+        [rectangle] 连接线
+            id="d23d7a04-592d-4f97-af98-36e1e96dc307" | width="fill_container" | height=2 | fills="rgba(82,196,26,1)"
+      [frame] container
+          id="dc9f481f-ae03-4339-ab69-9bb78e3514fd" | width="fit_content" | height="fit_content" | layout="horizontal" | padding=[0, 0, 0, 12] | alignItems="start" | justifyContent="start"
+        [frame] 步骤-安装设置
+            id="a595a739-0f64-420e-bce0-7fcf4979b16b" | width="fit_content" | height="fit_content" | layout="horizontal" | gap=8 | alignItems="center" | justifyContent="start"
+          [frame] 步骤标记
+              id="7f7e7aa0-9fa6-4814-91fb-5528e7f656e1" | width=24 | height=24 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=12 | fills="rgba(22,119,255,1)"
+            [rectangle] 图层
+                id="ba50b0fa-5f86-42d7-bea9-c210649b3300" | width=9 | height="fit_content" | fontFamily="SourceHanSans-SemiBold" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(255,255,255,1)" | textAlign="left" | textAlignVertical="middle" | content="3"
+          [rectangle] 图层
+              id="49f635e4-2975-4c27-bc90-56a8041caeed" | width=53 | height="fit_content" | fontFamily="SourceHanSans-SemiBold" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(22,119,255,1)" | textAlign="left" | textAlignVertical="middle" | content="安装设置"
+      [frame] container
+          id="9dc657c2-4e4a-4514-8e95-146f698f35ec" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=[0, 0, 0, 12] | alignItems="start" | justifyContent="start"
+        [rectangle] 连接线
+            id="5aa790b1-a9e9-4f5a-821f-37964df08757" | width="fill_container" | height=2 | fills="rgba(229,232,239,1)"
+      [frame] container
+          id="b12d1775-a0e2-434f-acf1-9ead5b3e0728" | width="fit_content" | height="fit_content" | layout="horizontal" | padding=[0, 0, 0, 12] | alignItems="start" | justifyContent="start"
+        [frame] 步骤-正在安装
+            id="58b86c9a-5780-4622-9ed5-5deb8fc66770" | width="fit_content" | height="fit_content" | layout="horizontal" | gap=8 | alignItems="center" | justifyContent="start"
+          [frame] 步骤标记
+              id="bbd0676a-c1f2-4c86-872d-b08bfa7b4b21" | width=24 | height=24 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=12 | fills="rgba(255,255,255,1)" | stroke={"align": "center", "thickness": 1, "lineCap": "butt", "lineJoin": "miter", "fills": "rgba(208,213,221,1)"}
+            [rectangle] 图层
+                id="99ff6435-606d-45f7-ba56-271fa03344a2" | width=9 | height="fit_content" | fontFamily="SourceHanSans-SemiBold" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="4"
+          [rectangle] 图层
+              id="aa17b203-a0a3-40ed-9ab5-7ffde8734134" | width=53 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="正在安装"
+      [frame] container
+          id="5a84db47-74f4-401e-a3d4-205ab103ab89" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=[0, 0, 0, 12] | alignItems="start" | justifyContent="start"
+        [rectangle] 连接线
+            id="00e04356-b534-459e-b6fb-f2b86b020cbe" | width="fill_container" | height=2 | fills="rgba(229,232,239,1)"
+      [frame] container
+          id="680e14d3-5e67-4bc6-8354-8abd39fd9ef5" | width="fit_content" | height="fit_content" | layout="horizontal" | padding=[0, 0, 0, 12] | alignItems="start" | justifyContent="start"
+        [frame] 步骤-完成
+            id="4af3dd79-043e-4395-b8c6-73f40ed93e8c" | width="fit_content" | height="fit_content" | layout="horizontal" | gap=8 | alignItems="center" | justifyContent="start"
+          [frame] 步骤标记
+              id="e3b12035-320f-42ad-aa81-864a8b89f778" | width=24 | height=24 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=12 | fills="rgba(255,255,255,1)" | stroke={"align": "center", "thickness": 1, "lineCap": "butt", "lineJoin": "miter", "fills": "rgba(208,213,221,1)"}
+            [rectangle] 图层
+                id="6a9876a0-40a0-4342-9fb3-86ed81865c89" | width=9 | height="fit_content" | fontFamily="SourceHanSans-SemiBold" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="5"
+          [rectangle] 图层
+              id="94d9eac7-8cd3-48fd-bd09-e9a01130a166" | width=27 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="完成"
+    [frame] 内容区
+        id="8fb0c4e0-3c8c-4299-9275-ff07764b99a3" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[28, 32, 28, 32] | alignItems="start" | justifyContent="start"
+      [rectangle] 图层
+          id="5822b41d-7f0e-41a9-a6f3-92c0f45d8b2d" | width="fill_container" | height=26 | fontFamily="SourceHanSans-SemiBold" | fontSize=18 | lineHeight=1.2 | fontFill="rgba(31,41,55,1)" | textAlign="left" | textAlignVertical="middle" | content="选择安装位置与附加任务"
+      [frame] container
+          id="63364807-089e-4263-9472-bec2aca229ab" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[10, 0, 0, 0] | alignItems="start" | justifyContent="start"
+        [rectangle] 图层
+            id="3219c796-7b55-41ce-892b-ebb035210ad2" | width="fill_container" | height=22 | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(75,85,99,1)" | textAlign="left" | textAlignVertical="middle" | content="确认安装目录，并勾选安装时需要一并完成的操作。"
+      [frame] container
+          id="f6a303fc-6370-4f85-85a6-97deec3bf4e9" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[24, 0, 0, 0] | alignItems="start" | justifyContent="start"
+        [frame] 区块-安装位置
+            id="cad80d9f-0e94-4bcd-b8d5-67ba01b71369" | width="fill_container" | height="fit_content" | layout="vertical" | alignItems="start" | justifyContent="start"
+          [frame] 区块标题
+              id="fb2b489c-4669-4e1e-8cf9-272a3f11de23" | width="fill_container" | height="fit_content" | layout="horizontal" | gap=8 | alignItems="center" | justifyContent="start"
+            [paragraph] 图层
+                id="d51458d8-67d5-4769-9739-cd111ab6c050" | width=17 | height="fit_content" | fills="rgba(22,119,255,1)" | fontFamily="remixicon" | fontSize=15 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+            [rectangle] 图层
+                id="de1b4158-3129-41d1-b931-85479d4bcf04" | width=57 | height="fit_content" | fontFamily="SourceHanSans-SemiBold" | fontSize=14 | lineHeight=1.2 | fontFill="rgba(31,41,55,1)" | textAlign="left" | textAlignVertical="middle" | content="安装位置"
+          [frame] container
+              id="7bb9ff3e-c073-4427-97dc-9ef3b2a31e5d" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[12, 0, 0, 0] | alignItems="start" | justifyContent="start"
+            [frame] 路径输入行
+                id="b64c894c-2178-40b2-9866-e2bb527fd862" | width="fill_container" | height="fit_content" | layout="horizontal" | gap=12 | alignItems="center" | justifyContent="start"
+              [frame] 路径输入框
+                  id="38c5ebcd-bef4-4b6a-ae60-bba77a1559ee" | width="fill_container" | height=40 | layout="horizontal" | padding=[0, 12, 0, 12] | gap=8 | alignItems="center" | justifyContent="start" | cornerRadius=8 | fills="rgba(255,255,255,1)" | stroke={"align": "center", "thickness": 1, "lineCap": "butt", "lineJoin": "miter", "fills": "rgba(22,119,255,1)"} | effects=[{"offsetX": 0, "offsetY": 0, "blur": 0, "color": "rgba(22,119,255,0.1)", "type": "drop_shadow"}]
+                [paragraph] 图层
+                    id="efca1c78-8b35-48b5-b88b-e75592e8f4af" | width=17 | height="fit_content" | fills="rgba(156,163,175,1)" | fontFamily="remixicon" | fontSize=15 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+                [rectangle] 图层
+                    id="13543fe5-995a-4d6e-a4fa-c1c900672e13" | width=172 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(31,41,55,1)" | textAlign="left" | textAlignVertical="middle" | content="C:\\Program Files\\空中小火车"
+              [frame] 浏览按钮
+                  id="75d5e53a-3a44-4e46-b906-780a590ab3f5" | width="fit_content" | height=40 | layout="horizontal" | padding=[0, 18, 0, 18] | gap=8 | alignItems="center" | justifyContent="center" | cornerRadius=8 | fills="rgba(255,255,255,1)" | stroke={"align": "center", "thickness": 1, "lineCap": "butt", "lineJoin": "miter", "fills": "rgba(229,232,239,1)"}
+                [paragraph] 图层
+                    id="34ba8d54-2e5c-483e-b699-71b91af026f4" | width=17 | height="fit_content" | fills="rgba(75,85,99,1)" | fontFamily="remixicon" | fontSize=15 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+                [rectangle] 图层
+                    id="8f22df83-d974-4ff5-9e97-6ff02d3c48f8" | width=27 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(75,85,99,1)" | textAlign="left" | textAlignVertical="middle" | content="浏览"
+          [frame] container
+              id="4d8c3648-5f6b-4f89-b02c-5f9f9be0a03d" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[10, 0, 0, 0] | alignItems="start" | justifyContent="start"
+            [frame] 磁盘信息行
+                id="38dfb7ab-0619-4068-bb06-aebe1915c35e" | width="fill_container" | height="fit_content" | layout="horizontal" | gap=8 | alignItems="center" | justifyContent="start"
+              [paragraph] 图层
+                  id="35a42958-b289-45c2-bd9e-e9dbb89ee64d" | width=16 | height="fit_content" | fills="rgba(156,163,175,1)" | fontFamily="remixicon" | fontSize=14 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+              [rectangle] 图层
+                  id="7dfddd44-f89b-4e2f-addf-ace05d018e95" | width=96 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="所需空间 90.6 MB"
+              [rectangle] 图层
+                  id="0738ff7a-95e8-42c1-8a30-d9a32af9d38a" | width=13 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(208,213,221,1)" | textAlign="left" | textAlignVertical="middle" | content="·"
+              [rectangle] 图层
+                  id="8858f8e9-738d-4836-b1cc-31b7b5216545" | width=99 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="C 盘可用 128.4 GB"
+          [frame] container
+              id="f948ce25-35b8-4c04-b564-dc1551d154b8" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[12, 0, 0, 0] | alignItems="start" | justifyContent="start"
+            [frame] 快捷目录列表
+                id="39dac72d-9ce2-49e7-be9e-a6df877549c7" | width="fill_container" | height="fit_content" | layout="horizontal" | gap=8 | alignItems="center" | justifyContent="start"
+              [frame] 目录标签-Program Files
+                  id="aea4fd14-83c0-42e0-8cc0-bdafa013baa6" | width="fit_content" | height=30 | layout="horizontal" | padding=[0, 12, 0, 12] | gap=4 | alignItems="center" | justifyContent="start" | cornerRadius=8 | fills="rgba(245,247,250,1)"
+                [paragraph] 图层
+                    id="f17cfaf0-ceb7-423b-8574-4eb2f3dd5b55" | width=15 | height="fit_content" | fills="rgba(75,85,99,1)" | fontFamily="remixicon" | fontSize=13 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+                [rectangle] 图层
+                    id="6847da86-d338-4946-ab37-25cd607b1679" | width=78 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(75,85,99,1)" | textAlign="left" | textAlignVertical="middle" | content="Program Files"
+              [frame] 目录标签-Program Files x86
+                  id="03c61ff7-6fe1-4631-bf9b-9441cd3b9ff2" | width="fit_content" | height=30 | layout="horizontal" | padding=[0, 12, 0, 12] | gap=4 | alignItems="center" | justifyContent="start" | cornerRadius=8 | fills="rgba(245,247,250,1)"
+                [paragraph] 图层
+                    id="622490fa-b935-4f72-9a35-8671532ded8b" | width=15 | height="fit_content" | fills="rgba(75,85,99,1)" | fontFamily="remixicon" | fontSize=13 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+                [rectangle] 图层
+                    id="c7fc768d-841f-4070-9d01-9e5d85d02c8e" | width=108 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(75,85,99,1)" | textAlign="left" | textAlignVertical="middle" | content="Program Files (x86)"
+              [frame] 目录标签-AppData
+                  id="8f116cad-86df-46ba-bf5f-7c81b16ff6de" | width="fit_content" | height=30 | layout="horizontal" | padding=[0, 12, 0, 12] | gap=4 | alignItems="center" | justifyContent="start" | cornerRadius=8 | fills="rgba(245,247,250,1)"
+                [paragraph] 图层
+                    id="657b6698-8175-426f-9bca-32040e4ff2ce" | width=15 | height="fit_content" | fills="rgba(75,85,99,1)" | fontFamily="remixicon" | fontSize=13 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+                [rectangle] 图层
+                    id="cee50fa1-4765-43a7-a62c-7d3fa7c15407" | width=76 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(75,85,99,1)" | textAlign="left" | textAlignVertical="middle" | content="本地 AppData"
+              [frame] 目录标签-D盘
+                  id="095a0353-e5ba-432d-aeaa-308c828d30f9" | width="fit_content" | height=30 | layout="horizontal" | padding=[0, 12, 0, 12] | gap=4 | alignItems="center" | justifyContent="start" | cornerRadius=8 | fills="rgba(245,247,250,1)"
+                [paragraph] 图层
+                    id="7cd366b1-fe02-429c-8e27-15b252136f7f" | width=15 | height="fit_content" | fills="rgba(75,85,99,1)" | fontFamily="remixicon" | fontSize=13 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+                [rectangle] 图层
+                    id="3308ce67-06c3-49ca-9b28-ddc99b35fc5d" | width=94 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(75,85,99,1)" | textAlign="left" | textAlignVertical="middle" | content="D:\\Program Files"
+      [frame] container
+          id="753a9309-cba2-4cd2-bf7c-8a363d7a0bbd" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[24, 0, 0, 0] | alignItems="start" | justifyContent="start"
+        [rectangle] 分隔线
+            id="c0405f91-a569-41b4-814f-1e1662e6318a" | width="fill_container" | height=1 | fills="rgba(229,232,239,1)"
+      [frame] container
+          id="f96e1be6-b205-4213-97f2-c1b19cb298c5" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[24, 0, 0, 0] | alignItems="start" | justifyContent="start"
+        [frame] 区块-附加任务
+            id="bd036cf8-d42b-49d8-83df-aa2844a9811b" | width="fill_container" | height="fit_content" | layout="vertical" | alignItems="start" | justifyContent="start"
+          [frame] 区块标题
+              id="0fcfce33-0e70-4803-ab9e-018d52627cf7" | width="fill_container" | height="fit_content" | layout="horizontal" | gap=8 | alignItems="center" | justifyContent="start"
+            [paragraph] 图层
+                id="aaf03f49-c2c4-4f1f-a2f1-af3d9ace3318" | width=17 | height="fit_content" | fills="rgba(22,119,255,1)" | fontFamily="remixicon" | fontSize=15 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+            [rectangle] 图层
+                id="c9398d4b-f3cd-4c5a-8e6c-a0ac40b13b30" | width=57 | height="fit_content" | fontFamily="SourceHanSans-SemiBold" | fontSize=14 | lineHeight=1.2 | fontFill="rgba(31,41,55,1)" | textAlign="left" | textAlignVertical="middle" | content="附加任务"
+          [frame] container
+              id="87ab6bc1-fb14-4ca4-8b3a-bc7dfe97669f" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[12, 0, 0, 0] | alignItems="start" | justifyContent="start"
+            [frame] 任务行1
+                id="2a5b6514-0f6d-48d0-a0e0-18abe7c2e60a" | width="fill_container" | height="fit_content" | layout="horizontal" | gap=12 | alignItems="center" | justifyContent="start"
+              [frame] 任务-桌面快捷方式
+                  id="08bcd309-71fd-4a42-bb4f-901faf93ea61" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=14 | gap=12 | alignItems="center" | justifyContent="start" | cornerRadius=12 | fills="rgba(245,247,250,1)"
+                [frame] 勾选框
+                    id="0a2dd9bd-4d44-4f5e-b911-dc45842f7024" | width=18 | height=18 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=4 | fills="rgba(22,119,255,1)"
+                  [paragraph] 图层
+                      id="f720ebf2-50ae-4e77-bbbc-edf1be6864dd" | width=14 | height="fit_content" | fills="rgba(255,255,255,1)" | fontFamily="remixicon" | fontSize=12 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+                [frame] 图标
+                    id="bbb35080-27d6-4622-8ad8-a18a447375d3" | width=28 | height=28 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=8 | fills="rgba(230,244,255,1)"
+                  [paragraph] 图层
+                      id="2481b50b-083c-4689-99ff-fbf098167539" | width=17 | height="fit_content" | fills="rgba(22,119,255,1)" | fontFamily="remixicon" | fontSize=15 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+                [frame] 文本
+                    id="9d5d0cd1-943f-4223-b899-56ca52e8ddc4" | width=108 | height="fit_content" | layout="vertical" | alignItems="start" | justifyContent="start"
+                  [rectangle] 图层
+                      id="8628645b-a8b8-43ca-bb1c-32a6a500838a" | width="fill_container" | height=20 | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(31,41,55,1)" | textAlign="left" | textAlignVertical="middle" | content="创建桌面快捷方式"
+                  [frame] container
+                      id="753f75d1-9e26-4e8d-8a23-e1efb9bebed8" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[2, 0, 0, 0] | alignItems="start" | justifyContent="start"
+                    [rectangle] 图层
+                        id="823d2dcb-e1f9-4a44-ab55-70058f75c3b0" | width="fill_container" | height=18 | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="在桌面创建启动图标"
+              [frame] 任务-开始菜单
+                  id="46195855-4ca3-4562-a47a-e6c5384c70a7" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=14 | gap=12 | alignItems="center" | justifyContent="start" | cornerRadius=12 | fills="rgba(245,247,250,1)"
+                [frame] 勾选框
+                    id="ce933064-119c-4f94-8bdc-f60fd31b183e" | width=18 | height=18 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=4 | fills="rgba(22,119,255,1)"
+                  [paragraph] 图层
+                      id="a486ce61-78ae-485f-9795-afe992a726ec" | width=14 | height="fit_content" | fills="rgba(255,255,255,1)" | fontFamily="remixicon" | fontSize=12 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+                [frame] 图标
+                    id="fa107085-0afb-4bcf-87c0-80234162bcc8" | width=28 | height=28 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=8 | fills="rgba(230,244,255,1)"
+                  [paragraph] 图层
+                      id="06cacafa-cd3e-4ec6-b9c9-409e60b01d45" | width=17 | height="fit_content" | fills="rgba(22,119,255,1)" | fontFamily="remixicon" | fontSize=15 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+                [frame] 文本
+                    id="fc579892-8e0d-48e7-9bbc-6926221ef861" | width=130 | height="fit_content" | layout="vertical" | alignItems="start" | justifyContent="start"
+                  [rectangle] 图层
+                      id="0472b3c1-51dd-4df1-8cab-54d6376d0a0f" | width="fill_container" | height=20 | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(31,41,55,1)" | textAlign="left" | textAlignVertical="middle" | content="创建开始菜单快捷方式"
+                  [frame] container
+                      id="7bcf7b1e-04dc-489e-9584-eed7c2d8afa3" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[2, 0, 0, 0] | alignItems="start" | justifyContent="start"
+                    [rectangle] 图层
+                        id="fd2253ed-c22a-472f-aa89-16545a266948" | width="fill_container" | height=18 | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="在开始菜单添加启动项"
+          [frame] container
+              id="22af0246-2f74-4191-810c-48cfbde742c8" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[12, 0, 0, 0] | alignItems="start" | justifyContent="start"
+            [frame] 任务行2
+                id="ae933083-3433-4bb6-91d6-8fec548666b5" | width="fill_container" | height="fit_content" | layout="horizontal" | gap=12 | alignItems="center" | justifyContent="start"
+              [frame] 任务-开机启动
+                  id="d5659d08-6ac7-4e60-beaf-3680374f0d29" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=14 | gap=12 | alignItems="center" | justifyContent="start" | cornerRadius=12 | fills="rgba(255,255,255,1)" | stroke={"align": "center", "thickness": 1, "lineCap": "butt", "lineJoin": "miter", "fills": "rgba(229,232,239,1)"}
+                [rectangle] 勾选框
+                    id="8e199e1b-9139-488d-a2bf-0d04c25e32c2" | width=19 | height=18 | cornerRadius=4 | fills="rgba(255,255,255,1)" | stroke={"align": "center", "thickness": 1, "lineCap": "butt", "lineJoin": "miter", "fills": "rgba(208,213,221,1)"}
+                [frame] 图标
+                    id="c8e4fe58-6ab0-4453-a417-fbff117151ec" | width=28 | height=28 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=8 | fills="rgba(245,247,250,1)"
+                  [paragraph] 图层
+                      id="cc1a17db-11ff-4ef1-a0e6-7f478890cab6" | width=17 | height="fit_content" | fills="rgba(156,163,175,1)" | fontFamily="remixicon" | fontSize=15 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+                [frame] 文本
+                    id="99051386-a320-4e3d-ba16-3fa6b29b3c67" | width=108 | height="fit_content" | layout="vertical" | alignItems="start" | justifyContent="start"
+                  [rectangle] 图层
+                      id="dca33310-e322-417e-99f7-ed6c30745039" | width="fill_container" | height=20 | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(31,41,55,1)" | textAlign="left" | textAlignVertical="middle" | content="开机时自动启动"
+                  [frame] container
+                      id="a96eb532-f896-49d3-8365-6cbe951428e1" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[2, 0, 0, 0] | alignItems="start" | justifyContent="start"
+                    [rectangle] 图层
+                        id="d8dbc1c8-cb7f-4cd9-a984-bf1d9be8dacb" | width="fill_container" | height=18 | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="登录系统后自动运行"
+              [frame] 任务-装完就运行
+                  id="4b9247a1-dddf-4219-80e6-e6dfadf8eece" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=14 | gap=12 | alignItems="center" | justifyContent="start" | cornerRadius=12 | fills="rgba(245,247,250,1)"
+                [frame] 勾选框
+                    id="e255270b-ea42-454a-adad-baf9579862c9" | width=18 | height=18 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=4 | fills="rgba(22,119,255,1)"
+                  [paragraph] 图层
+                      id="81832eb9-f53d-4477-be55-d3d582a90986" | width=14 | height="fit_content" | fills="rgba(255,255,255,1)" | fontFamily="remixicon" | fontSize=12 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+                [frame] 图标
+                    id="e81e6aaa-5d4b-4415-b986-faf250d7d1e4" | width=28 | height=28 | layout="horizontal" | alignItems="center" | justifyContent="center" | cornerRadius=8 | fills="rgba(230,244,255,1)"
+                  [paragraph] 图层
+                      id="81d65d28-2065-48dd-aa3c-e9060342944f" | width=17 | height="fit_content" | fills="rgba(22,119,255,1)" | fontFamily="remixicon" | fontSize=15 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+                [frame] 文本
+                    id="bc50d566-22ef-4629-bc84-533e2197f4d1" | width=120 | height="fit_content" | layout="vertical" | alignItems="start" | justifyContent="start"
+                  [rectangle] 图层
+                      id="e0d61fc8-69b9-43dc-823e-43d68b8c79f9" | width="fill_container" | height=20 | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(31,41,55,1)" | textAlign="left" | textAlignVertical="middle" | content="安装完成后运行"
+                  [frame] container
+                      id="851e7aec-90e7-403f-afcd-678ecba75049" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[2, 0, 0, 0] | alignItems="start" | justifyContent="start"
+                    [rectangle] 图层
+                        id="fe1f5cfc-22bc-445c-9dc4-a86e41c12f76" | width="fill_container" | height=18 | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="点「完成」后立即启动"
+      [frame] container
+          id="46261305-80e6-4c67-9bc9-1476ba5e52e3" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[20, 0, 0, 0] | alignItems="start" | justifyContent="start"
+        [frame] 选项组
+            id="9dde93f1-5818-40fb-96cb-27235a7c1792" | width="fill_container" | height="fit_content" | layout="horizontal" | gap=12 | alignItems="center" | justifyContent="start"
+          [rectangle] 勾选框
+              id="49eff084-695c-49f5-8cd6-1fd7018b029c" | width=19 | height=18 | cornerRadius=4 | fills="rgba(255,255,255,1)" | stroke={"align": "center", "thickness": 1, "lineCap": "butt", "lineJoin": "miter", "fills": "rgba(208,213,221,1)"}
+          [frame] 文本
+              id="01188a6e-1352-4fae-bccf-1bc4ce97d384" | width=324 | height="fit_content" | layout="vertical" | alignItems="start" | justifyContent="start"
+            [rectangle] 图层
+                id="5c420256-2aa0-4504-add9-44d29d0453a6" | width="fill_container" | height=20 | fontFamily="SourceHanSans-Regular" | fontSize=13 | lineHeight=1.2 | fontFill="rgba(31,41,55,1)" | textAlign="left" | textAlignVertical="middle" | content="为所有用户安装"
+            [frame] container
+                id="e7e86a25-2840-4d1f-b347-bd71f175191e" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[2, 0, 0, 0] | alignItems="start" | justifyContent="start"
+              [rectangle] 图层
+                  id="64973a8e-4f6d-4e08-8bc0-93275d1ff24f" | width="fill_container" | height=18 | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="需要对当前电脑的管理员权限，取消勾选则只为你自己安装。"
+      [frame] container
+          id="81d6eea4-eb1d-442b-aae2-17142881a3d2" | width="fill_container" | height="fit_content" | layout="vertical" | padding=[20, 0, 0, 0] | alignItems="start" | justifyContent="start"
+        [frame] 汇总条
+            id="85c1406c-3bd9-4cdb-b01d-24e066f47a29" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=[12, 16, 12, 16] | gap=8 | alignItems="center" | justifyContent="start" | cornerRadius=10 | fills="rgba(230,244,255,1)"
+          [paragraph] 图层
+              id="f1a50dea-e182-4593-b200-ed21906b7368" | width=16 | height="fit_content" | fills="rgba(22,119,255,1)" | fontFamily="remixicon" | fontSize=14 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+          [rectangle] 图层
+              id="c4731c83-177f-4cf2-9839-16e9ff632610" | width=335 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(9,88,217,1)" | textAlign="left" | textAlignVertical="middle" | content="将安装到 C:\\Program Files\\空中小火车 · 已选择 3 项附加任务"
+    [frame] 底部按钮栏
+        id="ec2104ee-f63e-4557-ad38-982adcca806d" | width="fill_container" | height="fit_content" | layout="horizontal" | padding=[16, 32, 16, 32] | alignItems="center" | justifyContent="space_between"
+      [rectangle] 图层
+          id="3591ce67-e45d-4cf0-98fa-b001d509b715" | width=86 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=12 | lineHeight=1.2 | fontFill="rgba(156,163,175,1)" | textAlign="left" | textAlignVertical="middle" | content="第 3 步，共 5 步"
+      [frame] 按钮组
+          id="6821431b-ad01-4ccc-ba29-9e7ddde4ea9e" | width="fit_content" | height="fit_content" | layout="horizontal" | gap=12 | alignItems="center" | justifyContent="start"
+        [frame] 取消按钮
+            id="bd5b06e4-a842-4329-adf2-8376b982dfb4" | width="fit_content" | height=40 | layout="horizontal" | padding=[0, 24, 0, 24] | alignItems="center" | justifyContent="center" | cornerRadius=8 | fills="rgba(255,255,255,1)" | stroke={"align": "center", "thickness": 1, "lineCap": "butt", "lineJoin": "miter", "fills": "rgba(229,232,239,1)"}
+          [rectangle] 图层
+              id="0dd29e2d-85d5-4afb-abef-14a615786cb8" | width=29 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=14 | lineHeight=1.2 | fontFill="rgba(75,85,99,1)" | textAlign="left" | textAlignVertical="middle" | content="取消"
+        [frame] 上一步按钮
+            id="391867ba-696c-41ee-bc08-b8c7d23d1ff9" | width="fit_content" | height=40 | layout="horizontal" | padding=[0, 20, 0, 20] | gap=8 | alignItems="center" | justifyContent="center" | cornerRadius=8 | fills="rgba(255,255,255,1)" | stroke={"align": "center", "thickness": 1, "lineCap": "butt", "lineJoin": "miter", "fills": "rgba(229,232,239,1)"}
+          [paragraph] 图层
+              id="e51fec45-25ad-481c-a352-6c6d096d72f5" | width=17 | height="fit_content" | fills="rgba(75,85,99,1)" | fontFamily="remixicon" | fontSize=15 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+          [rectangle] 图层
+              id="b8bbe728-0730-4056-9782-c5080f563293" | width=43 | height="fit_content" | fontFamily="SourceHanSans-Regular" | fontSize=14 | lineHeight=1.2 | fontFill="rgba(75,85,99,1)" | textAlign="left" | textAlignVertical="middle" | content="上一步"
+        [frame] 安装按钮
+            id="22f86a99-5c30-4e84-a02b-ca3765f76454" | width="fit_content" | height=40 | layout="horizontal" | padding=[0, 24, 0, 24] | gap=8 | alignItems="center" | justifyContent="center" | cornerRadius=8 | fills="rgba(22,119,255,1)" | effects=[{"offsetX": 0, "offsetY": 2, "blur": 6, "color": "rgba(22,119,255,0.3)", "type": "drop_shadow"}]
+          [paragraph] 图层
+              id="b08956f6-28ed-43fd-aac8-57e65b1816b3" | width=17 | height="fit_content" | fills="rgba(255,255,255,1)" | fontFamily="remixicon" | fontSize=15 | lineHeight=1.2 | textAlign="left" | textAlignVertical="middle" | content=""
+          [rectangle] 图层
+              id="7c8df61e-84d6-48ab-bbb8-b455d83c0480" | width=29 | height="fit_content" | fontFamily="SourceHanSans-SemiBold" | fontSize=14 | lineHeight=1.2 | fontFill="rgba(255,255,255,1)" | textAlign="left" | textAlignVertical="middle" | content="安装"

@@ -46,40 +46,40 @@ namespace Installer.UI.Views
             this.brandPanel.Location = new System.Drawing.Point(0, 0);
             this.brandPanel.Margin = new System.Windows.Forms.Padding(0);
             this.brandPanel.Name = "brandPanel";
-            this.brandPanel.Padding = new System.Windows.Forms.Padding(24, 28, 24, 0);
+            this.brandPanel.Padding = new System.Windows.Forms.Padding(32, 24, 32, 24);
             this.brandPanel.Radius = 16;
             this.brandPanel.RadiusAlign = AntdUI.TAlignRound.Top;
-            this.brandPanel.Size = new System.Drawing.Size(648, 104);
+            this.brandPanel.Size = new System.Drawing.Size(640, 104);
             this.brandPanel.TabIndex = 0;
             //
             // layout
             //
             this.layout.BackColor = System.Drawing.Color.Transparent;
             this.layout.ColumnCount = 2;
-            this.layout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 76F));
+            this.layout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 72F));
             this.layout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.layout.Controls.Add(this.iconPanel, 0, 0);
             this.layout.Controls.Add(this.lblProduct, 1, 0);
             this.layout.Controls.Add(this.lblSubtitle, 1, 1);
             this.layout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.layout.Location = new System.Drawing.Point(24, 28);
+            this.layout.Location = new System.Drawing.Point(32, 24);
             this.layout.Margin = new System.Windows.Forms.Padding(0);
             this.layout.Name = "layout";
             this.layout.RowCount = 2;
-            this.layout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
+            this.layout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.layout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
             this.layout.SetRowSpan(this.iconPanel, 2);
-            this.layout.Size = new System.Drawing.Size(600, 76);
+            this.layout.Size = new System.Drawing.Size(576, 56);
             this.layout.TabIndex = 0;
             //
             // iconPanel —— 48x48 圆角块（白 20% 叠在品牌蓝上）
             //
             this.iconPanel.Controls.Add(this.lblIcon);
-            this.iconPanel.Location = new System.Drawing.Point(0, 2);
-            this.iconPanel.Margin = new System.Windows.Forms.Padding(0, 6, 28, 0);
+            this.iconPanel.Location = new System.Drawing.Point(0, 0);
+            this.iconPanel.Margin = new System.Windows.Forms.Padding(0, 0, 16, 0);
             this.iconPanel.Name = "iconPanel";
-            this.iconPanel.Radius = 12;
-            this.iconPanel.Size = new System.Drawing.Size(48, 48);
+            this.iconPanel.Radius = 16;
+            this.iconPanel.Size = new System.Drawing.Size(56, 56);
             this.iconPanel.TabIndex = 0;
             //
             // lblIcon —— 白色立方体（产品图标占位）
@@ -88,7 +88,7 @@ namespace Installer.UI.Views
             this.lblIcon.AutoSize = false;
             this.lblIcon.Font = new System.Drawing.Font("微软雅黑", 9F);
             this.lblIcon.IconGap = 0;
-            this.lblIcon.Location = new System.Drawing.Point(12, 12);
+            this.lblIcon.Location = new System.Drawing.Point(16, 16);
             this.lblIcon.Margin = new System.Windows.Forms.Padding(0);
             this.lblIcon.Name = "lblIcon";
             this.lblIcon.PrefixSvg = "<svg viewBox=\"0 0 24 24\"><path d=\"M12 2.6 3.4 7v10L12 21.4 20.6 17V7L12 2.6z\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"1.6\"/><path d=\"M3.6 7.1 12 11.5l8.4-4.4M12 11.5v9.7\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"1.6\"/></svg>";
@@ -100,8 +100,8 @@ namespace Installer.UI.Views
             //
             this.lblProduct.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblProduct.AutoSize = true;
-            this.lblProduct.Font = new System.Drawing.Font("微软雅黑", 18F, System.Drawing.FontStyle.Bold);
-            this.lblProduct.Location = new System.Drawing.Point(76, 0);
+            this.lblProduct.Font = new System.Drawing.Font("微软雅黑", 15F, System.Drawing.FontStyle.Bold);
+            this.lblProduct.Location = new System.Drawing.Point(72, 0);
             this.lblProduct.Margin = new System.Windows.Forms.Padding(0);
             this.lblProduct.Name = "lblProduct";
             this.lblProduct.Size = new System.Drawing.Size(200, 30);
@@ -112,8 +112,8 @@ namespace Installer.UI.Views
             //
             this.lblSubtitle.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblSubtitle.AutoSize = true;
-            this.lblSubtitle.Font = new System.Drawing.Font("微软雅黑", 12F);
-            this.lblSubtitle.Location = new System.Drawing.Point(76, 32);
+            this.lblSubtitle.Font = new System.Drawing.Font("微软雅黑", 9.75F);
+            this.lblSubtitle.Location = new System.Drawing.Point(72, 30);
             this.lblSubtitle.Margin = new System.Windows.Forms.Padding(0);
             this.lblSubtitle.Name = "lblSubtitle";
             this.lblSubtitle.Size = new System.Drawing.Size(200, 21);
@@ -126,9 +126,9 @@ namespace Installer.UI.Views
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.Controls.Add(this.brandPanel);
-            this.Font = new System.Drawing.Font("微软雅黑", 12F);
+            this.Font = new System.Drawing.Font("微软雅黑", 9.75F);
             this.Name = "WizardHeaderView";
-            this.Size = new System.Drawing.Size(648, 104);
+            this.Size = new System.Drawing.Size(640, 104);
             this.brandPanel.ResumeLayout(false);
             this.layout.ResumeLayout(false);
             this.layout.PerformLayout();

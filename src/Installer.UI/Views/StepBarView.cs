@@ -35,7 +35,7 @@ namespace Installer.UI.Views
                      | ControlStyles.ResizeRedraw, true);
 
             BackColor = WizardTheme.CardBack;
-            Font = WizardTheme.BodyFont;
+            Font = WizardTheme.BodyFont;   // 13px → 9.75pt
             Height = WizardTheme.StepBarHeight;
         }
 
@@ -92,11 +92,11 @@ namespace Installer.UI.Views
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            const int pad = 20;
-            const int dot = 20;
+            const int pad = 32;   // 设计稿：步骤条 padding [20,32,20,32]
+            const int dot = 24;   // 设计稿：步骤标记 24x24
             const int dotGap = 8;
-            const int lineGap = 8;
-            const int minLine = 8;
+            const int lineGap = 12;   // 连接线 wrapper padding-left 12
+            const int minLine = 12;
 
             // ① 量出每段「圆 + 文字」的宽度
             var textWidths = new int[_steps.Length];
@@ -183,7 +183,7 @@ namespace Installer.UI.Views
                 {
                     x += lineGap;
                     var color = i < _current ? WizardTheme.Success : WizardTheme.Border;
-                    using (var p = new Pen(color, 1.5F))
+                    using (var p = new Pen(color, 2F))   // 设计稿：连接线高 2
                     {
                         g.DrawLine(p, x, cy, x + lineLen, cy);
                     }
@@ -205,9 +205,9 @@ namespace Installer.UI.Views
 
                 g.DrawLines(p, new[]
                 {
-                    new PointF(cx - 4.5F, cy),
-                    new PointF(cx - 1.5F, cy + 3F),
-                    new PointF(cx + 4.5F, cy - 3.5F)
+                    new PointF(cx - 5F, cy),
+                    new PointF(cx - 1.5F, cy + 3.5F),
+                    new PointF(cx + 5F, cy - 4F)
                 });
             }
         }

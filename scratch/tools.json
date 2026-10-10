@@ -1,0 +1,221 @@
+﻿{
+  "tools": [
+    {
+      "inputSchema": {
+        "properties": {
+          "selected_layer_id": {
+            "description": "Optional. The ID of the selected layer. If omitted or null, returns interaction design data for the entire current canvas.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "file_id": {
+            "description": "The file_id extracted from a Calicat file URL: https://www.calicat.cn/design/{file_id}?node-id={selected_layer_id}",
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file_id"
+        ],
+        "additionalProperties": false
+      },
+      "name": "get_interaction_design_data",
+      "description": "Get interaction design data for a layer. If no layer is specified, returns data for the entire page.\n",
+      "title": "获取图层交互设计"
+    },
+    {
+      "inputSchema": {
+        "properties": {
+          "layer_ids": {
+            "minItems": 1,
+            "type": "array",
+            "description": "An array of layer ID strings to screenshot (required, must not be empty, maximum 10 items).",
+            "maxItems": 10,
+            "items": {
+              "type": "string"
+            }
+          },
+          "file_id": {
+            "description": "The file_id extracted from a Calicat file URL: https://www.calicat.cn/design/{file_id}?node-id={layer_id}",
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file_id",
+          "layer_ids"
+        ],
+        "additionalProperties": false
+      },
+      "name": "get_screenshots",
+      "description": "Generate screenshots for the specified page layers and return the resulting image URLs (limit 10).\n",
+      "title": "获取指定页面截图URL"
+    },
+    {
+      "inputSchema": {
+        "properties": {
+          "document_content": {
+            "description": "Document body in Markdown format. Provide raw Markdown without wrapping it in a code block.",
+            "type": "string"
+          },
+          "document_title": {
+            "description": "Document title, within 30 characters.",
+            "type": "string"
+          },
+          "file_id": {
+            "description": "The file_id extracted from a Calicat file URL: https://www.calicat.cn/design/{file_id}?node-id={layer_id}",
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file_id",
+          "document_title",
+          "document_content"
+        ],
+        "additionalProperties": false
+      },
+      "name": "create_document",
+      "description": "在 Calicat 文件中创建需求卡片文档，可以是需求文档 PRD，也可以是开发文档等。",
+      "title": "创建需求文档"
+    },
+    {
+      "inputSchema": {
+        "properties": {
+          "selected_layer_id": {
+            "description": "Optional. The ID of the selected layer extracted from a Calicat file URL: https://www.calicat.cn/design/{file_id}?node-id={selected_layer_id}. If omitted or null, return meta data for the entire current canvas.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "file_id": {
+            "description": "The file_id extracted from a Calicat file URL: https://www.calicat.cn/design/{file_id}?node-id={selected_layer_id}",
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file_id"
+        ],
+        "additionalProperties": false
+      },
+      "name": "get_meta_data",
+      "description": "Return XML-formatted layer meta (skeleton) information for a Calicat Layer design. Includes layer id, name, type, position, and size. If no layer is selected, returns data for the entire page.\n",
+      "title": "获取图层元数据"
+    },
+    {
+      "inputSchema": {
+        "properties": {
+          "file_id": {
+            "description": "The file_id extracted from a Calicat file URL: https://www.calicat.cn/design/{file_id}?node-id={layer_id}",
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file_id"
+        ],
+        "additionalProperties": false
+      },
+      "name": "get_prd_list",
+      "description": "This tool retrieves a list of all requirement cards from a specified Calicat file, providing the prd_id, prd_tile, and prd_summary.",
+      "title": "获取需求卡片列表"
+    },
+    {
+      "inputSchema": {
+        "properties": {
+          "include_hidden": {
+            "description": "Optional. Whether to include hidden page layers. Default is false.",
+            "type": "boolean"
+          },
+          "canvas_id": {
+            "description": "Optional. The target canvas ID. If omitted or null, the current active canvas will be used.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "file_id": {
+            "description": "The file_id extracted from a Calicat file URL.",
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file_id"
+        ],
+        "additionalProperties": false
+      },
+      "name": "get_design_page_list",
+      "description": "Get all top-level design page layers in a canvas. If canvas_id is not provided, use the current active canvas. Returns layer_id and name for each page layer.\n",
+      "title": "获取画布页面列表"
+    },
+    {
+      "inputSchema": {
+        "properties": {
+          "file_id": {
+            "description": "The file_id extracted from a Calicat file URL.",
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file_id"
+        ],
+        "additionalProperties": false
+      },
+      "name": "get_canvas_list",
+      "description": "Get all canvases in the specified design file. Returns canvas_id and name for each canvas.\n",
+      "title": "获取文件画布列表"
+    },
+    {
+      "inputSchema": {
+        "properties": {
+          "selected_layer_id": {
+            "description": "The ID of the selected layer extracted from a Calicat file URL: https://www.calicat.cn/design/{file_id}?node-id={selected_layer_id}, or the id of the layer in the XML tag obtained from the get_meta_data tool results。Please note that `selected_layer_id` is a UUID and should not be confused with `file_id`, which is a numeric string.",
+            "type": "string"
+          },
+          "file_id": {
+            "description": "The file_id extracted from a Calicat file URL: https://www.calicat.cn/design/{file_id}?node-id={layer_id}",
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file_id",
+          "selected_layer_id"
+        ],
+        "additionalProperties": false
+      },
+      "name": "get_design_data",
+      "description": "Use this tool to obtain the complete design data of a specific layer. The data will be provided in JSON format, describing the layer's style properties and nested structure. **Field Descriptions:** `$widthType` (and similarly `$heightType`) defines the sizing behavior for an element's width (or height) within an auto-layout: `0` Fixed, `1` Hug content, `2` Fill container (fills available space in the auto-layout). `direction` specifies the orientation of the auto-layout: `0` Horizontal, `1` Vertical. `counter` is analogous to the CSS `align-items` property: `0` Start, `1` Center, `2` End. `primary` is analogous to the CSS `justify-content` property: `0` Start, `1` Center, `2` End. `mode` determines whether the auto-layout element uses `justify-content: space-between`.",
+      "title": "获取图层设计数据"
+    },
+    {
+      "inputSchema": {
+        "properties": {
+          "prd_id": {
+            "description": "The required prd_id can be obtained from the output of the `get_prd_list` tool.",
+            "type": "string"
+          },
+          "file_id": {
+            "description": "The file_id extracted from a Calicat file URL: https://www.calicat.cn/design/{file_id}?node-id={layer_id}",
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file_id",
+          "prd_id"
+        ],
+        "additionalProperties": false
+      },
+      "name": "get_prd_full_content",
+      "description": "This tool retrieves the complete Markdown content for a specific requirement card. Before using it, you must first call `get_prd_list` to get the `prd_id`.",
+      "title": "获取需求卡片完整内容"
+    }
+  ]
+}
