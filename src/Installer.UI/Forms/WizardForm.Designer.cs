@@ -159,6 +159,7 @@ namespace Installer.UI.Forms
             this.btnPrimary.Size = new System.Drawing.Size(120, 40);
             this.btnPrimary.TabIndex = 0;
             this.btnPrimary.Text = "下一步";
+            this.btnPrimary.IconSvg = "<svg viewBox=\"0 0 16 16\"><path d=\"M3 8h9.4M8.6 4.2 12.8 8l-4.2 3.8\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>";
             this.btnPrimary.Type = AntdUI.TTypeMini.Primary;
             this.btnPrimary.Click += new System.EventHandler(this.BtnPrimaryClick);
             //

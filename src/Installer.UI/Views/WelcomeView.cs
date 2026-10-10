@@ -38,6 +38,11 @@ namespace Installer.UI.Views
         {
             infoCard.Back = WizardTheme.SoftBack;
 
+            // 信息卡每行的图标块：浅蓝底（只设 Back，设 BackColor 会把圆角盖成直角）
+            boxDir.Back = WizardTheme.PrimarySoft;
+            boxSpace.Back = WizardTheme.PrimarySoft;
+            boxVersion.Back = WizardTheme.PrimarySoft;
+
             hintPanel.Back = WizardTheme.WarnBack;
             lblHint.ForeColor = WizardTheme.WarnText;
 

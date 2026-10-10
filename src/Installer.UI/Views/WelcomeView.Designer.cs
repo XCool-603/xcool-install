@@ -33,6 +33,9 @@ namespace Installer.UI.Views
             this.lblBody = new AntdUI.Label();
             this.infoCard = new AntdUI.Panel();
             this.infoLayout = new System.Windows.Forms.TableLayoutPanel();
+            this.boxDir = new AntdUI.Panel();
+            this.boxSpace = new AntdUI.Panel();
+            this.boxVersion = new AntdUI.Panel();
             this.iconDir = new AntdUI.Label();
             this.cellDir = new System.Windows.Forms.TableLayoutPanel();
             this.lblDirCaption = new AntdUI.Label();
@@ -116,11 +119,14 @@ namespace Installer.UI.Views
             this.infoLayout.ColumnCount = 2;
             this.infoLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 36F));
             this.infoLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.infoLayout.Controls.Add(this.iconDir, 0, 0);
+            this.boxDir.Controls.Add(this.iconDir);
+            this.infoLayout.Controls.Add(this.boxDir, 0, 0);
             this.infoLayout.Controls.Add(this.cellDir, 1, 0);
-            this.infoLayout.Controls.Add(this.iconSpace, 0, 1);
+            this.boxSpace.Controls.Add(this.iconSpace);
+            this.infoLayout.Controls.Add(this.boxSpace, 0, 1);
             this.infoLayout.Controls.Add(this.cellSpace, 1, 1);
-            this.infoLayout.Controls.Add(this.iconVersion, 0, 2);
+            this.boxVersion.Controls.Add(this.iconVersion);
+            this.infoLayout.Controls.Add(this.boxVersion, 0, 2);
             this.infoLayout.Controls.Add(this.cellVersion, 1, 2);
             this.infoLayout.Dock = System.Windows.Forms.DockStyle.Fill;
             this.infoLayout.Location = new System.Drawing.Point(16, 12);
@@ -132,6 +138,30 @@ namespace Installer.UI.Views
             this.infoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.34F));
             this.infoLayout.Size = new System.Drawing.Size(568, 162);
             this.infoLayout.TabIndex = 0;
+            //
+            // boxDir / boxSpace / boxVersion —— 信息卡每行的 32x32 浅蓝底图标块
+            //
+            // 设计稿：32x32，圆角 9，底色 #E6F4FF，图标 #1677FF。
+            // 只设 AntdUI 的 Back，不设 WinForms 的 BackColor（设了会用直角盖掉圆角）。
+            //
+            this.boxDir.Location = new System.Drawing.Point(0, 0);
+            this.boxDir.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
+            this.boxDir.Name = "boxDir";
+            this.boxDir.Radius = 9;
+            this.boxDir.Size = new System.Drawing.Size(32, 32);
+            this.boxDir.TabIndex = 0;
+            this.boxSpace.Location = new System.Drawing.Point(0, 0);
+            this.boxSpace.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
+            this.boxSpace.Name = "boxSpace";
+            this.boxSpace.Radius = 9;
+            this.boxSpace.Size = new System.Drawing.Size(32, 32);
+            this.boxSpace.TabIndex = 1;
+            this.boxVersion.Location = new System.Drawing.Point(0, 0);
+            this.boxVersion.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
+            this.boxVersion.Name = "boxVersion";
+            this.boxVersion.Radius = 9;
+            this.boxVersion.Size = new System.Drawing.Size(32, 32);
+            this.boxVersion.TabIndex = 2;
             //
             // iconDir
             //
@@ -315,6 +345,7 @@ namespace Installer.UI.Views
             this.lblHint.AutoSize = false;
             this.lblHint.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblHint.Font = new System.Drawing.Font("微软雅黑", 9F);
+            this.lblHint.PrefixSvg = "<svg viewBox=\"0 0 16 16\"><circle cx=\"8\" cy=\"8\" r=\"6.6\" fill=\"none\" stroke=\"#FAAD14\" stroke-width=\"1.4\"/><path d=\"M8 7.2v4\" stroke=\"#FAAD14\" stroke-width=\"1.4\" stroke-linecap=\"round\"/><circle cx=\"8\" cy=\"4.9\" r=\"0.9\" fill=\"#FAAD14\"/></svg>";
             this.lblHint.Location = new System.Drawing.Point(16, 12);
             this.lblHint.Margin = new System.Windows.Forms.Padding(0);
             this.lblHint.Name = "lblHint";
@@ -352,6 +383,9 @@ namespace Installer.UI.Views
         private AntdUI.Label lblBody;
         private AntdUI.Panel infoCard;
         private System.Windows.Forms.TableLayoutPanel infoLayout;
+        private AntdUI.Panel boxDir;
+        private AntdUI.Panel boxSpace;
+        private AntdUI.Panel boxVersion;
         private AntdUI.Label iconDir;
         private System.Windows.Forms.TableLayoutPanel cellDir;
         private AntdUI.Label lblDirCaption;

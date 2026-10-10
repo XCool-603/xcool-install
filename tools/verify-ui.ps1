@@ -1,4 +1,4 @@
-﻿制作端界面 —— 与 Calicat 设计稿的自动对比
+﻿作端界面 —— 与 Calicat 设计稿的自动对比
 #
 # 用法：powershell -ExecutionPolicy Bypass -File tools\verify-ui.ps1
 #
@@ -305,6 +305,42 @@ if ($fail -eq 0) {
     Write-Host "通过 $pass 项，失败 $fail 项。" -ForegroundColor Red
 }
 
+# ─────────────────────────────────────────────────────────────
+Write-Host "== 7. 向导文案与图标（颜色比对看不出这一类问题）" -ForegroundColor Cyan
+# 为什么要有这一节：第 6 节只采样颜色。文案写错了、图标没画，
+# 颜色比对完全没反应 —— 前几轮就是因此误判「几何对了就等于接近设计稿」。
+$strFile = Join-Path $root 'src\Installer.UI\Common\WizardStrings.cs'
+$strText = if (Test-Path $strFile) {
+    [System.IO.File]::ReadAllText($strFile, [System.Text.UTF8Encoding]::new($false))
+} else { '' }
+
+# 设计稿第 3 版的原句，必须逐字出现在文案表里
+$designCopy = @(
+    @{ key = 'Welcome.Title';    frag = '欢迎使用「{0}」安装向导' },
+    @{ key = 'Welcome.Body';     frag = '这个向导将引导你完成「{0} {1}」的安装，整个过程大约需要 1 分钟。' },
+    @{ key = 'Welcome.Body2';    frag = '继续之前，建议先关闭其他正在运行的程序，避免安装过程中出现文件占用。' },
+    @{ key = 'Welcome.Hint';     frag = '下一步需要先阅读并同意「许可协议」，点击「下一步」继续。' },
+    @{ key = 'Welcome.CaptionDir';     frag = '默认安装位置' },
+    @{ key = 'Welcome.CaptionSpace';   frag = '需要磁盘空间' },
+    @{ key = 'Welcome.CaptionVersion'; frag = '版本与发布者' }
+)
+foreach ($c in $designCopy) {
+    Check ($strText.Contains($c.frag)) ("文案「{0}」与设计稿一致" -f $c.key) $c.frag
+}
+
+# 图标：设计稿要求的三处必须有非空 SVG
+$iconChecks = @(
+    @{ file = 'Views\WelcomeView.Designer.cs';  what = '信息卡图标块'; frag = 'boxDir.Radius = 9' },
+    @{ file = 'Views\WelcomeView.Designer.cs';  what = '提示条 ⓘ';     frag = 'lblHint.PrefixSvg' },
+    @{ file = 'Forms\WizardForm.Designer.cs';   what = '主按钮箭头';   frag = 'btnPrimary.IconSvg' }
+)
+foreach ($c in $iconChecks) {
+    $p = Join-Path (Join-Path $root 'src\Installer.UI') $c.file
+    $txt = if (Test-Path $p) { [System.IO.File]::ReadAllText($p, [System.Text.UTF8Encoding]::new($false)) } else { '' }
+    Check ($txt.Contains($c.frag)) ("{0} 已定义" -f $c.what) $c.frag
+}
+
+# ─────────────────────────────────────────────────────────────
 $empty.Dispose()
 $sel.Dispose()
 if ($ref) { $ref.Dispose() }
