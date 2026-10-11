@@ -135,8 +135,8 @@ namespace Installer.UI.Forms
             this.lblStepInfo.AutoSize = true;
             this.lblStepInfo.Font = new System.Drawing.Font("微软雅黑", 9F);
             this.lblStepInfo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(156)))), ((int)(((byte)(163)))), ((int)(((byte)(175)))));
-            this.lblStepInfo.Location = new System.Drawing.Point(32, 27);
-            this.lblStepInfo.Margin = new System.Windows.Forms.Padding(32, 0, 0, 0);
+            this.lblStepInfo.Location = new System.Drawing.Point(0, 27);
+            this.lblStepInfo.Margin = new System.Windows.Forms.Padding(0);
             this.lblStepInfo.Name = "lblStepInfo";
             this.lblStepInfo.Size = new System.Drawing.Size(120, 19);
             this.lblStepInfo.TabIndex = 0;

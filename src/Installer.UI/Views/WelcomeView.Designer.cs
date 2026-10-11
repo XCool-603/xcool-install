@@ -173,7 +173,8 @@ namespace Installer.UI.Views
             this.iconDir.AutoSize = false;
             this.iconDir.Font = new System.Drawing.Font("微软雅黑", 9F);
             this.iconDir.IconGap = 0;
-            this.iconDir.Location = new System.Drawing.Point(4, 4);
+            this.iconDir.IconRatio = 1.25F;
+            this.iconDir.Location = new System.Drawing.Point(6, 3);
             this.iconDir.Margin = new System.Windows.Forms.Padding(0);
             this.iconDir.Name = "iconDir";
             this.iconDir.PrefixSvg = "<svg viewBox=\"0 0 24 24\"><path d=\"M3 6.4h6l2.4 2.4h9.6v11.2H3z\" fill=\"none\" stroke=\"#1677FF\" stroke-width=\"1.8\" stroke-linejoin=\"round\"/></svg>";
@@ -183,7 +184,8 @@ namespace Installer.UI.Views
             this.iconSpace.AutoSize = false;
             this.iconSpace.Font = new System.Drawing.Font("微软雅黑", 9F);
             this.iconSpace.IconGap = 0;
-            this.iconSpace.Location = new System.Drawing.Point(4, 4);
+            this.iconSpace.IconRatio = 1.25F;
+            this.iconSpace.Location = new System.Drawing.Point(6, 3);
             this.iconSpace.Margin = new System.Windows.Forms.Padding(0);
             this.iconSpace.Name = "iconSpace";
             this.iconSpace.PrefixSvg = "<svg viewBox=\"0 0 24 24\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"2.4\" fill=\"none\" stroke=\"#1677FF\" stroke-width=\"1.8\"/><path d=\"M3 9.4h18\" stroke=\"#1677FF\" stroke-width=\"1.8\"/><circle cx=\"6.6\" cy=\"6.8\" r=\"0.9\" fill=\"#1677FF\"/></svg>";
@@ -193,7 +195,8 @@ namespace Installer.UI.Views
             this.iconVersion.AutoSize = false;
             this.iconVersion.Font = new System.Drawing.Font("微软雅黑", 9F);
             this.iconVersion.IconGap = 0;
-            this.iconVersion.Location = new System.Drawing.Point(4, 4);
+            this.iconVersion.IconRatio = 1.25F;
+            this.iconVersion.Location = new System.Drawing.Point(6, 3);
             this.iconVersion.Margin = new System.Windows.Forms.Padding(0);
             this.iconVersion.Name = "iconVersion";
             this.iconVersion.PrefixSvg = "<svg viewBox=\"0 0 24 24\"><path d=\"M12 3.4 20.6 8v8L12 20.6 3.4 16V8z\" fill=\"none\" stroke=\"#1677FF\" stroke-width=\"1.8\" stroke-linejoin=\"round\"/><circle cx=\"12\" cy=\"12\" r=\"2.4\" fill=\"#1677FF\"/></svg>";
@@ -289,7 +292,8 @@ namespace Installer.UI.Views
             this.lblHintIcon.AutoSize = false;
             this.lblHintIcon.Font = new System.Drawing.Font("微软雅黑", 9F);
             this.lblHintIcon.IconGap = 0;
-            this.lblHintIcon.Location = new System.Drawing.Point(16, 13);
+            this.lblHintIcon.IconRatio = 0.9F;
+            this.lblHintIcon.Location = new System.Drawing.Point(17, 11);
             this.lblHintIcon.Margin = new System.Windows.Forms.Padding(0);
             this.lblHintIcon.Name = "lblHintIcon";
             this.lblHintIcon.PrefixSvg = "<svg viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"9.4\" fill=\"none\" stroke=\"#FAAD14\" stroke-width=\"1.9\"/><path d=\"M12 10.8v6\" stroke=\"#FAAD14\" stroke-width=\"1.9\" stroke-linecap=\"round\"/><circle cx=\"12\" cy=\"7.4\" r=\"1.25\" fill=\"#FAAD14\"/></svg>";
