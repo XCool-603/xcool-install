@@ -629,6 +629,11 @@ Step '17. v1 旧包迁移（legacy-inspect / legacy-import）'
 # ─────────────────────────────────────────────────────────────
 # 用真实的 v1 资源文件（仓库里 Installation\bin\Debug 就有一份）
 $v1Dir = Join-Path $repo 'Installation\bin\Debug'
+
+# 夹具是旧版 GUI 运行时生成的、不在 git 里；缺了就现场生成一份，别让整个 e2e 挂在这
+if (-not (Test-Path (Join-Path $v1Dir 'install.resources'))) {
+    & powershell -ExecutionPolicy Bypass -File (Join-Path $repo 'tools\make-v1-fixture.ps1') | Out-Null
+}
 if (Test-Path (Join-Path $v1Dir 'install.resources')) {
     $r = Invoke-Cli @('legacy-inspect', $v1Dir)
     Check 'legacy-inspect 能读出真实 v1 包' ($r.ExitCode -eq 0)
