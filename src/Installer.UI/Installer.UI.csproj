@@ -1,56 +1,303 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  经典（legacy）csproj —— 故意不写 <Project Sdk="Microsoft.NET.Sdk">。
+
+  为什么必须转经典格式：
+    SDK 风格项目走 CPS 项目系统。VS 对 net48 不会挂 WinForms 设计器能力
+    （<UseWindowsForms>true</UseWindowsForms> 只对 .NET Core 3.0+ 的 WindowsDesktop SDK 生效，
+    对 net48 是空操作），所以即便 Designer.cs / .resx / DependentUpon 三件套齐全，双击窗体也只打开代码。
+    经典项目系统 + <SubType> 元数据才让 VS 认出「这是可设计的组件」，双击才给设计视图。
+
+  转经典格式的两个硬约束：
+    1. 必须显式列出每一个 .cs / .resx（SDK 的隐式 glob 不再生效，漏一个就是编译错误）。
+    2. 原来靠 SDK 自动生成的东西要自己补：AssemblyInfo（GenerateAssemblyInfo）、
+       XML 文档（DocumentationFile）、AntdUI 引用（PackageReference 在经典项目里不生效，见下）。
+
+  约束：不要把这个文件改回 SDK 风格；Installer.sln 是手写经典格式，
+  下面的 ProjectGuid 必须和 sln 里 Installer.UI 的 GUID 一致。
+-->
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!-- 经典格式的入口。缺了它 $(Configuration)/$(OutputPath)/$(TargetFrameworkVersion) 会全空（MSB4019 / 属性全空）。 -->
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
 
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
-    <!--
-      显式钉死平台与 RID。
-      不钉的后果：SDK 对 net48 会自己推 RuntimeIdentifier（AnyCPU+Prefer32Bit=false → win-x64，
-      x86 → win-x86），而 dotnet restore 有时不生成这个目标，于是 build 报 NETSDK1047，构建时好时坏。
-      选 x86 是因为安装器可能要注册 32 位 COM 组件（direct 方式需要位数一致）。
-    -->
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <!-- 沿用 Installer.sln 里 Installer.UI 的 GUID（sln 是手写经典格式，不许改）。 -->
+    <ProjectGuid>{6053B80A-A193-4C7C-B0E7-8662386A3D68}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <RootNamespace>Installer.UI</RootNamespace>
     <AssemblyName>Installer.UI</AssemblyName>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
     <Deterministic>true</Deterministic>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <!--
-      声明「本项目是 WinForms 项目」。
-      不写这一条时 SDK 只把它当普通类库，VS 的项目系统因此不挂 WinForms 设计器能力 ——
-      表现就是 Designer.cs / .resx 都齐全，双击仍然只打开代码、给不出设计视图。
+      RID：经典格式不拿它拼输出路径（AppendRuntimeIdentifierToOutputPath 同理，保留只为与 SDK 版本一致）。
+      但项目引用协商会看它 —— Microsoft.Common.CurrentVersion.targets 里 IsRidAgnostic 的回退逻辑是
+      「没有 RuntimeIdentifier/RuntimeIdentifiers 才算 RID 无关」。显式声明 IsRidAgnostic=true，
+      保证 RuntimeIdentifier / SelfContained 不流进被引用的 SDK 项目，
+      否则 Installer.Core 会被按 win-x64 构建，而它的 assets 文件没有该 RID 目标 → NETSDK1047。
     -->
-    <UseWindowsForms>true</UseWindowsForms>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <IsRidAgnostic>true</IsRidAgnostic>
+    <!-- 经典格式不认 GenerateDocumentationFile（只对 SDK 生效），真正起作用的是配置组里的 DocumentationFile。 -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1701;1702;CS1591</NoWarn>
+    <HighEntropyVA>true</HighEntropyVA>
+    <Prefer32Bit>false</Prefer32Bit>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+    <!--
+      经典项目里 PackageReference 必须显式声明「按 PackageReference 还原」，
+      否则 NuGet 会当成 packages.config 项目。
+    -->
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <!-- SDK 的 GenerateAssemblyInfo 目标在经典格式里没有，这些值喂给下面的 GenerateAssemblyInfoFile 目标。 -->
+    <Version Condition=" '$(Version)' == '' ">1.0.0</Version>
+    <AssemblyVersion Condition=" '$(AssemblyVersion)' == '' ">1.0.0.0</AssemblyVersion>
+    <FileVersion Condition=" '$(FileVersion)' == '' ">1.0.0.0</FileVersion>
+    <InformationalVersion Condition=" '$(InformationalVersion)' == '' ">$(Version)</InformationalVersion>
+    <Company Condition=" '$(Company)' == '' ">$(AssemblyName)</Company>
+    <Product Condition=" '$(Product)' == '' ">$(AssemblyName)</Product>
+    <AssemblyTitle Condition=" '$(AssemblyTitle)' == '' ">$(AssemblyName)</AssemblyTitle>
   </PropertyGroup>
 
+  <!-- 配置组：sln 把 Debug|Any CPU / Release|Any CPU 传进来，所以只需 AnyCPU 两组。 -->
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DocumentationFile>bin\Debug\Installer.UI.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>portable</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;RELEASE</DefineConstants>
+    <DocumentationFile>bin\Release\Installer.UI.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <!--
+    AntdUI 用「PackageReference + HintPath 引用」双写，两边各管一件事：
+      ① PackageReference：只为 NuGet 的项目图。Installer.Runtime / Installer.Builder / 测试项目都是 SDK 项目，
+         它们靠 NuGet 的传递依赖拿到 AntdUI。经典项目一旦只写 HintPath，这个传递链就断了 ——
+         Installer.Runtime 会报「类型 BaseForm 在未引用的程序集中定义」（实测踩过）。
+      ② Reference + HintPath：才是本项目真正编译用的引用。dotnet CLI 的 MSBuild 里，
+         经典项目没有 ResolveNuGetPackageAssets，PackageReference 的 assets 不会变成引用（实测 CS0246）。
+      两者指向同一个 dll，RAR 会按路径去重，不会冲突。
+  -->
   <ItemGroup>
-    <!-- 锁定 2.4.3：本机 NuGet 缓存里最新的、且技能文档按它核对过 API 的版本 -->
     <PackageReference Include="AntdUI" Version="2.4.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
+    <!--
+      AntdUI 的 nuspec 对 net48 声明了 frameworkAssembly System.Design，
+      PackageReference 会自动带上；经典格式改用 HintPath 直引，所以要显式补这一条。
+    -->
+    <Reference Include="System.Design" />
+    <!--
+      AntdUI 2.4.3：锁死本机 NuGet 缓存里的这一个版本（技能文档按它核对过 API）。
+      为什么不用 PackageReference：经典项目在 dotnet CLI 的 MSBuild 下没有
+      ResolveNuGetPackageAssets（那是 SDK 的 ResolvePackageAssets 干的活），
+      还原会「成功」但引用不会生效 → CS0246。实测确认过。
+    -->
+    <Reference Include="AntdUI">
+      <HintPath>$(UserProfile)\.nuget\packages\antdui\2.4.3\lib\net48\AntdUI.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <!--
+      经典项目没有 SDK 的「传递引用」：SDK 版本里 Newtonsoft.Json 是从 Installer.Core 的
+      PackageReference 传递过来的，经典格式必须自己写。13.0.3 / lib\net45 是 net48 的最近匹配。
+    -->
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(UserProfile)\.nuget\packages\newtonsoft.json\13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Installer.Core\Installer.Core.csproj" />
-  </ItemGroup>
-
 
   <!--
-    VS 解决方案资源管理器里的「折叠」关系靠 DependentUpon 元数据。
-    SDK 风格项目对 *.Designer.cs 有约定推导，但 *.resx 不会 —— 所以显式声明，
-    让 X.cs / X.Designer.cs / X.resx 三件套在资源管理器里折成一项。
+    每一个 .cs 都要显式列出。SubType 是经典格式让 VS 识别「可设计组件」的关键：
+      Forms\*.cs     → Form
+      Views\*.cs     → UserControl（含自绘的 StepBarView : Control，它同样是可视控件）
+      *.Designer.cs  → 只写 DependentUpon，跟着主文件折叠
   -->
   <ItemGroup>
-    <Compile Update="**\*.Designer.cs">
-      <DependentUpon>$([System.IO.Path]::GetFileNameWithoutExtension('%(Filename)')).cs</DependentUpon>
+    <Compile Include="Common\WizardStrings.cs" />
+    <Compile Include="Common\WizardTheme.cs" />
+    <Compile Include="Forms\WizardForm.cs">
+      <SubType>Form</SubType>
     </Compile>
-    <EmbeddedResource Update="**\*.resx">
-      <DependentUpon>%(Filename).cs</DependentUpon>
+    <Compile Include="Forms\WizardForm.Designer.cs">
+      <DependentUpon>WizardForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\WizardModels.cs" />
+    <Compile Include="Presenters\WizardPresenter.cs" />
+    <Compile Include="Views\FinishView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\FinishView.Designer.cs">
+      <DependentUpon>FinishView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\LicenseView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\LicenseView.Designer.cs">
+      <DependentUpon>LicenseView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\OptionsView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\OptionsView.Designer.cs">
+      <DependentUpon>OptionsView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PathView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\PathView.Designer.cs">
+      <DependentUpon>PathView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ProgressView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\ProgressView.Designer.cs">
+      <DependentUpon>ProgressView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\StepBarView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\TaskCardView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\TaskCardView.Designer.cs">
+      <DependentUpon>TaskCardView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UninstallConfirmView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\UninstallConfirmView.Designer.cs">
+      <DependentUpon>UninstallConfirmView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\WelcomeView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\WelcomeView.Designer.cs">
+      <DependentUpon>WelcomeView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\WizardHeaderView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\WizardHeaderView.Designer.cs">
+      <DependentUpon>WizardHeaderView.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <!-- .resx 必须显式列出，DependentUpon 指向主 .cs，三件套才会在资源管理器里折成一项。 -->
+  <ItemGroup>
+    <EmbeddedResource Include="Forms\WizardForm.resx">
+      <DependentUpon>WizardForm.cs</DependentUpon>
     </EmbeddedResource>
-  </ItemGroup></Project>
+    <EmbeddedResource Include="Views\FinishView.resx">
+      <DependentUpon>FinishView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\LicenseView.resx">
+      <DependentUpon>LicenseView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\OptionsView.resx">
+      <DependentUpon>OptionsView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\PathView.resx">
+      <DependentUpon>PathView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\ProgressView.resx">
+      <DependentUpon>ProgressView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\TaskCardView.resx">
+      <DependentUpon>TaskCardView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\UninstallConfirmView.resx">
+      <DependentUpon>UninstallConfirmView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\WelcomeView.resx">
+      <DependentUpon>WelcomeView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\WizardHeaderView.resx">
+      <DependentUpon>WizardHeaderView.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      经典项目不做「传递项目引用」：SDK 版本里 Installer.UI 只写了 Installer.Core，
+      Installer.Abstractions 是从 Core 传递进来的；经典格式必须两个都写，否则 CS0234/CS0246。
+      GUID 取自 Installer.sln（sln 不许改）。
+    -->
+    <ProjectReference Include="..\Installer.Abstractions\Installer.Abstractions.csproj">
+      <Project>{1A2B3C4D-0001-4E5F-9A0B-000000000001}</Project>
+      <Name>Installer.Abstractions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Installer.Core\Installer.Core.csproj">
+      <Project>{1A2B3C4D-0002-4E5F-9A0B-000000000002}</Project>
+      <Name>Installer.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+
+  <!--
+    经典格式没有 SDK 的 GenerateAssemblyInfo 目标，不补的话程序集属性全丢
+    （AssemblyVersion 变 0.0.0.0，文件属性里没有产品名/版本）。
+    这里用 WriteCodeFragment 生成一份与 SDK 旧产物等价的 AssemblyInfo.cs。
+  -->
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyCompanyAttribute">
+      <_Parameter1>$(Company)</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Reflection.AssemblyConfigurationAttribute">
+      <_Parameter1>$(Configuration)</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Reflection.AssemblyFileVersionAttribute">
+      <_Parameter1>$(FileVersion)</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Reflection.AssemblyInformationalVersionAttribute">
+      <_Parameter1>$(InformationalVersion)</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Reflection.AssemblyProductAttribute">
+      <_Parameter1>$(Product)</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Reflection.AssemblyTitleAttribute">
+      <_Parameter1>$(AssemblyTitle)</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Reflection.AssemblyVersionAttribute">
+      <_Parameter1>$(AssemblyVersion)</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <Target Name="GenerateAssemblyInfoFile" BeforeTargets="BeforeCompile" DependsOnTargets="PrepareForBuild">
+    <PropertyGroup>
+      <_AssemblyInfoFile>$(IntermediateOutputPath)$(MSBuildProjectName).AssemblyInfo.cs</_AssemblyInfoFile>
+    </PropertyGroup>
+    <WriteCodeFragment AssemblyAttributes="@(AssemblyAttribute)" Language="C#" OutputFile="$(_AssemblyInfoFile)">
+      <Output TaskParameter="OutputFile" ItemName="Compile" />
+    </WriteCodeFragment>
+    <ItemGroup>
+      <FileWrites Include="$(_AssemblyInfoFile)" />
+    </ItemGroup>
+  </Target>
+
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

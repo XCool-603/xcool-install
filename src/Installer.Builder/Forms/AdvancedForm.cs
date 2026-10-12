@@ -19,13 +19,34 @@ namespace Installer.Builder.Forms
         private readonly AdvancedLicenseView _licenseView = new AdvancedLicenseView { Dock = DockStyle.Fill };
         private readonly AdvancedInstallView _installView = new AdvancedInstallView { Dock = DockStyle.Fill };
 
+        /// <summary>
+        /// 设计期构造函数。
+        ///
+        /// VS 的 WinForms 设计器**必须**能无参实例化类型，否则只会报
+        /// 「Constructor on type ... not found」，设计视图打不开。
+        /// 这里只搭出 Tab 骨架，不接 Presenter —— 文案填充是运行时的事。
+        /// </summary>
+        public AdvancedForm()
+        {
+            InitializeComponent();
+            BuildTabs();
+        }
+
         /// <summary>构造。</summary>
         /// <param name="presenter">制作端状态。</param>
         public AdvancedForm(BuilderPresenter presenter)
         {
             _presenter = presenter;
             InitializeComponent();
+            BuildTabs();
 
+            ApplyText();
+            Write();
+        }
+
+        /// <summary>把两个视图装进 TabPage（设计期与运行时共用）。</summary>
+        private void BuildTabs()
+        {
             // 让两个视图撑满 TabPage 并保持白底，视觉上就是一张卡片
             _licenseView.Dock = System.Windows.Forms.DockStyle.Fill;
             _licenseView.BackColor = System.Drawing.Color.White;
@@ -40,9 +61,6 @@ namespace Installer.Builder.Forms
 
             tabs.Pages.Add(licensePage);
             tabs.Pages.Add(installPage);
-
-            ApplyText();
-            Write();
         }
 
         /// <summary>确定后是否要标记工程为脏。</summary>

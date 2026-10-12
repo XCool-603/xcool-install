@@ -39,6 +39,20 @@ namespace Installer.UI.Forms
         private UserControl _currentView;
         private bool _finished;
 
+        /// <summary>
+        /// 设计期构造函数。
+        ///
+        /// VS 的 WinForms 设计器**必须**能无参实例化类型，否则只会报
+        /// 「Constructor on type ... not found」，设计视图打不开。
+        /// 这里只搭外壳（InitializeComponent），不接 Presenter / Host —— 那是运行时的事。
+        /// </summary>
+        public WizardForm()
+        {
+            InitializeComponent();
+            ApplyCardRegion();
+            MakeLabelsTransparent(this);
+        }
+
         /// <summary>构造。</summary>
         /// <param name="manifest">清单。</param>
         /// <param name="host">安装引擎桥。</param>
@@ -47,8 +61,7 @@ namespace Installer.UI.Forms
         /// <param name="uninstallMode">是否为卸载模式。</param>
         public WizardForm(InstallerManifest manifest, IWizardHost host, string defaultInstallDir,
                           string culture = null, bool uninstallMode = false)
-        {
-            if (manifest == null)
+        {            if (manifest == null)
             {
                 throw new ArgumentNullException("manifest");
             }
