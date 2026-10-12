@@ -1,4 +1,4 @@
-namespace Installer.UI.Forms
+﻿namespace Installer.UI.Forms
 {
     partial class WizardForm
     {
@@ -197,7 +197,7 @@ namespace Installer.UI.Forms
             //
             // WizardForm
             //
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 21F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(247)))), ((int)(((byte)(250)))));
             this.ClientSize = new System.Drawing.Size(688, 712);

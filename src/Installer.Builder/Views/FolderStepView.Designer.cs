@@ -1,4 +1,4 @@
-namespace Installer.Builder.Views
+﻿namespace Installer.Builder.Views
 {
     partial class FolderStepView
     {
@@ -304,7 +304,7 @@ namespace Installer.Builder.Views
             //
             // FolderStepView
             //
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.Controls.Add(this.rootLayout);

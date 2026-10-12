@@ -1,4 +1,4 @@
-namespace Installer.UI.Views
+﻿namespace Installer.UI.Views
 {
     partial class PathView
     {
@@ -485,7 +485,7 @@ namespace Installer.UI.Views
             //
             // PathView
             //
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.Controls.Add(this.infoBar);

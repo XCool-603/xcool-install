@@ -1,4 +1,4 @@
-namespace Installer.Builder.Forms
+﻿namespace Installer.Builder.Forms
 {
     partial class BuilderForm
     {
@@ -332,7 +332,7 @@ namespace Installer.Builder.Forms
             //
             // BuilderForm
             //
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(247)))), ((int)(((byte)(250)))));
             this.ClientSize = new System.Drawing.Size(920, 918);
