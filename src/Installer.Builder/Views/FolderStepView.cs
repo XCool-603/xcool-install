@@ -35,10 +35,19 @@ namespace Installer.Builder.Views
             DragLeave += OnDragLeave;
             cboEntry.SelectedIndexChanged += (sender, e) =>
             {
-                if (!_populating)
+                if (_populating)
                 {
-                    Raise();
+                    return;
                 }
+
+                // 用户主动换了启动程序 → 通知宿主，产品名跟着 exe 名走
+                var chosen = EntryChosen;
+                if (chosen != null)
+                {
+                    chosen(EntryPoint);
+                }
+
+                Raise();
             };
 
             chkAutoName.CheckedChanged += (sender, e) => Raise();
@@ -55,6 +64,9 @@ namespace Installer.Builder.Views
 
         /// <summary>用户**主动**选了一个新文件夹（拖拽或浏览），用于自动填产品名。</summary>
         public event Action<string> FolderChosen;
+
+        /// <summary>用户**主动**换了启动程序，用于让产品名跟着 exe 名走。</summary>
+        public event Action<string> EntryChosen;
 
         /// <summary>当前文件夹。</summary>
         public string Folder

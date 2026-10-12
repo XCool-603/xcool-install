@@ -78,6 +78,8 @@ namespace Installer.Builder.Forms
 
             // 选了文件夹就把文件夹名填进产品名（用户手动改过就不再覆盖）
             folderStep.FolderChosen += AutoFillProductName;
+            // 换了启动程序也让产品名跟着变（用户手动改过就不再覆盖）
+            folderStep.EntryChosen += AutoFillProductNameFromEntry;
 
             btnOpen.Click += (sender, e) => OpenProject();
             btnSave.Click += (sender, e) => SaveProject();
@@ -312,9 +314,29 @@ namespace Installer.Builder.Forms
         /// 选了文件夹就把文件夹名填进产品名 —— 省掉一次输入。
         /// 用户自己改过名字之后就不再覆盖。
         /// </summary>
+        /// <summary>
+        /// 用户换启动程序时，用 exe 文件名（去扩展名）更新产品名。
+        /// 与 <see cref="AutoFillProductName"/> 共用「用户改过就不覆盖」的规则。
+        /// </summary>
+        private void AutoFillProductNameFromEntry(string entry)
+        {
+            if (string.IsNullOrWhiteSpace(entry))
+            {
+                return;
+            }
+
+            var suggested = System.IO.Path.GetFileNameWithoutExtension(entry);
+            ApplySuggestedName(suggested);
+        }
+
         private void AutoFillProductName(string folder)
         {
-            var suggested = BuilderPresenter.SuggestProductName(folder);
+            ApplySuggestedName(BuilderPresenter.SuggestProductName(folder));
+        }
+
+        /// <summary>套用自动推导出的产品名（用户手动改过就尊重用户）。</summary>
+        private void ApplySuggestedName(string suggested)
+        {
             if (string.IsNullOrWhiteSpace(suggested))
             {
                 return;
