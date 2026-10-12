@@ -16,6 +16,12 @@
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <Deterministic>true</Deterministic>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <!--
+      声明「本项目是 WinForms 项目」。
+      不写这一条时 SDK 只把它当普通类库，VS 的项目系统因此不挂 WinForms 设计器能力 ——
+      表现就是 Designer.cs / .resx 都齐全，双击仍然只打开代码、给不出设计视图。
+    -->
+    <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
   <ItemGroup>

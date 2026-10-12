@@ -19,6 +19,8 @@
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <Deterministic>true</Deterministic>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <!-- 声明成 WinForms 项目，否则 VS 不给设计视图（详见 Installer.UI.csproj 的注释） -->
+    <UseWindowsForms>true</UseWindowsForms>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <!-- stub 必须自包含：下面 EmbedDependencies 目标会把依赖 DLL 嵌进来 -->
     <SelfContained>true</SelfContained>
