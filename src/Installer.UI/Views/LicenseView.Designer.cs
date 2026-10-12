@@ -123,7 +123,7 @@ namespace Installer.UI.Views
             this.licenseCard.Name = "licenseCard";
             this.licenseCard.Padding = new System.Windows.Forms.Padding(20);
             this.licenseCard.Radius = 12;
-            this.licenseCard.Size = new System.Drawing.Size(576, 506);
+            this.licenseCard.Size = new System.Drawing.Size(576, 354);
             this.licenseCard.TabIndex = 2;
             //
             // lblCardIcon —— 设计稿 (76,316)，即框内 (20,22)，17×16，文档图标 #1677FF
@@ -165,7 +165,7 @@ namespace Installer.UI.Views
             this.licenseScroll.Location = new System.Drawing.Point(20, 40);
             this.licenseScroll.Margin = new System.Windows.Forms.Padding(0);
             this.licenseScroll.Name = "licenseScroll";
-            this.licenseScroll.Size = new System.Drawing.Size(536, 446);
+            this.licenseScroll.Size = new System.Drawing.Size(536, 294);
             this.licenseScroll.TabIndex = 2;
             //
             // clauseHost —— 条款宿主，宽 519 = 536 − 17（竖向滚动条宽度），保证滚动条出现时也不会出横向滚动条
@@ -318,7 +318,7 @@ namespace Installer.UI.Views
             this.acceptRow.Controls.Add(this.lblAcceptHint);
             this.acceptRow.Controls.Add(this.lblAccept);
             this.acceptRow.Controls.Add(this.chkAccept);
-            this.acceptRow.Location = new System.Drawing.Point(0, 628);
+            this.acceptRow.Location = new System.Drawing.Point(0, 476);
             this.acceptRow.Margin = new System.Windows.Forms.Padding(0);
             this.acceptRow.Name = "acceptRow";
             this.acceptRow.Padding = new System.Windows.Forms.Padding(16, 14, 16, 14);
@@ -381,7 +381,7 @@ namespace Installer.UI.Views
             this.Controls.Add(this.lblTitle);
             this.Font = new System.Drawing.Font("微软雅黑", 9.75F);
             this.Name = "LicenseView";
-            this.Size = new System.Drawing.Size(576, 724);
+            this.Size = new System.Drawing.Size(576, 572);
             this.licenseCard.ResumeLayout(false);
             this.licenseScroll.ResumeLayout(false);
             this.clauseHost.ResumeLayout(false);

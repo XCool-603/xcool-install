@@ -72,7 +72,9 @@ namespace Installer.UI.Views
             this.lblIcon.AutoSize = false;
             this.lblIcon.Font = new System.Drawing.Font("微软雅黑", 9F);
             this.lblIcon.IconGap = 0;
-            this.lblIcon.Location = new System.Drawing.Point(16, 16);
+            // 设计稿墨迹 16x18 且居中于 56x56 容器；AntdUI 默认只画 9x10 且贴左上
+            this.lblIcon.IconRatio = 1.2F;
+            this.lblIcon.Location = new System.Drawing.Point(17, 16);
             this.lblIcon.Margin = new System.Windows.Forms.Padding(0);
             this.lblIcon.Name = "lblIcon";
             this.lblIcon.PrefixSvg = "<svg viewBox=\"0 0 24 24\"><path d=\"M12 2.6 3.4 7v10L12 21.4 20.6 17V7L12 2.6z\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"1.6\"/><path d=\"M3.6 7.1 12 11.5l8.4-4.4M12 11.5v9.7\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"1.6\"/></svg>";

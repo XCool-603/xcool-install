@@ -350,7 +350,7 @@ namespace Installer.UI.Views
             // divider —— 设计稿 (56,470) 576x1，#E5E8EF
             //
             this.divider.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(229)))), ((int)(((byte)(232)))), ((int)(((byte)(239)))));
-            this.divider.Location = new System.Drawing.Point(0, 278);
+            this.divider.Location = new System.Drawing.Point(0, 266);
             this.divider.Margin = new System.Windows.Forms.Padding(0);
             this.divider.Name = "divider";
             this.divider.Size = new System.Drawing.Size(576, 1);
@@ -362,7 +362,7 @@ namespace Installer.UI.Views
             this.iconTask.BackColor = System.Drawing.Color.Transparent;
             this.iconTask.Font = new System.Drawing.Font("微软雅黑", 9F);
             this.iconTask.IconGap = 0;
-            this.iconTask.Location = new System.Drawing.Point(0, 307);
+            this.iconTask.Location = new System.Drawing.Point(0, 276);
             this.iconTask.Margin = new System.Windows.Forms.Padding(0);
             this.iconTask.Name = "iconTask";
             this.iconTask.PrefixSvg = "<svg viewBox=\"0 0 16 16\"><rect x=\"2\" y=\"3\" width=\"3.6\" height=\"3.6\" rx=\"0.9\" fill=\"#1677FF\"/><rect x=\"7.2\" y=\"4.1\" width=\"6.8\" height=\"1.5\" rx=\"0.75\" fill=\"#1677FF\"/><rect x=\"2\" y=\"9.4\" width=\"3.6\" height=\"3.6\" rx=\"0.9\" fill=\"#1677FF\"/><rect x=\"7.2\" y=\"10.5\" width=\"6.8\" height=\"1.5\" rx=\"0.75\" fill=\"#1677FF\"/></svg>";
@@ -376,7 +376,7 @@ namespace Installer.UI.Views
             this.lblTaskCaption.BackColor = System.Drawing.Color.Transparent;
             this.lblTaskCaption.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Bold);
             this.lblTaskCaption.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(41)))), ((int)(((byte)(55)))));
-            this.lblTaskCaption.Location = new System.Drawing.Point(26, 301);
+            this.lblTaskCaption.Location = new System.Drawing.Point(26, 270);
             this.lblTaskCaption.Margin = new System.Windows.Forms.Padding(0);
             this.lblTaskCaption.Name = "lblTaskCaption";
             this.lblTaskCaption.Size = new System.Drawing.Size(300, 22);
@@ -386,22 +386,22 @@ namespace Installer.UI.Views
             // cardDesktop / cardStartMenu / cardAutostart / cardRunAfter
             // 设计稿 282x68，列距 12 / 行距 12，卡内布局见 TaskCardView.Designer.cs
             //
-            this.cardDesktop.Location = new System.Drawing.Point(0, 337);
+            this.cardDesktop.Location = new System.Drawing.Point(0, 306);
             this.cardDesktop.Margin = new System.Windows.Forms.Padding(0);
             this.cardDesktop.Name = "cardDesktop";
             this.cardDesktop.Size = new System.Drawing.Size(282, 68);
             this.cardDesktop.TabIndex = 14;
-            this.cardStartMenu.Location = new System.Drawing.Point(294, 337);
+            this.cardStartMenu.Location = new System.Drawing.Point(294, 306);
             this.cardStartMenu.Margin = new System.Windows.Forms.Padding(0);
             this.cardStartMenu.Name = "cardStartMenu";
             this.cardStartMenu.Size = new System.Drawing.Size(282, 68);
             this.cardStartMenu.TabIndex = 15;
-            this.cardAutostart.Location = new System.Drawing.Point(0, 417);
+            this.cardAutostart.Location = new System.Drawing.Point(0, 386);
             this.cardAutostart.Margin = new System.Windows.Forms.Padding(0);
             this.cardAutostart.Name = "cardAutostart";
             this.cardAutostart.Size = new System.Drawing.Size(282, 68);
             this.cardAutostart.TabIndex = 16;
-            this.cardRunAfter.Location = new System.Drawing.Point(294, 417);
+            this.cardRunAfter.Location = new System.Drawing.Point(294, 386);
             this.cardRunAfter.Margin = new System.Windows.Forms.Padding(0);
             this.cardRunAfter.Name = "cardRunAfter";
             this.cardRunAfter.Size = new System.Drawing.Size(282, 68);
@@ -411,7 +411,7 @@ namespace Installer.UI.Views
             //
             this.chkAllUsers.AutoSize = false;
             this.chkAllUsers.Fill = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(119)))), ((int)(((byte)(255)))));
-            this.chkAllUsers.Location = new System.Drawing.Point(0, 515);
+            this.chkAllUsers.Location = new System.Drawing.Point(0, 465);
             this.chkAllUsers.Margin = new System.Windows.Forms.Padding(0);
             this.chkAllUsers.Name = "chkAllUsers";
             this.chkAllUsers.Size = new System.Drawing.Size(20, 20);
@@ -424,7 +424,7 @@ namespace Installer.UI.Views
             this.lblAllUsers.BackColor = System.Drawing.Color.Transparent;
             this.lblAllUsers.Font = new System.Drawing.Font("微软雅黑", 9.75F);
             this.lblAllUsers.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(41)))), ((int)(((byte)(55)))));
-            this.lblAllUsers.Location = new System.Drawing.Point(32, 504);
+            this.lblAllUsers.Location = new System.Drawing.Point(32, 454);
             this.lblAllUsers.Margin = new System.Windows.Forms.Padding(0);
             this.lblAllUsers.Name = "lblAllUsers";
             this.lblAllUsers.Size = new System.Drawing.Size(400, 22);
@@ -437,7 +437,7 @@ namespace Installer.UI.Views
             this.lblAllUsersHint.BackColor = System.Drawing.Color.Transparent;
             this.lblAllUsersHint.Font = new System.Drawing.Font("微软雅黑", 9F);
             this.lblAllUsersHint.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(156)))), ((int)(((byte)(163)))), ((int)(((byte)(175)))));
-            this.lblAllUsersHint.Location = new System.Drawing.Point(32, 527);
+            this.lblAllUsersHint.Location = new System.Drawing.Point(32, 477);
             this.lblAllUsersHint.Margin = new System.Windows.Forms.Padding(0);
             this.lblAllUsersHint.Name = "lblAllUsersHint";
             this.lblAllUsersHint.Size = new System.Drawing.Size(480, 18);
@@ -448,7 +448,7 @@ namespace Installer.UI.Views
             //
             this.infoBar.Controls.Add(this.lblInfo);
             this.infoBar.Controls.Add(this.lblInfoIcon);
-            this.infoBar.Location = new System.Drawing.Point(0, 565);
+            this.infoBar.Location = new System.Drawing.Point(0, 500);
             this.infoBar.Margin = new System.Windows.Forms.Padding(0);
             this.infoBar.Name = "infoBar";
             this.infoBar.Padding = new System.Windows.Forms.Padding(0);
@@ -512,7 +512,7 @@ namespace Installer.UI.Views
             this.Controls.Add(this.lblTitle);
             this.Font = new System.Drawing.Font("微软雅黑", 9.75F);
             this.Name = "PathView";
-            this.Size = new System.Drawing.Size(576, 635);
+            this.Size = new System.Drawing.Size(576, 560);
             this.infoBar.ResumeLayout(false);
             this.chip1.ResumeLayout(false);
             this.chip2.ResumeLayout(false);

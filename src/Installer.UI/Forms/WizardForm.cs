@@ -157,10 +157,13 @@ namespace Installer.UI.Forms
                 case WizardPage.Welcome:
                     return 712;
                 case WizardPage.License:
-                    return 1012;
+                    // 设计稿是 1012，但 1080p 屏上几乎顶满、观感太"长"，
+                    // 正文框本身可滚动，所以压到 860（内容一字不少，只是可视高度变小）
+                    return 860;
                 case WizardPage.Path:
                 case WizardPage.Options:
-                    return 923;
+                    // 设计稿是 923，压缩到 810（收紧任务区与信息条之间的空隙）
+                    return 848;
                 case WizardPage.Installing:
                 case WizardPage.Uninstalling:
                     return 720;
@@ -464,7 +467,8 @@ namespace Installer.UI.Forms
                         _presenter.Text("Finish.Title"), _presenter.ProductName);
                     _finishView.Body = string.Format(CultureInfo.CurrentCulture,
                         _presenter.Text("Finish.Body"), _presenter.Options.InstallDir, _manifest.Files.Count, BuildSpaceText());
-                    _finishView.RunText = _presenter.Text("Options.RunAfter");
+                    _finishView.RunText = string.Format(CultureInfo.CurrentCulture,
+                        _presenter.Text("Options.RunAfter"), _presenter.ProductName);
                     _finishView.RunHint = _presenter.Text("Finish.RunHint");
                     _finishView.FooterHint = string.Format(CultureInfo.CurrentCulture,
                         _presenter.Text("Finish.UninstallHint"), _presenter.ProductName);
