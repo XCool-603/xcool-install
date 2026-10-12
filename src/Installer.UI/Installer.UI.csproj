@@ -33,16 +33,10 @@
     <Deterministic>true</Deterministic>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <!--
-      RID：经典格式不拿它拼输出路径（AppendRuntimeIdentifierToOutputPath 同理，保留只为与 SDK 版本一致）。
-      但项目引用协商会看它 —— Microsoft.Common.CurrentVersion.targets 里 IsRidAgnostic 的回退逻辑是
-      「没有 RuntimeIdentifier/RuntimeIdentifiers 才算 RID 无关」。显式声明 IsRidAgnostic=true，
-      保证 RuntimeIdentifier / SelfContained 不流进被引用的 SDK 项目，
-      否则 Installer.Core 会被按 win-x64 构建，而它的 assets 文件没有该 RID 目标 → NETSDK1047。
-    -->
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    <IsRidAgnostic>true</IsRidAgnostic>
-    <!-- 经典格式不认 GenerateDocumentationFile（只对 SDK 生效），真正起作用的是配置组里的 DocumentationFile。 -->
+      故意不设 RuntimeIdentifier / RuntimeIdentifiers。
+      经典格式的 .NET Framework 类库不需要 RID；一旦设了，VS 的 NuGet restore 会报
+      「Your project file doesn't list 'win' as a RuntimeIdentifier」。
+    -->    <!-- 经典格式不认 GenerateDocumentationFile（只对 SDK 生效），真正起作用的是配置组里的 DocumentationFile。 -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1701;1702;CS1591</NoWarn>
     <HighEntropyVA>true</HighEntropyVA>

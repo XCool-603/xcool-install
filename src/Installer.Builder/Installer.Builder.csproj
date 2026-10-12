@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
   经典（legacy）csproj —— 故意不写 <Project Sdk="Microsoft.NET.Sdk">。
   原因与 Installer.UI.csproj 完全相同：net48 下 <UseWindowsForms>true</UseWindowsForms> 是空操作，
@@ -19,24 +19,7 @@
     <!-- 产物名是中文，e2e / verify-ui / stage-tool 都按这个名字找。 -->
     <AssemblyName>安装包制作助手</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <!--
-      x86：安装器可能要注册 32 位 COM 组件（direct 方式要求位数一致）。
-      sln 传进来的 Platform 是 AnyCPU，位数靠 PlatformTarget 定，和 SDK 版本一致。
-    -->
-    <PlatformTarget>x86</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
-    <Deterministic>true</Deterministic>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <!--
-      RID 钉死 win-x86（与 SDK 版本一致）。经典格式不用它拼输出路径
-      （AppendRuntimeIdentifierToOutputPath 保留只为一致），但项目引用协商会看它：
-      显式 IsRidAgnostic=true，保证 RuntimeIdentifier / SelfContained 不流进被引用的 SDK 项目
-      （否则 Installer.Core 会被按 win-x86 构建 → 它的 assets 文件没有该 RID 目标 → NETSDK1047）。
-    -->
-    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
-    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    <IsRidAgnostic>true</IsRidAgnostic>
-    <!-- 保留这两条是为了与 SDK 版本一致（经典格式下它们不生效，文档文件本来就没生成）。 -->
+    <!-- 故意不设 RID，理由同 Installer.UI.csproj。 -->    <!-- 保留这两条是为了与 SDK 版本一致（经典格式下它们不生效，文档文件本来就没生成）。 -->
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1701;1702</NoWarn>
     <HighEntropyVA>true</HighEntropyVA>
