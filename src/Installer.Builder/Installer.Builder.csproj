@@ -45,7 +45,6 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <!-- 经典项目里 PackageReference 必须显式声明「按 PackageReference 还原」，否则 NuGet 当成 packages.config。 -->
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <!-- SDK 的 GenerateAssemblyInfo 目标在经典格式里没有，这些值喂给下面的 GenerateAssemblyInfoFile 目标。 -->
     <Version Condition=" '$(Version)' == '' ">1.0.0</Version>
     <AssemblyVersion Condition=" '$(AssemblyVersion)' == '' ">1.0.0.0</AssemblyVersion>
     <FileVersion Condition=" '$(FileVersion)' == '' ">1.0.0.0</FileVersion>
@@ -105,6 +104,7 @@
 
   <!-- 每一个 .cs 都要显式列出；Forms 下用 Form，Views 下用 UserControl。 -->
   <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Common\BuilderStrings.cs" />
     <Compile Include="Common\StepBadge.cs" />
@@ -210,42 +210,6 @@
     <None Include="README.md" />
   </ItemGroup>
 
-  <!-- 经典格式没有 SDK 的 GenerateAssemblyInfo 目标，用 WriteCodeFragment 补一份等价的 AssemblyInfo.cs。 -->
-  <ItemGroup>
-    <AssemblyAttribute Include="System.Reflection.AssemblyCompanyAttribute">
-      <_Parameter1>$(Company)</_Parameter1>
-    </AssemblyAttribute>
-    <AssemblyAttribute Include="System.Reflection.AssemblyConfigurationAttribute">
-      <_Parameter1>$(Configuration)</_Parameter1>
-    </AssemblyAttribute>
-    <AssemblyAttribute Include="System.Reflection.AssemblyFileVersionAttribute">
-      <_Parameter1>$(FileVersion)</_Parameter1>
-    </AssemblyAttribute>
-    <AssemblyAttribute Include="System.Reflection.AssemblyInformationalVersionAttribute">
-      <_Parameter1>$(InformationalVersion)</_Parameter1>
-    </AssemblyAttribute>
-    <AssemblyAttribute Include="System.Reflection.AssemblyProductAttribute">
-      <_Parameter1>$(Product)</_Parameter1>
-    </AssemblyAttribute>
-    <AssemblyAttribute Include="System.Reflection.AssemblyTitleAttribute">
-      <_Parameter1>$(AssemblyTitle)</_Parameter1>
-    </AssemblyAttribute>
-    <AssemblyAttribute Include="System.Reflection.AssemblyVersionAttribute">
-      <_Parameter1>$(AssemblyVersion)</_Parameter1>
-    </AssemblyAttribute>
-  </ItemGroup>
-
-  <Target Name="GenerateAssemblyInfoFile" BeforeTargets="BeforeCompile" DependsOnTargets="PrepareForBuild">
-    <PropertyGroup>
-      <_AssemblyInfoFile>$(IntermediateOutputPath)$(MSBuildProjectName).AssemblyInfo.cs</_AssemblyInfoFile>
-    </PropertyGroup>
-    <WriteCodeFragment AssemblyAttributes="@(AssemblyAttribute)" Language="C#" OutputFile="$(_AssemblyInfoFile)">
-      <Output TaskParameter="OutputFile" ItemName="Compile" />
-    </WriteCodeFragment>
-    <ItemGroup>
-      <FileWrites Include="$(_AssemblyInfoFile)" />
-    </ItemGroup>
-  </Target>
 
   <!--
     经典格式不会生成 exe.config（SDK 的 GenerateSupportedRuntimeConfig 目标不在经典 targets 里），

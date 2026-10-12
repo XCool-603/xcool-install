@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
   经典（legacy）csproj —— 故意不写 <Project Sdk="Microsoft.NET.Sdk">。
 
@@ -17,10 +17,8 @@
   下面的 ProjectGuid 必须和 sln 里 Installer.UI 的 GUID 一致。
 -->
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
   <!-- 经典格式的入口。缺了它 $(Configuration)/$(OutputPath)/$(TargetFrameworkVersion) 会全空（MSB4019 / 属性全空）。 -->
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -55,7 +53,6 @@
       否则 NuGet 会当成 packages.config 项目。
     -->
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <!-- SDK 的 GenerateAssemblyInfo 目标在经典格式里没有，这些值喂给下面的 GenerateAssemblyInfoFile 目标。 -->
     <Version Condition=" '$(Version)' == '' ">1.0.0</Version>
     <AssemblyVersion Condition=" '$(AssemblyVersion)' == '' ">1.0.0.0</AssemblyVersion>
     <FileVersion Condition=" '$(FileVersion)' == '' ">1.0.0.0</FileVersion>
@@ -64,7 +61,6 @@
     <Product Condition=" '$(Product)' == '' ">$(AssemblyName)</Product>
     <AssemblyTitle Condition=" '$(AssemblyTitle)' == '' ">$(AssemblyName)</AssemblyTitle>
   </PropertyGroup>
-
   <!-- 配置组：sln 把 Debug|Any CPU / Release|Any CPU 传进来，所以只需 AnyCPU 两组。 -->
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -74,7 +70,6 @@
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <DocumentationFile>bin\Debug\Installer.UI.xml</DocumentationFile>
   </PropertyGroup>
-
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>false</DebugSymbols>
     <DebugType>portable</DebugType>
@@ -83,7 +78,6 @@
     <DefineConstants>TRACE;RELEASE</DefineConstants>
     <DocumentationFile>bin\Release\Installer.UI.xml</DocumentationFile>
   </PropertyGroup>
-
   <!--
     AntdUI 用「PackageReference + HintPath 引用」双写，两边各管一件事：
       ① PackageReference：只为 NuGet 的项目图。Installer.Runtime / Installer.Builder / 测试项目都是 SDK 项目，
@@ -96,7 +90,6 @@
   <ItemGroup>
     <PackageReference Include="AntdUI" Version="2.4.3" />
   </ItemGroup>
-
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -131,7 +124,6 @@
       <Private>true</Private>
     </Reference>
   </ItemGroup>
-
   <!--
     每一个 .cs 都要显式列出。SubType 是经典格式让 VS 识别「可设计组件」的关键：
       Forms\*.cs     → Form
@@ -139,6 +131,7 @@
       *.Designer.cs  → 只写 DependentUpon，跟着主文件折叠
   -->
   <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Common\WizardStrings.cs" />
     <Compile Include="Common\WizardTheme.cs" />
     <Compile Include="Forms\WizardForm.cs">
@@ -180,7 +173,7 @@
       <DependentUpon>ProgressView.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\StepBarView.cs">
-      <SubType>UserControl</SubType>
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Views\TaskCardView.cs">
       <SubType>UserControl</SubType>
@@ -207,7 +200,6 @@
       <DependentUpon>WizardHeaderView.cs</DependentUpon>
     </Compile>
   </ItemGroup>
-
   <!-- .resx 必须显式列出，DependentUpon 指向主 .cs，三件套才会在资源管理器里折成一项。 -->
   <ItemGroup>
     <EmbeddedResource Include="Forms\WizardForm.resx">
@@ -241,7 +233,6 @@
       <DependentUpon>WizardHeaderView.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
-
   <ItemGroup>
     <!--
       经典项目不做「传递项目引用」：SDK 版本里 Installer.UI 只写了 Installer.Core，
@@ -257,47 +248,5 @@
       <Name>Installer.Core</Name>
     </ProjectReference>
   </ItemGroup>
-
-  <!--
-    经典格式没有 SDK 的 GenerateAssemblyInfo 目标，不补的话程序集属性全丢
-    （AssemblyVersion 变 0.0.0.0，文件属性里没有产品名/版本）。
-    这里用 WriteCodeFragment 生成一份与 SDK 旧产物等价的 AssemblyInfo.cs。
-  -->
-  <ItemGroup>
-    <AssemblyAttribute Include="System.Reflection.AssemblyCompanyAttribute">
-      <_Parameter1>$(Company)</_Parameter1>
-    </AssemblyAttribute>
-    <AssemblyAttribute Include="System.Reflection.AssemblyConfigurationAttribute">
-      <_Parameter1>$(Configuration)</_Parameter1>
-    </AssemblyAttribute>
-    <AssemblyAttribute Include="System.Reflection.AssemblyFileVersionAttribute">
-      <_Parameter1>$(FileVersion)</_Parameter1>
-    </AssemblyAttribute>
-    <AssemblyAttribute Include="System.Reflection.AssemblyInformationalVersionAttribute">
-      <_Parameter1>$(InformationalVersion)</_Parameter1>
-    </AssemblyAttribute>
-    <AssemblyAttribute Include="System.Reflection.AssemblyProductAttribute">
-      <_Parameter1>$(Product)</_Parameter1>
-    </AssemblyAttribute>
-    <AssemblyAttribute Include="System.Reflection.AssemblyTitleAttribute">
-      <_Parameter1>$(AssemblyTitle)</_Parameter1>
-    </AssemblyAttribute>
-    <AssemblyAttribute Include="System.Reflection.AssemblyVersionAttribute">
-      <_Parameter1>$(AssemblyVersion)</_Parameter1>
-    </AssemblyAttribute>
-  </ItemGroup>
-
-  <Target Name="GenerateAssemblyInfoFile" BeforeTargets="BeforeCompile" DependsOnTargets="PrepareForBuild">
-    <PropertyGroup>
-      <_AssemblyInfoFile>$(IntermediateOutputPath)$(MSBuildProjectName).AssemblyInfo.cs</_AssemblyInfoFile>
-    </PropertyGroup>
-    <WriteCodeFragment AssemblyAttributes="@(AssemblyAttribute)" Language="C#" OutputFile="$(_AssemblyInfoFile)">
-      <Output TaskParameter="OutputFile" ItemName="Compile" />
-    </WriteCodeFragment>
-    <ItemGroup>
-      <FileWrites Include="$(_AssemblyInfoFile)" />
-    </ItemGroup>
-  </Target>
-
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
