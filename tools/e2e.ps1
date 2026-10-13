@@ -1,4 +1,4 @@
-﻿<#
+﻿
 .SYNOPSIS
     Installer 打包流水线的端到端验收。
 
@@ -62,10 +62,21 @@ function Write-Le([byte[]]$buf, [int]$offset, [long]$value, [int]$size) {
 }
 
 function Get-Crc32([byte[]]$data, [int]$offset, [int]$count) {
-    # 直接用 Installer.Core 里的同一个实现。
-    # 不在 PowerShell 里重写：PS 5.1 的 -shr 对 int64 结果不正确，
-    # 而且本机环境的 Add-Type 是坏的（"cannot seek in file"），没法现场编译 C# 片段。
-    return [int64][Installer.Core.Common.Crc32]::Compute($data, $offset, $count)
+    # 纯 PowerShell 实现（标准 CRC-32/ISO-HDLC，多项式 0xEDB88320，初值/异或尾 0xFFFFFFFF）。
+    #
+    # 为什么不再调用 Installer.Core.Common.Crc32：Core 迁到 net10.0 之后
+    # PowerShell 5.1（NET Framework 宿主）加载不了那个 DLL。
+    # 全程用 [uint32] 运算，避免 PS 把 int64 当有符号数处理导致结果出错。
+    $crc = [uint32]::MaxValue
+    $end = $offset + $count
+    for ($i = $offset; $i -lt $end; $i++) {
+        $crc = $crc -bxor $data[$i]
+        for ($b = 0; $b -lt 8; $b++) {
+            if (($crc -band 1) -eq 1) { $crc = ($crc -shr 1) -bxor [uint32]3988292384 }
+            else { $crc = $crc -shr 1 }
+        }
+    }
+    return [int64]($crc -bxor [uint32]::MaxValue)
 }
 
 function Get-Sha256Hex([byte[]]$data) {
