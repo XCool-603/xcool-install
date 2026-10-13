@@ -43,8 +43,12 @@ if ($LASTEXITCODE -ne 0) { throw "构建失败（exit $LASTEXITCODE）" }
 $builderOut = Join-Path $repo "src\Installer.Builder\bin\$Configuration"
 $runtimeExe = Join-Path $repo "src\Installer.Runtime\bin\$Configuration\Installer.Runtime.exe"
 
-if (-not (Test-Path (Join-Path $builderOut '安装包制作助手.exe'))) {
-    throw "找不到制作端产物：$builderOut\安装包制作助手.exe"
+# .NET Framework 的 WinExe 产物就是中文名程序集本体 —— 没有 apphost，
+# 所以不存在 .NET Core 上「非 ASCII 程序集名导致 exe 启动失败」的限制。
+$builderExe = Join-Path $builderOut '安装包制作助手.exe'
+$builderCfg = Join-Path $builderOut '安装包制作助手.exe.config'
+if (-not (Test-Path $builderExe)) {
+    throw "找不到制作端产物：$builderExe"
 }
 if (-not (Test-Path $runtimeExe)) {
     throw "找不到 stub：$runtimeExe"
@@ -54,10 +58,8 @@ Write-Step "组装到 $Output"
 if (Test-Path $Output) { Remove-Item -Recurse -Force $Output }
 New-Item -ItemType Directory -Force -Path $Output | Out-Null
 
-# 制作端本体 + 它直接依赖的几个程序集（其余依赖已嵌进 stub 里）
+# 制作端直接依赖的几个程序集（本体是 安装包制作助手.exe，单独复制）
 $files = @(
-    '安装包制作助手.exe',
-    '安装包制作助手.exe.config',
     'AntdUI.dll',
     'Installer.UI.dll',
     'Installer.Core.dll',
@@ -72,6 +74,11 @@ foreach ($name in $files) {
     } else {
         Write-Warning "缺少 $name（制作端可能起不来）"
     }
+}
+
+Copy-Item -LiteralPath $builderExe -Destination $Output -Force
+if (Test-Path $builderCfg) {
+    Copy-Item -LiteralPath $builderCfg -Destination $Output -Force
 }
 
 # 模板 stub：制作端的 StubLocator 会在自己所在目录里找它

@@ -1,34 +1,46 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-        <!--
-      测试项目要引用 Installer.UI / Installer.Builder（WizardPresenterTests 用的是
-      Installer.UI.Presenters），而那两个项目是 net10.0-windows。
-      跨平台项目（net10.0）无法引用 Windows 专用项目，所以测试项目本身也是
-      net10.0-windows —— 它本来就只在 Windows 上跑（被测的桩是 .exe）。
+    <!--
+      测试项目用 net462，产品用 net461：唯一的 xunit 测试运行器
+      (xunit.runner.visualstudio 2.8.2) 最低只支持到 net462，
+      net461 没有任何可用版本。测试项目不随产品发布，
+      且 net462 能正常引用 net461 的程序集，所以不影响交付目标。
     -->
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFramework>net462</TargetFramework>
+    <!--
+      显式钉死平台与 RID。
+      不钉的后果：SDK 对 net48 会自己推 RuntimeIdentifier（AnyCPU+Prefer32Bit=false → win-x64，
+      x86 → win-x86），而 dotnet restore 有时不生成这个目标，于是 build 报 NETSDK1047，构建时好时坏。
+      选 x86 是因为安装器可能要注册 32 位 COM 组件（direct 方式需要位数一致）。
+    -->
+    <!-- 测试宿主必须和被测的 exe 项目同位数：它引用了 x86 的 Installer.Builder，
+         AnyCPU（64 位）宿主加载 x86 程序集会 BadImageFormatException。 -->
+    <PlatformTarget>x86</PlatformTarget>
+    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <LangVersion>7.3</LangVersion>
+    <IsPackable>false</IsPackable>
     <RootNamespace>Installer.Core.Tests</RootNamespace>
     <AssemblyName>Installer.Core.Tests</AssemblyName>
-    <Deterministic>true</Deterministic>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
-    <IsPackable>false</IsPackable>
-    <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Installer.Core\Installer.Core.csproj" />
     <ProjectReference Include="..\..\src\Installer.UI\Installer.UI.csproj" />
     <ProjectReference Include="..\..\src\Installer.Builder\Installer.Builder.csproj" />
-    <ProjectReference Include="..\..\src\Installer.Abstractions\Installer.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,22 +1,38 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0-windows</TargetFramework>
-    <UseWindowsForms>true</UseWindowsForms>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net461</TargetFramework>
+    <!--
+      显式钉死平台与 RID。
+      不钉的后果：SDK 对 net48 会自己推 RuntimeIdentifier（AnyCPU+Prefer32Bit=false → win-x64，
+      x86 → win-x86），而 dotnet restore 有时不生成这个目标，于是 build 报 NETSDK1047，构建时好时坏。
+      选 x86 是因为安装器可能要注册 32 位 COM 组件（direct 方式需要位数一致）。
+    -->
+    <PlatformTarget>x86</PlatformTarget>
+    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+    <!-- 别让输出多一层 win-x86\ —— e2e、文档、StubLocator 都按 bin\Debug\ 找 -->
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <LangVersion>7.3</LangVersion>
     <RootNamespace>Installer.Builder</RootNamespace>
     <AssemblyName>安装包制作助手</AssemblyName>
-    <OutputType>WinExe</OutputType>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <Deterministic>true</Deterministic>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
-    <Version>1.0.0</Version>
+    <!-- 声明成 WinForms 项目，否则 VS 不给设计视图（详见 Installer.UI.csproj 的注释） -->
+    <UseWindowsForms>true</UseWindowsForms>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AntdUI" Version="2.4.3" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,4 +40,21 @@
     <ProjectReference Include="..\Installer.UI\Installer.UI.csproj" />
   </ItemGroup>
 
-</Project>
+  <ItemGroup>
+    <None Include="app.manifest" />
+  </ItemGroup>
+
+
+  <!--
+    VS 解决方案资源管理器里的「折叠」关系靠 DependentUpon 元数据。
+    SDK 风格项目对 *.Designer.cs 有约定推导，但 *.resx 不会 —— 所以显式声明，
+    让 X.cs / X.Designer.cs / X.resx 三件套在资源管理器里折成一项。
+  -->
+  <ItemGroup>
+    <Compile Update="**\*.Designer.cs">
+      <DependentUpon>$([System.IO.Path]::GetFileNameWithoutExtension('%(Filename)')).cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="**\*.resx">
+      <DependentUpon>%(Filename).cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup></Project>

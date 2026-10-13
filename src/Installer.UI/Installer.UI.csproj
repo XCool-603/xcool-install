@@ -1,25 +1,56 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0-windows</TargetFramework>
-    <UseWindowsForms>true</UseWindowsForms>
+    <TargetFramework>net461</TargetFramework>
+    <!--
+      显式钉死平台与 RID。
+      不钉的后果：SDK 对 net48 会自己推 RuntimeIdentifier（AnyCPU+Prefer32Bit=false → win-x64，
+      x86 → win-x86），而 dotnet restore 有时不生成这个目标，于是 build 报 NETSDK1047，构建时好时坏。
+      选 x86 是因为安装器可能要注册 32 位 COM 组件（direct 方式需要位数一致）。
+    -->
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <LangVersion>7.3</LangVersion>
     <RootNamespace>Installer.UI</RootNamespace>
     <AssemblyName>Installer.UI</AssemblyName>
-    <Deterministic>true</Deterministic>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
-    <Version>1.0.0</Version>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <Deterministic>true</Deterministic>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <!--
+      声明「本项目是 WinForms 项目」。
+      不写这一条时 SDK 只把它当普通类库，VS 的项目系统因此不挂 WinForms 设计器能力 ——
+      表现就是 Designer.cs / .resx 都齐全，双击仍然只打开代码、给不出设计视图。
+    -->
+    <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- 锁定 2.4.3：本机 NuGet 缓存里最新的、且技能文档按它核对过 API 的版本 -->
     <PackageReference Include="AntdUI" Version="2.4.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Installer.Core\Installer.Core.csproj" />
   </ItemGroup>
 
-</Project>
+
+  <!--
+    VS 解决方案资源管理器里的「折叠」关系靠 DependentUpon 元数据。
+    SDK 风格项目对 *.Designer.cs 有约定推导，但 *.resx 不会 —— 所以显式声明，
+    让 X.cs / X.Designer.cs / X.resx 三件套在资源管理器里折成一项。
+  -->
+  <ItemGroup>
+    <Compile Update="**\*.Designer.cs">
+      <DependentUpon>$([System.IO.Path]::GetFileNameWithoutExtension('%(Filename)')).cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="**\*.resx">
+      <DependentUpon>%(Filename).cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup></Project>

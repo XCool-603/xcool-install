@@ -1,4 +1,5 @@
-﻿
+﻿#Requires -Version 5.1
+<#
 .SYNOPSIS
     Installer 打包流水线的端到端验收。
 
