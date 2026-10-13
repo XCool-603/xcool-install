@@ -981,6 +981,14 @@ namespace Installer.Core.Install
                 return;
             }
 
+            // 图形向导把「是否启动」交给「安装完成」页的勾选框 + 完成按钮，
+            // 这里必须让路 —— 否则程序会在用户还没看到完成页时就自己弹出来。
+            if (ctx.SuppressAutoLaunch)
+            {
+                ctx.Log.Info("向导接管启动，安装管线不自动运行入口程序。");
+                return;
+            }
+
             var entry = StandardSteps.EntryPointFullPath(ctx);
             if (string.IsNullOrEmpty(entry) || !File.Exists(entry))
             {

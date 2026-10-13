@@ -120,6 +120,9 @@ namespace Installer.Runtime
                             Text = text,
                             SandboxRoot = _sandboxRoot,
                             CancellationToken = token,
+                            // 图形向导不在这里自动启动程序：「安装完成」页有
+                            // 「立即运行」勾选框，要不要启动由用户点「完成」时决定。
+                            SuppressAutoLaunch = true,
                         };
 
                         var engine = new InstallEngine();

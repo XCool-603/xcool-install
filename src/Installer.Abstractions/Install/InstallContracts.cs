@@ -171,6 +171,18 @@ namespace Installer.Abstractions.Install
         /// <summary>是否只校验不落盘（试运行）。</summary>
         public bool DryRun { get; set; }
 
+        /// <summary>
+        /// 抑制「安装完成后自动运行入口程序」。
+        ///
+        /// 图形向导必须设为 <c>true</c>：向导的「安装完成」页有「立即运行」勾选框，
+        /// 是否启动要等用户点「完成」才决定。若让管线里的
+        /// <c>RunAfterInstallStep</c> 直接启动，程序会在用户**还没看到完成页**时
+        /// 就自己弹出来（用户反馈「我没点完成他就自动运行了」）。
+        ///
+        /// 静默安装（--silent）保持 <c>false</c>：无人交互，装完即启动。
+        /// </summary>
+        public bool SuppressAutoLaunch { get; set; }
+
         /// <summary>沙箱根目录（非沙箱安装为 null）。会被写进安装记录。</summary>
         public string SandboxRoot { get; set; }
 

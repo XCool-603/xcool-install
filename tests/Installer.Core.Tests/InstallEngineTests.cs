@@ -315,6 +315,82 @@ namespace Installer.Core.Tests
             Assert.True(File.Exists(journalPath));
             Assert.NotEmpty(InstallJournal.LoadPending(journalPath));
         }
+
+        // ─────────────────────────────────────────────────────────────
+        // 安装完成后启动入口程序
+        // ─────────────────────────────────────────────────────────────
+
+        /// <summary>造一个入口程序文件，让 RunAfterInstallStep 认为它存在。</summary>
+        private string MakeEntry(InstallContext ctx)
+        {
+            var entry = Path.Combine(ctx.InstallDir, ctx.Manifest.EntryPoint);
+            Directory.CreateDirectory(Path.GetDirectoryName(entry));
+            File.WriteAllText(entry, "stub");
+            return entry;
+        }
+
+        private InstallRunResult RunOnly(InstallContext ctx, IInstallStep step)
+        {
+            return new InstallEngine(() => new List<IInstallStep> { step }).Run(ctx);
+        }
+
+        /// <summary>取假进程服务记录下来的启动列表（Started 在具体类型上，接口没暴露）。</summary>
+        private static List<string> StartedOf(InstallContext ctx)
+        {
+            return ((FakeProcessRunner)((FakePlatform)ctx.Platform).Processes).Started;
+        }
+
+        [Fact]
+        public void 清单要求安装后启动_静默安装会自动运行入口程序()
+        {
+            var ctx = NewContext();
+            ctx.Manifest.RunAfterInstall = true;
+            var entry = MakeEntry(ctx);
+
+            RunOnly(ctx, new RunAfterInstallStep());
+
+            Assert.Contains(entry, StartedOf(ctx));
+        }
+
+        [Fact]
+        public void 向导接管时_管线不自动运行入口程序()
+        {
+            // 用户反馈「我没点完成他就自动运行了」：
+            // 向导的「安装完成」页有「立即运行」勾选框，是否启动要等点「完成」。
+            var ctx = NewContext();
+            ctx.Manifest.RunAfterInstall = true;
+            ctx.SuppressAutoLaunch = true;
+            MakeEntry(ctx);
+
+            RunOnly(ctx, new RunAfterInstallStep());
+
+            Assert.Empty(StartedOf(ctx));
+        }
+
+        [Fact]
+        public void 清单未要求时_两种模式都不运行()
+        {
+            var ctx = NewContext();
+            ctx.Manifest.RunAfterInstall = false;
+            MakeEntry(ctx);
+
+            RunOnly(ctx, new RunAfterInstallStep());
+
+            Assert.Empty(StartedOf(ctx));
+        }
+
+        [Fact]
+        public void 入口程序不存在时_不应抛异常也不运行()
+        {
+            var ctx = NewContext();
+            ctx.Manifest.RunAfterInstall = true;   // 故意不建文件
+
+            var result = RunOnly(ctx, new RunAfterInstallStep());
+
+            Assert.True(result.Success);
+            Assert.Empty(StartedOf(ctx));
+        }
+
     }
 
     /// <summary>预检里的版本比较 —— 现状用 <c>Int32.Parse(v.Replace(".",""))</c>，位数不同就误判。</summary>
@@ -396,5 +472,6 @@ namespace Installer.Core.Tests
             Assert.Equal("汽车小镇", new StringTable(Table(), "zh-Hans", "zh-Hans").Resolve(name, "?"));
             Assert.Equal("?", new StringTable(Table(), "en", "zh-Hans").Resolve(null, "?"));
         }
+
     }
 }
