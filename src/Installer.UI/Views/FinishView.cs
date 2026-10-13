@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using Installer.UI.Common;
@@ -54,6 +55,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>标题。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Title
         {
             get { return lblTitle.Text; }
@@ -61,6 +63,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>正文。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Body
         {
             get { return lblBody.Text; }
@@ -68,6 +71,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>勾选框文案（「立即运行 xxx」）。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string RunText
         {
             get { return lblRun.Text; }
@@ -75,6 +79,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>勾选框下方的灰色提示。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string RunHint
         {
             get { return lblRunHint.Text; }
@@ -82,6 +87,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>最下方的灰色提示（卸载指引）。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string FooterHint
         {
             get { return lblUninstallHint.Text; }
@@ -89,6 +95,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>是否显示「立即运行」勾选区。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool ShowRunOption
         {
             get { return runPanel.Visible; }
@@ -96,6 +103,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>勾选状态。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool RunChecked
         {
             get { return chkRun.Checked; }

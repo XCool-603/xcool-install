@@ -336,6 +336,34 @@ namespace Installer.Core.Uninstall
                 {
                 }
             }
+
+            // 子目录清完之后，**安装目录本身也要删**。
+            // 之前只遍历子目录（GetDirectories 的结果不含 dir 自己），
+            // 所以卸载后总会留下一个空的产品文件夹 —— 用户反馈「卸载后安装目录本身还在」。
+            try
+            {
+                if (!Directory.Exists(dir))
+                {
+                    return;
+                }
+
+                if (Directory.GetFileSystemEntries(dir).Length == 0)
+                {
+                    Directory.Delete(dir, false);
+                    result.Messages.Add("已删除安装目录：" + dir);
+                }
+                else
+                {
+                    // 目录里还剩东西（通常是用户自己的文件），保留并说明原因
+                    result.Messages.Add("安装目录非空，已保留：" + dir);
+                }
+            }
+            catch (IOException)
+            {
+            }
+            catch (UnauthorizedAccessException)
+            {
+            }
         }
 
         private static string StripHive(string fullPath)

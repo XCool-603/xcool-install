@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
 using Installer.Abstractions.Platform;
@@ -25,6 +26,7 @@ namespace Installer.Builder.Views
         public event Action OutputChanged;
 
         /// <summary>当前输出路径。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string OutputPath
         {
             get { return _outputPath; }
@@ -48,6 +50,7 @@ namespace Installer.Builder.Views
         /// 注意：AntdUI 的禁用态对比度很低（实测约 55，正常 120~250），
         /// 这是刻意的"灰掉"效果 —— 设计稿要求如此。
         /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool CanBuild
         {
             get { return _canBuild; }
@@ -64,6 +67,7 @@ namespace Installer.Builder.Views
         private bool _canBuild = true;
 
         /// <summary>是否正在生成。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool Building
         {
             get { return btnBuild.Loading; }

@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using Installer.UI.Common;
@@ -20,6 +21,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>大标题。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Title
         {
             get { return lblTitle.Text; }
@@ -27,6 +29,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>正文第一段。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Body
         {
             get { return lblBody.Text; }
@@ -34,6 +37,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>正文第二段（设计稿是独立一段，不是同一段里的换行）。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Body2
         {
             get { return lblBody2.Text; }
@@ -63,6 +67,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>默认安装位置。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string DirValue
         {
             get { return lblDirValue.Text; }
@@ -70,6 +75,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>需要磁盘空间。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string SpaceValue
         {
             get { return lblSpaceValue.Text; }
@@ -77,6 +83,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>版本与发布者。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string VersionValue
         {
             get { return lblVersionValue.Text; }
@@ -84,6 +91,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>黄色提示条文案。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Hint
         {
             get { return lblHint.Text; }

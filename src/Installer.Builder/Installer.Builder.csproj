@@ -1,221 +1,27 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<!--
-  经典（legacy）csproj —— 故意不写 <Project Sdk="Microsoft.NET.Sdk">。
-  原因与 Installer.UI.csproj 完全相同：net48 下 <UseWindowsForms>true</UseWindowsForms> 是空操作，
-  SDK 的 CPS 项目系统不会给 WinForms 设计器能力；经典项目系统 + <SubType> 才会。
-  约束：不要改回 SDK 风格；ProjectGuid 必须和 Installer.sln 里 Installer.Builder 的 GUID 一致。
--->
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <!-- 沿用 Installer.sln 里 Installer.Builder 的 GUID。 -->
-    <ProjectGuid>{43BA874F-0499-4E5D-90D6-C98B1DED22CF}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <LangVersion>7.3</LangVersion>
     <RootNamespace>Installer.Builder</RootNamespace>
-    <!-- 产物名是中文，e2e / verify-ui / stage-tool 都按这个名字找。 -->
     <AssemblyName>安装包制作助手</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <!-- 故意不设 RID，理由同 Installer.UI.csproj。 -->    <!-- 保留这两条是为了与 SDK 版本一致（经典格式下它们不生效，文档文件本来就没生成）。 -->
-    <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);1701;1702</NoWarn>
-    <HighEntropyVA>true</HighEntropyVA>
-    <Prefer32Bit>false</Prefer32Bit>
-    <!-- 经典格式会自己复制 app.manifest 到 $(TargetFileName).manifest。 -->
+    <OutputType>WinExe</OutputType>
+    <Deterministic>true</Deterministic>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <Version>1.0.0</Version>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <!-- 经典项目里 PackageReference 必须显式声明「按 PackageReference 还原」，否则 NuGet 当成 packages.config。 -->
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-    <Version Condition=" '$(Version)' == '' ">1.0.0</Version>
-    <AssemblyVersion Condition=" '$(AssemblyVersion)' == '' ">1.0.0.0</AssemblyVersion>
-    <FileVersion Condition=" '$(FileVersion)' == '' ">1.0.0.0</FileVersion>
-    <InformationalVersion Condition=" '$(InformationalVersion)' == '' ">$(Version)</InformationalVersion>
-    <Company Condition=" '$(Company)' == '' ">$(AssemblyName)</Company>
-    <Product Condition=" '$(Product)' == '' ">$(AssemblyName)</Product>
-    <AssemblyTitle Condition=" '$(AssemblyTitle)' == '' ">$(AssemblyName)</AssemblyTitle>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>portable</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugSymbols>false</DebugSymbols>
-    <DebugType>portable</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;RELEASE</DefineConstants>
-  </PropertyGroup>
-
-  <!--
-    AntdUI 双写：PackageReference 只喂 NuGet 项目图（让 Installer.Runtime / 测试项目拿到传递依赖），
-    Reference + HintPath 才是本项目编译真正用的引用。原因详见 Installer.UI.csproj 里的长注释。
-  -->
   <ItemGroup>
     <PackageReference Include="AntdUI" Version="2.4.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.IO.Compression.FileSystem" />
-    <!-- AntdUI 的 nuspec 对 net48 声明了 frameworkAssembly System.Design，HintPath 引用要自己补。 -->
-    <Reference Include="System.Design" />
-    <!-- AntdUI 2.4.3：HintPath 直引本机 NuGet 缓存（经典项目里 PackageReference 不生效，详见 Installer.UI.csproj）。 -->
-    <Reference Include="AntdUI">
-      <HintPath>$(UserProfile)\.nuget\packages\antdui\2.4.3\lib\net48\AntdUI.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <!-- 经典格式没有 SDK 的传递引用：Newtonsoft.Json 要自己引（13.0.3 / lib\net45 是 net48 的最近匹配）。 -->
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>$(UserProfile)\.nuget\packages\newtonsoft.json\13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
+    <ProjectReference Include="..\Installer.Core\Installer.Core.csproj" />
+    <ProjectReference Include="..\Installer.UI\Installer.UI.csproj" />
   </ItemGroup>
 
-  <!-- 每一个 .cs 都要显式列出；Forms 下用 Form，Views 下用 UserControl。 -->
-  <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Common\BuilderStrings.cs" />
-    <Compile Include="Common\StepBadge.cs" />
-    <Compile Include="Common\StubLocator.cs" />
-    <Compile Include="Forms\AdvancedForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\AdvancedForm.Designer.cs">
-      <DependentUpon>AdvancedForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\BuilderForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\BuilderForm.Designer.cs">
-      <DependentUpon>BuilderForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Models\BuilderModels.cs" />
-    <Compile Include="Presenters\BuilderPresenter.cs" />
-    <Compile Include="Services\BuildService.cs" />
-    <Compile Include="Views\AdvancedInstallView.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\AdvancedInstallView.Designer.cs">
-      <DependentUpon>AdvancedInstallView.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\AdvancedLicenseView.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\AdvancedLicenseView.Designer.cs">
-      <DependentUpon>AdvancedLicenseView.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\FolderStepView.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\FolderStepView.Designer.cs">
-      <DependentUpon>FolderStepView.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\InfoStepView.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\InfoStepView.Designer.cs">
-      <DependentUpon>InfoStepView.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\OutputBar.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\OutputBar.Designer.cs">
-      <DependentUpon>OutputBar.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\ShortcutStepView.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Views\ShortcutStepView.Designer.cs">
-      <DependentUpon>ShortcutStepView.cs</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Forms\AdvancedForm.resx">
-      <DependentUpon>AdvancedForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\BuilderForm.resx">
-      <DependentUpon>BuilderForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\AdvancedInstallView.resx">
-      <DependentUpon>AdvancedInstallView.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\AdvancedLicenseView.resx">
-      <DependentUpon>AdvancedLicenseView.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\FolderStepView.resx">
-      <DependentUpon>FolderStepView.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\InfoStepView.resx">
-      <DependentUpon>InfoStepView.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\OutputBar.resx">
-      <DependentUpon>OutputBar.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\ShortcutStepView.resx">
-      <DependentUpon>ShortcutStepView.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- 经典格式不做传递项目引用：Installer.Abstractions 必须显式列出（GUID 取自 sln）。 -->
-    <ProjectReference Include="..\Installer.Abstractions\Installer.Abstractions.csproj">
-      <Project>{1A2B3C4D-0001-4E5F-9A0B-000000000001}</Project>
-      <Name>Installer.Abstractions</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Installer.Core\Installer.Core.csproj">
-      <Project>{1A2B3C4D-0002-4E5F-9A0B-000000000002}</Project>
-      <Name>Installer.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Installer.UI\Installer.UI.csproj">
-      <Project>{6053B80A-A193-4C7C-B0E7-8662386A3D68}</Project>
-      <Name>Installer.UI</Name>
-    </ProjectReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="app.manifest" />
-    <None Include="README.md" />
-  </ItemGroup>
-
-
-  <!--
-    经典格式不会生成 exe.config（SDK 的 GenerateSupportedRuntimeConfig 目标不在经典 targets 里），
-    但 stage-tool.ps1 会把「安装包制作助手.exe.config」一起组装进「制作工具\」，
-    缺了它 stage-tool 会告警。这里按 SDK 原样补一份（内容与旧产物一致）。
-    钩在 Build 之后：IncrementalClean 跑完再写，避免首次构建时被当成孤儿文件删掉。
-  -->
-  <Target Name="GenerateSupportedRuntimeConfig" AfterTargets="Build" Condition=" '$(OutputType)' == 'WinExe' or '$(OutputType)' == 'Exe' ">
-    <PropertyGroup>
-      <_SupportedRuntimeConfigFile>$(TargetPath).config</_SupportedRuntimeConfigFile>
-      <!--
-        坑：不能写成「一个 <ItemGroup> 一行」—— MSBuild 会把以 "&lt;?xml" 开头的 item spec 静默丢掉
-        （实测 @(...->Count()) 少一项，连 %3C 转义也躲不过）。所以整段文本放进一个属性里，
-        用 &#x0D;&#x0A; 显式表达 CRLF。
-      -->
-      <_SupportedRuntimeConfigText>&lt;?xml version="1.0" encoding="utf-8"?&gt;&#x0D;&#x0A;&lt;configuration&gt;&#x0D;&#x0A;  &lt;startup&gt;&#x0D;&#x0A;    &lt;supportedRuntime version="v4.0" sku=".NETFramework,Version=$(TargetFrameworkVersion)" /&gt;&#x0D;&#x0A;  &lt;/startup&gt;&#x0D;&#x0A;&lt;/configuration&gt;</_SupportedRuntimeConfigText>
-    </PropertyGroup>
-    <!-- Encoding=ASCII：内容全是 ASCII；也正因为是 ASCII，才不会像 UTF-8 那样写出 BOM（与旧产物一致）。 -->
-    <WriteLinesToFile File="$(_SupportedRuntimeConfigFile)" Lines="$(_SupportedRuntimeConfigText)" Overwrite="true" WriteOnlyWhenDifferent="true" Encoding="ASCII" />
-    <ItemGroup>
-      <FileWrites Include="$(_SupportedRuntimeConfigFile)" />
-    </ItemGroup>
-  </Target>
-
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

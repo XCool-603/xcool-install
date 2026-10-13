@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace Installer.UI.Views
@@ -13,6 +14,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>标题。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Title
         {
             get { return lblTitle.Text; }
@@ -20,6 +22,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>桌面快捷方式文案。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string DesktopText
         {
             get { return chkDesktop.Text; }
@@ -27,6 +30,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>开始菜单快捷方式文案。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string StartMenuText
         {
             get { return chkStartMenu.Text; }
@@ -34,6 +38,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>开机启动文案。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string AutostartText
         {
             get { return chkAutostart.Text; }
@@ -41,6 +46,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>安装后运行文案。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string RunAfterText
         {
             get { return chkRunAfter.Text; }
@@ -48,6 +54,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>桌面快捷方式。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool DesktopShortcut
         {
             get { return chkDesktop.Checked; }
@@ -55,6 +62,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>开始菜单快捷方式。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool StartMenuShortcut
         {
             get { return chkStartMenu.Checked; }
@@ -62,6 +70,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>开机启动。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool Autostart
         {
             get { return chkAutostart.Checked; }
@@ -69,6 +78,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>安装后运行。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool RunAfterInstall
         {
             get { return chkRunAfter.Checked; }

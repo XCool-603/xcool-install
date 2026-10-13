@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using Installer.UI.Common;
@@ -31,6 +32,7 @@ namespace Installer.UI.Views
         public event EventHandler DeleteUserDataChanged;
 
         /// <summary>大标题，设计稿：卸载「{产品名}」。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Title
         {
             get { return lblTitle.Text; }
@@ -38,6 +40,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>副标题。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Subtitle
         {
             get { return lblSubtitle.Text; }
@@ -45,6 +48,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>信息卡第 1 行：当前安装位置。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string DirValue
         {
             get { return lblValue1.Text; }
@@ -52,6 +56,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>信息卡第 2 行：占用磁盘空间。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string SpaceValue
         {
             get { return lblValue2.Text; }
@@ -59,6 +64,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>信息卡第 3 行：安装时间与版本。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string VersionValue
         {
             get { return lblValue3.Text; }
@@ -66,6 +72,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>复选框文案。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string DeleteDataText
         {
             get { return lblCleanupText.Text; }
@@ -73,6 +80,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>复选框下面的灰色提示。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string DeleteDataHint
         {
             get { return lblCleanupHint.Text; }
@@ -80,6 +88,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>是否勾选「同时删除用户配置与缓存数据」。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool DeleteUserData
         {
             get { return chkCleanup.Checked; }
@@ -87,6 +96,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>红色警告条第 1 行。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string WarningLine1
         {
             get { return lblWarnLine1.Text; }
@@ -94,6 +104,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>红色警告条第 2 行。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string WarningLine2
         {
             get { return lblWarnLine2.Text; }

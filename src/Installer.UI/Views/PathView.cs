@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using Installer.UI.Common;
@@ -64,6 +65,7 @@ namespace Installer.UI.Views
         public event Action OptionsChanged;
 
         /// <summary>标题。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Title
         {
             get { return lblTitle.Text; }
@@ -71,6 +73,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>副标题。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Subtitle
         {
             get { return lblSubtitle.Text; }
@@ -78,6 +81,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>「安装位置」小节标题。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string PathLabel
         {
             get { return lblPathCaption.Text; }
@@ -85,6 +89,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>「浏览」按钮文案。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string BrowseText
         {
             get { return btnBrowse.Text; }
@@ -92,6 +97,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>安装目录。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string InstallPath
         {
             get { return txtPath.Text; }
@@ -99,6 +105,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>「所需空间 X · C 盘可用 Y」。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string SpaceText
         {
             get { return lblSpace.Text; }
@@ -106,6 +113,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>「附加任务」小节标题。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string TaskLabel
         {
             get { return lblTaskCaption.Text; }
@@ -113,6 +121,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>浅蓝信息条文案。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string InfoText
         {
             get { return lblInfo.Text; }
@@ -120,6 +129,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>「为所有用户安装」文案。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string AllUsersText
         {
             get { return lblAllUsers.Text; }
@@ -127,6 +137,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>「为所有用户安装」下方的灰色提示。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string AllUsersHint
         {
             get { return lblAllUsersHint.Text; }
@@ -134,6 +145,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>是否为所有用户安装。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool AllUsers
         {
             get { return chkAllUsers.Checked; }
@@ -141,6 +153,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>桌面快捷方式。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool DesktopShortcut
         {
             get { return cardDesktop.Checked; }
@@ -148,6 +161,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>开始菜单快捷方式。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool StartMenuShortcut
         {
             get { return cardStartMenu.Checked; }
@@ -155,6 +169,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>开机启动。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool Autostart
         {
             get { return cardAutostart.Checked; }
@@ -162,6 +177,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>安装完成后运行。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool RunAfterInstall
         {
             get { return cardRunAfter.Checked; }

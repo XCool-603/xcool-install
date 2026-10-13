@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -69,6 +70,7 @@ namespace Installer.Builder.Views
         public event Action<string> EntryChosen;
 
         /// <summary>当前文件夹。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Folder
         {
             get { return _folder; }
@@ -95,6 +97,7 @@ namespace Installer.Builder.Views
         }
 
         /// <summary>产品名是否跟随文件夹名（默认开）。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool AutoNameFromFolder
         {
             get { return chkAutoName.Checked; }
@@ -102,6 +105,7 @@ namespace Installer.Builder.Views
         }
 
         /// <summary>当前启动程序（相对打包文件夹）。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string EntryPoint
         {
             get

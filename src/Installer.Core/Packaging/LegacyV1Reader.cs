@@ -153,9 +153,29 @@ namespace Installer.Core.Packaging
 
                             break;
                         case "BackColor":
-                            if (value is System.Drawing.Color)
+                            // v1 旧包把 BackColor 存成 System.Drawing.Color（.NET Framework
+                            // 才能二进制序列化）。这里同时接受三种来源，不直接依赖 System.Drawing：
+                            //   ① int             —— .NET 平台下写不出 Color，就用 ARGB int 表示
+                            //   ② System.Drawing.Color —— Windows 上用反射取 ToArgb()
+                            //   ③ 其他            —— 忽略
+                            var bc = value as object;
+                            if (bc is int)
                             {
-                                pkg.BackColorArgb = ((System.Drawing.Color)value).ToArgb();
+                                pkg.BackColorArgb = (int)bc;
+                            }
+                            else if (bc != null && bc.GetType().FullName == "System.Drawing.Color")
+                            {
+                                try
+                                {
+                                    dynamic dyn = bc;
+                                    pkg.BackColorArgb = (int)dyn.ToArgb();
+                                }
+                                catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException)
+                                {
+                                    // 反射拿不到就退回静态属性 A/R/G/B
+                                    var t = bc.GetType().GetProperty("A");
+                                    pkg.BackColorArgb = t != null ? (byte)t.GetValue(bc, null) : (byte)255;
+                                }
                             }
 
                             break;

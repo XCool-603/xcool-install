@@ -1,31 +1,28 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
     <!--
-      显式钉死平台与 RID。
-      不钉的后果：SDK 对 net48 会自己推 RuntimeIdentifier（AnyCPU+Prefer32Bit=false → win-x64，
-      x86 → win-x86），而 dotnet restore 有时不生成这个目标，于是 build 报 NETSDK1047，构建时好时坏。
-      选 x86 是因为安装器可能要注册 32 位 COM 组件（direct 方式需要位数一致）。
+      Core 单目标 net10.0 —— 这是真正能跨平台的目标框架。
+      平台专属文件（WindowsPlatform / ShellLink / ComRegistrar / PeIconPatcher）
+      只用 Microsoft.Win32（.NET 10 内置跨平台 API 表层）+ P/Invoke，
+      在 net10.0 下原样编译。只有 SandboxPlatform 依赖的注册表实现
+      在非 Windows 上运行时会抛 PlatformNotSupportedException —— 那是运行时问题，
+      编译期不受影响。安装器本身是 Windows 产品，但核心逻辑现在可以复用。
     -->
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <TargetFramework>net10.0</TargetFramework>
     <LangVersion>7.3</LangVersion>
     <RootNamespace>Installer.Core</RootNamespace>
     <AssemblyName>Installer.Core</AssemblyName>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
     <Deterministic>true</Deterministic>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- SDK 风格项目对 net48 不会默认引用压缩程序集 -->
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.IO.Compression.FileSystem" />
   </ItemGroup>
 
   <ItemGroup>

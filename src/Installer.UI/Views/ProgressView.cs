@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using Installer.UI.Common;
@@ -32,6 +33,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>标题。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Title
         {
             get { return lblTitle.Text; }
@@ -39,6 +41,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>副标题。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Subtitle
         {
             get { return lblSubtitle.Text; }
@@ -46,6 +49,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>当前阶段名（兼容旧名 StepText）。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string StepText
         {
             get { return lblPhase.Text; }
@@ -53,6 +57,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>统计卡的「正在写入：xxx」那行。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string CurrentFileText
         {
             get { return lblCurrentFile.Text; }

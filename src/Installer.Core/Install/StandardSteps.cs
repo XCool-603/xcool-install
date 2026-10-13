@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
@@ -824,7 +825,21 @@ namespace Installer.Core.Install
 
             if (string.IsNullOrEmpty(source) || !File.Exists(source))
             {
+                try
+                {
+                    source = Process.GetCurrentProcess().MainModule.FileName;
+                }
+                catch (InvalidOperationException)
+                {
+                }
+            }
+
+            if (string.IsNullOrEmpty(source) || !File.Exists(source))
+            {
+                // 不能只写日志就跳过 —— 那样用户装完之后安装目录里根本没有 Uninstall.exe，
+                // 而且界面上看不到任何异常。这里升级成 Issue，让它显式暴露出来。
                 ctx.Log.Warn("找不到安装器自身路径，跳过卸载器部署。");
+                ctx.Log.Error("未能部署卸载器（Uninstall.exe）：找不到安装器自身路径。");
                 return;
             }
 

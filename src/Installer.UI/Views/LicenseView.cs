@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
@@ -60,6 +61,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>标题。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Title
         {
             get { return lblTitle.Text; }
@@ -67,6 +69,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>副标题。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Subtitle
         {
             get { return lblSubtitle.Text; }
@@ -74,6 +77,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>协议正文框里的抬头（设计稿：「空中小火车 最终用户许可协议」）。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string LicenseTitle
         {
             get { return lblCardTitle.Text; }
@@ -81,6 +85,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>协议正文。按段落/编号切成条款，填进设计稿的 6 个条款位。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string LicenseText
         {
             get { return _licenseText; }
@@ -92,6 +97,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>接受文案（勾选框右侧那一行）。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string AcceptText
         {
             get { return lblAccept.Text; }
@@ -99,6 +105,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>勾选行下方的灰色提示。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string AcceptHint
         {
             get { return lblAcceptHint.Text; }
@@ -106,6 +113,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>是否已接受。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool Accepted
         {
             get { return chkAccept.Checked; }

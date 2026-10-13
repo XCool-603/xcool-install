@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Resources;
 using System.Text;
@@ -54,7 +53,9 @@ namespace Installer.Core.Tests
                 w.AddResource("CkQuickLaunchBar", true);
                 w.AddResource("CkStartUp", false);
                 w.AddResource("CkStartClient", false);
-                w.AddResource("BackColor", Color.FromArgb(255, 6, 157, 231));
+                // .NET 的 ResourceWriter 不支持二进制序列化 System.Drawing.Color（PlatformNotSupportedException），
+                // 真实的 v1 旧包在 .NET Framework 下写的是 Color。LegacyV1Reader 同时兼容 Color 与 int。
+                w.AddResource("BackColor", unchecked((int)0xFF069DE7));
                 w.AddResource("BackImage", new byte[0]);      // v1 模板里就是这个类型
                 w.AddResource("Logo", new byte[0]);
                 w.AddResource("InstallFilesCount", 3);

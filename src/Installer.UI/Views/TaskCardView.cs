@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using Installer.UI.Common;
@@ -51,6 +52,7 @@ namespace Installer.UI.Views
         public event Action<bool> CheckedChangedInternal;
 
         /// <summary>标题。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Title
         {
             get { return lblTitle.Text; }
@@ -58,6 +60,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>描述。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Description
         {
             get { return lblDesc.Text; }
@@ -65,6 +68,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>图标 SVG（模板，描边色写 #1677FF 即可，未勾选时会自动变灰）。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string IconSvg
         {
             get { return _iconSvg; }
@@ -76,6 +80,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>是否勾选。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool Checked
         {
             get { return chkTask.Checked; }

@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -40,6 +41,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>设置步骤标题。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string[] Steps
         {
             get { return _steps; }
@@ -51,6 +53,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>当前步骤（0 起）。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int Current
         {
             get { return _current; }
@@ -62,6 +65,7 @@ namespace Installer.UI.Views
         }
 
         /// <summary>主色（安装 = 蓝，卸载 = 红）。</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Color Accent
         {
             get { return _accent; }
