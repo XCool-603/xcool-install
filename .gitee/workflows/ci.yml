@@ -1,0 +1,75 @@
+# ============================================================================
+# ⚠️  这份文件【未在 Gitee / Gitee Go 上实测过】，格式可能需微调。
+#     在照抄之前，请先读完下面两段。
+# ============================================================================
+#
+# 【为什么说它大概率不会被读取】
+#
+#   Gitee 官方帮助中心对当前产品的原话是：
+#     「项目流水线是 Gitee 全新推出的一款纯 UI 式的 CI/CD 工具」
+#       —— https://help.gitee.com/enterprise/pipeline/introduce
+#
+#   也就是说：现在的 Gitee 流水线是在网页上「新建流水线 → 选模板 → 选代码源 →
+#   编排（阶段 → 任务 → 插件）」配出来的，官方文档里【没有】任何
+#   "在仓库里放一个 YAML、平台自动读取" 的说明。
+#   （更早那一代叫 Gitee Go，确实用过 .workflow/*.yml；本文件按那个形状写的，
+#     但现在的产品是否还认，我没有验证过。）
+#
+#   所以：这个文件更多是"留个记录 / 万一以后支持"，不要指望它一放上去就生效。
+#
+#
+# 【可靠的替代方案：在 Gitee 网页上配】
+#
+#   1. 仓库 → 流水线 → 新建流水线 → 选一个模板（比如「Shell 脚本执行」类）→ 选本仓库为代码源。
+#   2. 在阶段里加一个任务，插件选「工具 → Shell 脚本执行」。
+#        · 脚本类型：Bat 或 PowerShell（官方注明 PowerShell「目前仅在阿里云导入的机器支持」，
+#          普通主机组请用 Bat）。
+#        · 执行命令：直接调用本仓库的统一入口，一行就够 ——
+#
+#            powershell -NoProfile -ExecutionPolicy Bypass -File tools\ci.ps1
+#
+#          （Bat 类型下同样写这一行即可。）
+#        · 勾选「是否克隆代码」，否则执行主机上没有源码。
+#        · 执行主机组需要先在平台里纳管（配置 SSH）。
+#   3. 触发方式选「代码变更自动触发」，分支填 main。
+#
+#   注意：这一步跑的是 Windows + .NET Framework 的构建，
+#   官方那台执行主机得装好 .NET SDK 和 .NET Framework 4.6.1 Targeting Pack，
+#   否则 tools\ci.ps1 会在「构建 Debug」那一步就失败（这属于环境问题，不是脚本问题）。
+#
+#
+# 【Gitee 与 GitHub 的差异，别指望两个文件一样】
+#   · Gitee 的「Shell 脚本执行」跑在【你自己纳管的主机】上，不是平台提供的
+#     干净 runner —— 环境要自己保证。
+#   · 变量引用是 ${变量名}，例如 ${GITEE_PIPELINE_BUILD_NUMBER}、${GITEE_PROJECT_NAME}。
+#   · GitHub 那份（.github/workflows/ci.yml）用的是 windows-latest 托管 runner，
+#     并且已经按 GitHub Actions 的语法写好了。
+#
+# ============================================================================
+# 以下是最小骨架。带「未确认」注释的地方请以 Gitee 模板实际生成的值为准。
+# ============================================================================
+
+name: ci
+displayName: 'CI：构建 / 单测 / e2e / 界面校验'
+
+triggers:
+  push:
+    branches:
+      include:
+        - main
+  pr:
+    branches:
+      include:
+        - main
+
+stages:
+  - stage:
+      name: verify
+      displayName: '校验'
+      steps:
+        # ↓ 插件标识 build@shell 是【未确认】的，请换成模板生成的真实值
+        - step: build@shell
+          name: ci
+          displayName: '运行 tools/ci.ps1'
+          commands:
+            - powershell -NoProfile -ExecutionPolicy Bypass -File tools\ci.ps1

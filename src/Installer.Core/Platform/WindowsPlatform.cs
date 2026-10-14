@@ -384,8 +384,14 @@ namespace Installer.Core.Platform
                     }
                 }
             }
-            catch (Exception)
+            catch (System.IO.IOException)
             {
+                // 盘符不存在、未就绪、或读取中途被拔掉 —— 返回 -1 表示"未知"，
+                // 调用方（预检）会据此跳过空间检查，而不是当成"空间不足"。
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // 权限不足同样按"未知"处理
             }
 
             return -1;

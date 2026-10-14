@@ -1,0 +1,59 @@
+# GitHub Actions：把 tools/ci.ps1 跑起来。
+#
+# 为什么只调一个 PowerShell 脚本、而不是把每一步拆成独立的 step：
+#   本地和 CI 走同一条路径，不会出现「CI 上绿、本地红」的漂移；
+#   而且"断言成功摘要行"那套防假绿的逻辑只写一遍，两边都吃得到。
+#
+# 注意：这里用 shell: powershell（Windows PowerShell 5.1），不是 pwsh。
+#   本仓库只在 5.1 上验证过（脚本文件是 UTF-8 with BOM，就是为 5.1 准备的）。
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+# 同一分支上新的 push 直接取消上一次还在跑的构建，省 runner 时间
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    name: 构建 / 单测 / e2e / 界面校验
+    runs-on: windows-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          # 本机开发用的是 10.0.400-preview。
+          # 如果 runner 上解析不到 10.0.x（比如 10.0 还只有 preview 版），
+          # 在下面补一行即可：dotnet-quality: 'preview'
+          dotnet-version: '10.0.x'
+
+      # net461 / net462 的参考程序集由 Microsoft.NETFramework.ReferenceAssemblies 经 NuGet 还原，
+      # windows-latest 镜像本身也带 .NET Framework 的目标包，所以不用额外装 Targeting Pack。
+
+      - name: 运行 tools/ci.ps1
+        shell: powershell
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File "$env:GITHUB_WORKSPACE\tools\ci.ps1"
+          exit $LASTEXITCODE
+
+      - name: 上传日志与产物（失败时）
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-logs
+          path: |
+            artifacts/ci-logs/
+            ${{ runner.temp }}/installer-e2e/
+            ${{ runner.temp }}/installer-ui-verify/
+          if-no-files-found: warn
+          retention-days: 14

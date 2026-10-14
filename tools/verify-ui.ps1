@@ -1,5 +1,9 @@
-﻿作端界面 —— 与 Calicat 设计稿的自动对比
+﻿#Requires -Version 5.1
+<#
+.SYNOPSIS
+    制作端界面 —— 与 Calicat 设计稿的自动对比
 #
+
 # 用法：powershell -ExecutionPolicy Bypass -File tools\verify-ui.ps1
 #
 # 做两件事：
@@ -7,6 +11,7 @@
 #   ② 检查 bounds.txt 里的结构不变量（复选框对齐、控件不被父容器裁切）
 #
 # 退出码 0 = 全部通过。
+#>
 
 param(
     [string]$Design = "",
@@ -27,6 +32,7 @@ New-Item -ItemType Directory -Path $work -Force | Out-Null
 
 $pass = 0
 $fail = 0
+$skip = 0
 
 function Check($ok, $name, $detail) {
     if ($ok) {
@@ -36,6 +42,13 @@ function Check($ok, $name, $detail) {
         $script:fail++
         Write-Host ("  [FAIL] " + $name + "  " + $detail) -ForegroundColor Red
     }
+}
+
+# 记录一次「跳过」。跳过不是通过 —— 最后会据此判失败，
+# 否则「设计稿文件丢了」会伪装成「全部通过」。
+function Skip($name, $reason) {
+    $script:skip++
+    Write-Host ("  [跳过] " + $name + "  " + $reason) -ForegroundColor Yellow
 }
 
 function Hex($c) { '#{0:X2}{1:X2}{2:X2}' -f $c.R, $c.G, $c.B }
@@ -76,7 +89,7 @@ if (Test-Path $Design) {
     Check ($empty.Width -eq $ref.Width -and $empty.Height -eq $ref.Height) `
         '窗口尺寸一致' "我的 $($empty.Width)x$($empty.Height) / 设计稿 $($ref.Width)x$($ref.Height)"
 } else {
-    Write-Host "  [跳过] 没有设计稿：$Design" -ForegroundColor Yellow
+    Skip "窗口尺寸一致" "没有设计稿：$Design"
 }
 
 # ─────────────────────────────────────────────────────────────
@@ -268,7 +281,7 @@ foreach ($m in $wizardMap) {
     $ip = Join-Path $implDir $m.impl
 
     if (-not (Test-Path $dp) -or -not (Test-Path $ip)) {
-        Write-Host ("  [跳过] {0}（缺文件）" -f $m.name) -ForegroundColor Yellow
+        Skip $m.name "缺文件（设计稿或实现图）"
         continue
     }
 
@@ -295,14 +308,6 @@ foreach ($m in $wizardMap) {
 
     $d.Dispose()
     $i.Dispose()
-}
-
-# ─────────────────────────────────────────────────────────────
-Write-Host ""
-if ($fail -eq 0) {
-    Write-Host "全部 $pass 项通过。" -ForegroundColor Green
-} else {
-    Write-Host "通过 $pass 项，失败 $fail 项。" -ForegroundColor Red
 }
 
 # ─────────────────────────────────────────────────────────────
@@ -347,4 +352,21 @@ if ($ref) { $ref.Dispose() }
 
 if (-not $KeepWorkDir) { Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue }
 
-exit $(if ($fail -eq 0) { 0 } else { 1 })
+# ─────────────────────────────────────────────────────────────
+# 汇总必须放在**所有**检查之后 —— 之前它印在第 7 节之前，
+# 于是摘要里的数字漏掉了第 7 节的 10 条（报 40，实际 50）。
+Write-Host ""
+if ($fail -eq 0 -and $skip -eq 0) {
+    Write-Host "全部 $pass 项通过。" -ForegroundColor Green
+} elseif ($fail -eq 0) {
+    Write-Host "通过 $pass 项，但有 $skip 项被跳过 —— 跳过不等于通过。" -ForegroundColor Red
+} else {
+    Write-Host "通过 $pass 项，失败 $fail 项，跳过 $skip 项。" -ForegroundColor Red
+}
+
+exit $(if ($fail -eq 0 -and $skip -eq 0) { 0 } else { 1 })
+
+
+
+
+

@@ -120,12 +120,15 @@ namespace Installer.Builder.Forms
                 try
                 {
                     ReadFromViews();
+                    _presenter.AutoSave();
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    // 读不到界面当前状态，就**不能**落盘 —— 否则会把上一次的
+                    // 快照当成最新状态存下来，用户下次打开看到的是过期数据。
+                    // 而且这里必须让用户看见，不能静默吞掉。
+                    UpdateStatus("自动保存失败（工程未更新）：" + ex.Message);
                 }
-
-                _presenter.AutoSave();
             };
         }
 

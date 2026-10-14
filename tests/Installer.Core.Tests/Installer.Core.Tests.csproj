@@ -8,17 +8,13 @@
       且 net462 能正常引用 net461 的程序集，所以不影响交付目标。
     -->
     <TargetFramework>net462</TargetFramework>
-    <!--
-      显式钉死平台与 RID。
-      不钉的后果：SDK 对 net48 会自己推 RuntimeIdentifier（AnyCPU+Prefer32Bit=false → win-x64，
-      x86 → win-x86），而 dotnet restore 有时不生成这个目标，于是 build 报 NETSDK1047，构建时好时坏。
-      选 x86 是因为安装器可能要注册 32 位 COM 组件（direct 方式需要位数一致）。
+        <!--
+      只钉平台，**不钉 RuntimeIdentifier**（原因见 Installer.Runtime.csproj 的同名注释：
+      VS 的 NuGet restore 会因为 RID 报 "doesn't list 'win' as a RuntimeIdentifier"）。
     -->
     <!-- 测试宿主必须和被测的 exe 项目同位数：它引用了 x86 的 Installer.Builder，
          AnyCPU（64 位）宿主加载 x86 程序集会 BadImageFormatException。 -->
     <PlatformTarget>x86</PlatformTarget>
-    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
-    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <LangVersion>7.3</LangVersion>
     <IsPackable>false</IsPackable>
     <RootNamespace>Installer.Core.Tests</RootNamespace>
@@ -41,6 +37,7 @@
     <ProjectReference Include="..\..\src\Installer.Core\Installer.Core.csproj" />
     <ProjectReference Include="..\..\src\Installer.UI\Installer.UI.csproj" />
     <ProjectReference Include="..\..\src\Installer.Builder\Installer.Builder.csproj" />
+    <ProjectReference Include="..\..\src\Installer.Runtime\Installer.Runtime.csproj" />
   </ItemGroup>
 
 </Project>

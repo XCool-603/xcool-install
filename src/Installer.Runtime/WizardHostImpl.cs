@@ -30,13 +30,22 @@ namespace Installer.Runtime
         private readonly bool _uninstallMode;
         private readonly string _culture;
         private readonly string _productCode;
+        /// <summary>
+        /// 平台服务工厂。默认按沙箱/真实系统二选一；
+        /// 测试可以注入假的，于是**向导这条路径也能单测** ——
+        /// 之前 CreatePlatform 直接 new 具体类型，向导逻辑只能靠 e2e 或手工验，
+        /// 「没点完成就自动运行」那个 bug 就是这么漏过去的。
+        /// </summary>
+        private readonly Func<ILogger, IPlatformServices> _platformFactory;
 
         private CancellationTokenSource _cts;
 
         public WizardHostImpl(string selfPath, string sandboxRoot, string logPath, string culture,
                               InstallerManifest manifest, string installDir, bool uninstallMode,
-                              string productCode = null)
+                              string productCode = null,
+                              Func<ILogger, IPlatformServices> platformFactory = null)
         {
+            _platformFactory = platformFactory;
             _selfPath = selfPath;
             _sandboxRoot = sandboxRoot;
             _logPath = logPath;
@@ -212,6 +221,11 @@ namespace Installer.Runtime
 
         private IPlatformServices CreatePlatform(ILogger logger)
         {
+            if (_platformFactory != null)
+            {
+                return _platformFactory(logger);
+            }
+
             if (!string.IsNullOrEmpty(_sandboxRoot))
             {
                 Directory.CreateDirectory(_sandboxRoot);

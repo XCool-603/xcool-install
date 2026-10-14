@@ -71,3 +71,12 @@ $RECYCLE.BIN/
 
 # 制作端自动记忆的工程文件（每台机器不同，不该进仓库）
 last.wmpkg.json
+
+# ── 仓库卫生（2026-10-14 清理）─────────────────────────────
+# VS 升级日志：不是源码
+UpgradeLog*.htm
+UpgradeLog*.txt
+# 临时草稿目录
+scratch/
+# 旧项目里被误提交的构建产物（Resources/ 下的运行时依赖要保留）
+CheckDotNet/CheckDotNet.exe
