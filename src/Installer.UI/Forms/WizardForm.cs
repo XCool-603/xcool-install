@@ -51,6 +51,7 @@ namespace Installer.UI.Forms
             InitializeComponent();
             ApplyCardRegion();
             MakeLabelsTransparent(this);
+            this.Icon = Installer.UI.Common.AppIcon.Load();
         }
 
         /// <summary>构造。</summary>
@@ -84,6 +85,10 @@ namespace Installer.UI.Forms
             InitializeComponent();
             ApplyCardRegion();
             MakeLabelsTransparent(this);
+
+            // 显式设置窗口图标 —— 标题栏 / 任务栏 / Alt+Tab 都跟着它。
+            // 向导跑在 Setup.exe 里，所以拿到的是打包时打进去的那个图标。
+            this.Icon = Installer.UI.Common.AppIcon.Load();
 
             ApplyAppearance();
             BuildViews();

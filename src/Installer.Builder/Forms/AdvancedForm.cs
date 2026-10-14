@@ -30,6 +30,7 @@ namespace Installer.Builder.Forms
         {
             InitializeComponent();
             BuildTabs();
+            this.Icon = Installer.UI.Common.AppIcon.Load();
         }
 
         /// <summary>构造。</summary>
@@ -39,6 +40,8 @@ namespace Installer.Builder.Forms
             _presenter = presenter;
             InitializeComponent();
             BuildTabs();
+
+            this.Icon = Installer.UI.Common.AppIcon.Load();
 
             ApplyText();
             Write();

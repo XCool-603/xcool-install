@@ -46,6 +46,9 @@ namespace Installer.Builder.Forms
             InitializeComponent();
             WireEvents();
 
+            // 显式设置窗口图标 —— 标题栏 / 任务栏 / Alt+Tab 都跟着它。
+            this.Icon = Installer.UI.Common.AppIcon.Load();
+
             // 恢复上次的工程：**productCode 必须跨会话保持**，否则同一个产品装几次
             // 就会在「程序和功能」里留下几条记录（见 BuilderPresenter.AutoSavePath 的说明）
             _presenter.TryLoadAutoSaved();
