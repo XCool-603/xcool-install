@@ -209,7 +209,13 @@ namespace Installer.Core.Install
         }
 
         /// <summary>撤销一条记录。</summary>
-        private static void Undo(InstallContext context, JournalEntry e)
+        /// <summary>
+        /// 撤销一条日志记录。
+        ///
+        /// internal 而不是 private：<see cref="StandardSteps.PreflightStep"/> 要用它
+        /// 回滚**上一次被中断**的安装（进程被杀 / 断电时留下的日志）。
+        /// </summary>
+        internal static void Undo(InstallContext context, JournalEntry e)
         {
             var platform = context.Platform;
 
