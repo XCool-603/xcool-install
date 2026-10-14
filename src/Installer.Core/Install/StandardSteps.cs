@@ -124,6 +124,10 @@ namespace Installer.Core.Install
         /// <inheritdoc />
         public void Execute(InstallContext ctx)
         {
+            // 第一件事：看看上一次安装是不是被中断了。
+            // 必须放在最前面 —— 后面的检查都可能被残留状态干扰。
+            RecoverInterruptedInstall(ctx);
+
             var dir = Path.GetFullPath(ctx.InstallDir);
 
             // 不允许往盘根、Windows 目录、System32 里装
@@ -188,6 +192,118 @@ namespace Installer.Core.Install
 
             // 建目录（journal 会记录，失败时撤销）
             JournalWriter.EnsureDirectory(ctx, Id, dir, null);
+        }
+
+        /// <summary>
+        /// 回滚**上一次被中断**的安装。
+        ///
+        /// 为什么需要：写前日志 + 逆序 undo 只在「本次安装中途失败」时生效。
+        /// 如果进程被杀、断电、或用户在任务管理器里结束进程，日志文件与
+        /// <c>.rollback</c> 备份目录就留在磁盘上没人管 —— 已经写进去的文件 /
+        /// 注册表值 / 快捷方式成了孤儿，用户下次装同一个产品还会被这些残留干扰。
+        ///
+        /// 这里在安装开始前把上一次的账结掉，复用的是 <see cref="InstallEngine.Undo"/>，
+        /// 所以「中断恢复」与「失败回滚」的行为完全一致。
+        /// </summary>
+        private void RecoverInterruptedInstall(InstallContext ctx)
+        {
+            if (ctx.Journal == null)
+            {
+                return;
+            }
+
+            var journalPath = ctx.Journal.Path;
+            if (string.IsNullOrEmpty(journalPath) || !File.Exists(journalPath))
+            {
+                return;   // 没有残留 —— 绝大多数安装都走这一条
+            }
+
+            List<JournalEntry> stale;
+            try
+            {
+                stale = InstallJournal.LoadPending(journalPath);
+            }
+            catch (IOException ex)
+            {
+                ctx.Log.Warn("发现残留的安装日志但读不出来，已忽略：" + ex.Message);
+                return;
+            }
+
+            if (stale == null || stale.Count == 0)
+            {
+                // 日志在、内容空 —— 说明第一条记录写下去之前就被杀了，直接删掉
+                TryDeleteFile(journalPath, ctx);
+                ctx.Log.Info("清理了一个空的残留安装日志。");
+                return;
+            }
+
+            ctx.Log.Warn(string.Format(CultureInfo.InvariantCulture,
+                "检测到上次安装被中断，正在按日志回滚 {0} 条记录……", stale.Count));
+
+            var undone = 0;
+            var failed = 0;
+            for (var i = stale.Count - 1; i >= 0; i--)
+            {
+                try
+                {
+                    InstallEngine.Undo(ctx, stale[i]);
+                    undone++;
+                }
+                catch (Exception ex)
+                {
+                    // 单条撤销失败**不该**让本次安装失败 ——
+                    // 用户现在是想装，不是想回滚。记下来继续。
+                    failed++;
+                    ctx.Log.Warn("回滚残留记录失败（" + stale[i].Op + " " + stale[i].Target + "）：" + ex.Message);
+                }
+            }
+
+            ctx.Log.Info(string.Format(CultureInfo.InvariantCulture,
+                "中断安装回滚完成：成功 {0} 条，失败 {1} 条。", undone, failed));
+
+            // 账结完了就把日志与备份目录删掉，否则下次安装还会再见到它们
+            TryDeleteFile(journalPath, ctx);
+            TryDeleteDirectory(ctx.Journal.BackupDir, ctx);
+        }
+
+        private static void TryDeleteFile(string path, InstallContext ctx)
+        {
+            try
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+            }
+            catch (IOException ex)
+            {
+                ctx.Log.Warn("删除残留日志失败：" + ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                ctx.Log.Warn("删除残留日志失败：" + ex.Message);
+            }
+        }
+
+        private static void TryDeleteDirectory(string path, InstallContext ctx)
+        {
+            if (string.IsNullOrEmpty(path) || !Directory.Exists(path))
+            {
+                return;
+            }
+
+            try
+            {
+                Directory.Delete(path, true);
+            }
+            catch (IOException ex)
+            {
+                ctx.Log.Warn("删除残留备份目录失败：" + ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                ctx.Log.Warn("删除残留备份目录失败：" + ex.Message);
+            }
         }
 
         /// <summary>用 <see cref="Version"/> 比较，位数不同也能正确处理（4.16.5 vs 4.16.05）。</summary>

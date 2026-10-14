@@ -184,7 +184,7 @@ Installer.sln
 │   ├── Installer.Builder/        制作端界面（AntdUI）
 │   ├── Installer.Cli/            命令行
 │   └── Installer.Runtime/        安装端 stub（自包含单文件）
-├── tests/Installer.Core.Tests/   194 项单元测试
+├── tests/Installer.Core.Tests/   198 项单元测试
 ├── tools/                        构建与验收脚本（**索引见 tools/README.md**）
 └── docs/界面截图/                 界面渲染图
 ```
@@ -222,7 +222,7 @@ footer 放在**文件末尾**，PE 加载器会忽略尾部多余数据 —— �
 | 项 | 结果 |
 |---|---|
 | 全解决方案构建（Debug / Release） | 0 警告 |
-| 单元测试 | 194 / 194 |
+| 单元测试 | 198 / 198 |
 | 端到端断言 | 169 / 169 |
 | 界面校验 | 50 / 50 |
 | 真实系统残留 | 零（e2e 有专门的回归护栏） |
