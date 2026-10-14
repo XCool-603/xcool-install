@@ -184,7 +184,7 @@ Installer.sln
 │   ├── Installer.Builder/        制作端界面（AntdUI）
 │   ├── Installer.Cli/            命令行
 │   └── Installer.Runtime/        安装端 stub（自包含单文件）
-├── tests/Installer.Core.Tests/   186 项单元测试
+├── tests/Installer.Core.Tests/   194 项单元测试
 ├── tools/e2e.ps1                 169 项端到端断言，全程沙箱
 └── docs/界面截图/                 界面渲染图
 ```
@@ -222,8 +222,9 @@ footer 放在**文件末尾**，PE 加载器会忽略尾部多余数据 —— �
 | 项 | 结果 |
 |---|---|
 | 全解决方案构建（Debug / Release） | 0 警告 |
-| 单元测试 | 186 / 186 |
+| 单元测试 | 194 / 194 |
 | 端到端断言 | 169 / 169 |
+| 界面校验 | 50 / 50 |
 | 真实系统残留 | 零（e2e 有专门的回归护栏） |
 
 端到端覆盖：可重现构建、容器篡改检测、Zip Slip 防护、完整安装/卸载、
