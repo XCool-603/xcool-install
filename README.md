@@ -66,7 +66,7 @@
 | 界面 | WinForms + **AntdUI** | 2.4.3 | 自绘控件、圆角卡片、SVG 图标 |
 | JSON | **Newtonsoft.Json** | 13.0.3 | 工程文件 / 清单 / 安装记录 |
 | 单元测试 | **xUnit** | 2.9.3 | + Microsoft.NET.Test.Sdk 17.14.1 |
-| 构建 | .NET SDK | 10.0.400 | SDK 风格 csproj，`dotnet build` 即可 |
+| 构建 | .NET SDK | 10.0.400-preview | SDK 风格 csproj，`dotnet build` 即可 |
 
 **没有用任何第三方安装框架。** 下面这些全是自己实现的：
 
