@@ -57,7 +57,7 @@ param(
 
     [string]$LogDir = '',
     [int]$E2eMinChecks = 169,
-    [int]$UiMinChecks = 40,
+    [int]$UiMinChecks = 50,
     [int]$TestMinCount = 186
 )
 

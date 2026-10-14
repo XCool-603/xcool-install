@@ -185,7 +185,7 @@ Installer.sln
 │   ├── Installer.Cli/            命令行
 │   └── Installer.Runtime/        安装端 stub（自包含单文件）
 ├── tests/Installer.Core.Tests/   194 项单元测试
-├── tools/e2e.ps1                 169 项端到端断言，全程沙箱
+├── tools/                        构建与验收脚本（**索引见 tools/README.md**）
 └── docs/界面截图/                 界面渲染图
 ```
 
