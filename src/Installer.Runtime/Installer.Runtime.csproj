@@ -17,6 +17,7 @@
     <RootNamespace>Installer.Runtime</RootNamespace>
     <AssemblyName>Installer.Runtime</AssemblyName>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <ApplicationIcon>app.ico</ApplicationIcon>
     <Deterministic>true</Deterministic>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <!-- 声明成 WinForms 项目，否则 VS 不给设计视图（详见 Installer.UI.csproj 的注释） -->
