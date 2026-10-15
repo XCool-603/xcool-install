@@ -4,15 +4,24 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net461</TargetFramework>
     <!--
-      只钉平台，**不钉 RuntimeIdentifier**。
-      选 x86 是因为安装器可能要注册 32 位 COM 组件（direct 方式需要位数一致）。
+      必须**同时**钉死 PlatformTarget 与 RuntimeIdentifier —— 少一个就构建不了。
 
-      为什么不设 RuntimeIdentifier：经典/桌面 .NET Framework 目标不需要 RID，
-      一旦设了，Visual Studio 的 NuGet restore 会报
-      「Your project file doesn't list 'win' as a "RuntimeIdentifier"」并让整个解决方案构建失败。
-      （这个坑已经踩过一次，别再往回转。）
+      实测原因：net461 的 Exe 项目只要 PlatformTarget=x86，SDK 的
+      Microsoft.NET.RuntimeIdentifierInference.targets 就会自动推
+      RuntimeIdentifier=win-x86；但 NuGet restore **不会**为这个"推出来的" RID
+      生成资产目标，于是 build 报
+        NETSDK1047 资产文件没有 "net461/win-x86" 的目标
+      显式写上 RuntimeIdentifier，restore 才会生成对应目标。
+
+      ⚠️ 这个坑很阴：obj 是热的时候，旧 assets 里可能还留着 RID 目标，build 能过
+      —— 于是"本地一直好、干净克隆就挂"。CI 必须做干净还原才抓得到
+      （tools/ci.ps1 已加 -CleanRestore）。
+
+      选 x86 是因为安装器可能要注册 32 位 COM 组件（direct 方式需要位数一致）。
     -->
     <PlatformTarget>x86</PlatformTarget>
+    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <LangVersion>7.3</LangVersion>
     <RootNamespace>Installer.Runtime</RootNamespace>
     <AssemblyName>Installer.Runtime</AssemblyName>
@@ -23,8 +32,6 @@
     <!-- 声明成 WinForms 项目，否则 VS 不给设计视图（详见 Installer.UI.csproj 的注释） -->
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <!-- stub 必须自包含：下面 EmbedDependencies 目标会把依赖 DLL 嵌进来 -->
-    <SelfContained>true</SelfContained>
     <!--
       FileAlignment 必须放大到 4096。
       默认的 512 会让 SizeOfHeaders 刚好等于第一个节的 PointerToRawData，

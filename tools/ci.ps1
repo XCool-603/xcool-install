@@ -53,12 +53,12 @@
 [CmdletBinding()]
 param(
     [ValidateSet('build', 'test', 'e2e', 'ui')]
-    [string[]]$Only = @('build', 'test', 'e2e', 'ui'),
+    [string[]]$Only = @('clean', 'build', 'test', 'e2e', 'ui'),
 
     [string]$LogDir = '',
     [int]$E2eMinChecks = 169,
     [int]$UiMinChecks = 50,
-    [int]$TestMinCount = 186
+    [int]$TestMinCount = 198
 )
 
 $ErrorActionPreference = 'Stop'
@@ -258,6 +258,44 @@ function Show-Tail {
 # CI runner 是 en-US，即使钉了 DOTNET_CLI_UI_LANGUAGE，语言包缺失时仍会回落英文。
 # ─────────────────────────────────────────────────────────────
 $steps = @(
+    @{
+        Key        = 'clean'
+        Name       = '干净还原'
+        Tag        = '00-clean-restore'
+        Expect     = @('已还原|Restored|Determining projects|正在确定要还原')
+        Digest     = '已还原|Restored|已成功|Determining projects'
+        CountRegex = ''
+        MinCount   = 0
+        Run        = {
+            # 清 bin/obj 再 restore —— 这一步是**必须的**，不是洁癖。
+            #
+            # 如果只在热 obj 上构建，「资产文件缺少 RID 目标」（NETSDK1047）这类
+            # 配置错误会被旧 assets 掩盖：本地一直绿、干净克隆直接挂。
+            # 本项目真踩过一次 —— 把 RuntimeIdentifier 移除后 CI 全绿，
+            # 但清掉 obj 后整个解决方案构建不了（net461 的 Exe 只要
+            # PlatformTarget=x86，SDK 就会推 RuntimeIdentifier=win-x86，
+            # 而 restore 只为**显式声明**的 RID 生成资产目标）。
+            # 注意过滤条件必须用**相对路径**判断。
+            # 仓库根目录本身就叫「安装包制作和卸载」，所以用绝对路径
+            # -notmatch '\\安装包制作和卸载\\' 去排除嵌套副本时，
+            # 会把所有路径都排除掉 —— 这一步就成了空转（真踩过，2 秒就"通过"了）。
+            $repoRoot = Split-Path -Parent $PSScriptRoot
+            $removed = 0
+            Get-ChildItem -Recurse -Directory -LiteralPath $repoRoot -ErrorAction SilentlyContinue |
+                Where-Object {
+                    if ($_.Name -ne 'bin' -and $_.Name -ne 'obj') { return $false }
+                    $rel = $_.FullName.Substring($repoRoot.Length + 1)
+                    return ($rel -notlike '制作工具\*') -and ($rel -notlike '安装包制作和卸载\*')
+                } |
+                ForEach-Object {
+                    Remove-Item -Recurse -Force $_.FullName -ErrorAction SilentlyContinue
+                    $removed++
+                }
+
+            Write-Host ("    已清理 {0} 个 bin/obj 目录" -f $removed)
+            Invoke-Native 'dotnet' @('restore', $Solution, '--nologo') '00-clean-restore'
+        }
+    },
     @{
         Key        = 'build'
         Name       = '构建 Debug'
