@@ -18,7 +18,6 @@ using Newtonsoft.Json;
 
 namespace Installer.Core.Install
 {
-    /// <summary>标准安装步骤管线。</summary>
     public static class StandardSteps
     {
         /// <summary>按依赖顺序返回默认的步骤列表。</summary>
@@ -95,6 +94,7 @@ namespace Installer.Core.Install
 
     // ─────────────────────────────────────────────────────────────────
     // 1. 预检
+<<<<<<< HEAD
     // ─────────────────────────────────────────────────────────────────
 
     /// <summary>
@@ -1150,4 +1150,6 @@ namespace Installer.Core.Install
             }
         }
     }
+=======
+>>>>>>> 3c3bb3c (拆 StandardSteps + 修掉一个被"热 obj"掩盖的构建配置错误)
 }

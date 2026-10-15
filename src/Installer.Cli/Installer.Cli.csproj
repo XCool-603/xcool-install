@@ -3,12 +3,13 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net461</TargetFramework>
-        <!--
-      只钉平台，**不钉 RuntimeIdentifier**（原因见 Installer.Runtime.csproj 的同名注释：
-      VS 的 NuGet restore 会因为 RID 报 "doesn't list 'win' as a RuntimeIdentifier"）。
+    <!--
+      必须同时钉死 PlatformTarget 与 RuntimeIdentifier —— 原因见
+      Installer.Runtime.csproj 的同名注释（少一个就 NETSDK1047）。
     -->
     <PlatformTarget>x86</PlatformTarget>
-    <!-- 别让输出多一层 win-x86\ —— e2e、文档、StubLocator 都按 bin\Debug\ 找 -->
+    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <LangVersion>7.3</LangVersion>
     <RootNamespace>Installer.Cli</RootNamespace>
     <AssemblyName>installer-cli</AssemblyName>

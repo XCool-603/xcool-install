@@ -8,13 +8,17 @@
       且 net462 能正常引用 net461 的程序集，所以不影响交付目标。
     -->
     <TargetFramework>net462</TargetFramework>
-        <!--
-      只钉平台，**不钉 RuntimeIdentifier**（原因见 Installer.Runtime.csproj 的同名注释：
-      VS 的 NuGet restore 会因为 RID 报 "doesn't list 'win' as a RuntimeIdentifier"）。
+    <!--
+      测试宿主必须和被测的 exe 项目同位数：它引用了 x86 的 Installer.Builder /
+      Installer.Runtime，AnyCPU（64 位）宿主加载 x86 程序集会 BadImageFormatException。
+
+      同样要显式写 RuntimeIdentifier —— 只写 PlatformTarget 的话 SDK 会自己推一个
+      但 restore 不生成对应资产目标，build 报 NETSDK1047。
+      详见 Installer.Runtime.csproj 的同名注释。
     -->
-    <!-- 测试宿主必须和被测的 exe 项目同位数：它引用了 x86 的 Installer.Builder，
-         AnyCPU（64 位）宿主加载 x86 程序集会 BadImageFormatException。 -->
     <PlatformTarget>x86</PlatformTarget>
+    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <LangVersion>7.3</LangVersion>
     <IsPackable>false</IsPackable>
     <RootNamespace>Installer.Core.Tests</RootNamespace>
