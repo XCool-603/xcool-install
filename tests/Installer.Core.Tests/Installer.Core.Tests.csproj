@@ -19,6 +19,31 @@
     <PlatformTarget>x86</PlatformTarget>
     <RuntimeIdentifier>win-x86</RuntimeIdentifier>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+
+    <!--
+      ⚠️⚠️ 这一行是给 VS2017 用的，**删掉会导致 VS2017 打不开 / 构建不了本解决方案**：
+            error NETSDK1050: 该项目使用的 Microsoft.NET.Sdk 版本过低，
+            不支持对面向 .NET Standard 1.5 或更高版本的库的引用。
+          位置：VS2017\MSBuild\Microsoft\Microsoft.NET.Build.Extensions\
+                Microsoft.NET.Build.Extensions.NETFramework.targets(67,5)
+
+      原因：本测试项目是 net462，而它引用的 xunit 2.9.3 / Microsoft.NET.Test.Sdk
+      等包是 netstandard2.0 的。VS2017 自带的 .NET Core SDK 是 1.x，它**不会**
+      设置 UsingMicrosoftNETSdk 属性，于是上面那个 targets 文件在第 65~67 行
+      误判成「SDK 版本过低」并报错。
+
+      但 VS2017 15.9 自带 net461/net462 的 netstandard2.0 支撑程序集
+      （97 个 DLL，在 MSBuild\Microsoft\Microsoft.NET.Build.Extensions\net461\lib 下），
+      完全够用。显式把这个属性设为 true 就能绕过误判。
+
+      .NET Core SDK 2.0+ 会自己设置它，所以新环境下这一行无害
+      （dotnet build / CI 照常工作）。
+
+      复现方法（VS2017 的 MSBuild，不是 dotnet）：
+        & "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\MSBuild.exe" `
+            tests\Installer.Core.Tests\Installer.Core.Tests.csproj /t:Build /v:m
+    -->
+    <UsingMicrosoftNETSdk>true</UsingMicrosoftNETSdk>
     <LangVersion>7.3</LangVersion>
     <IsPackable>false</IsPackable>
     <RootNamespace>Installer.Core.Tests</RootNamespace>

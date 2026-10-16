@@ -52,8 +52,11 @@
 #>
 [CmdletBinding()]
 param(
-    [ValidateSet('build', 'test', 'e2e', 'ui')]
-    [string[]]$Only = @('clean', 'build', 'test', 'e2e', 'ui'),
+    # ⚠️ 这里必须列全所有步骤的 Key，否则 -Only 传不进去。
+    # （历史 bug：只列了 build/test/e2e/ui，但实际步骤有 6 个，
+    #   于是 -Only clean 和 -Only vs2017 都会直接报 ValidateSet 错误。）
+    [ValidateSet('clean', 'build', 'test', 'e2e', 'ui', 'vs2017')]
+    [string[]]$Only = @('clean', 'build', 'test', 'e2e', 'ui', 'vs2017'),
 
     [string]$LogDir = '',
     [int]$E2eMinChecks = 169,
@@ -354,6 +357,90 @@ $steps = @(
         MinCount   = $UiMinChecks
         Run        = {
             Invoke-Native 'powershell' @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $UiScript) '05-verify-ui'
+        }
+    },
+    @{
+        Key        = 'vs2017'
+        Name       = 'VS2017 兼容性'
+        Tag        = '06-vs2017'
+        Expect     = @('VS2017-OK|VS2017-SKIP')
+        Digest     = 'VS2017-OK|VS2017-SKIP'
+        CountRegex = ''
+        MinCount   = 0
+        Run        = {
+            # 用 **VS2017 自带的 MSBuild**（不是 dotnet）构建测试项目。
+            #
+            # 为什么必须有这一步：VS2017 自带 .NET Core SDK 1.x，而 dotnet 用的是 10.x。
+            # 两者对 SDK 风格 csproj 的支持范围差很多，只在 dotnet 下验证会漏掉
+            # 真实用户（在 VS2017 里打开解决方案）遇到的错误。这个坑已经踩过两次：
+            #
+            #   1) NETSDK1050 —— net462 项目引用 netstandard2.0 包（xunit 2.9.3）时，
+            #      VS2017 的 Microsoft.NET.Build.Extensions.NETFramework.targets(67,5)
+            #      误判「SDK 版本过低」。
+            #      修法：加 <UsingMicrosoftNETSdk>true</UsingMicrosoftNETSdk>。
+            #   2) CS0122 —— <InternalsVisibleTo> 是 SDK 2.0+ 才支持的 MSBuild 项，
+            #      VS2017 不认它，测试拿不到 internal 的 WizardHostImpl。
+            #      修法：改成 Properties\AssemblyInfo.cs 里手写程序集特性。
+            #
+            # 只构建测试项目即可当金丝雀：它既引用 netstandard2.0 包、
+            # 又依赖 InternalsVisibleTo，上面两个问题都会在这里暴露。
+            $msbuild = $null
+            $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
+            if (Test-Path $vswhere) {
+                $found = & $vswhere -version '[15.0,16.0)' -requires Microsoft.Component.MSBuild `
+                                    -find 'MSBuild\**\Bin\MSBuild.exe' 2>$null | Select-Object -First 1
+                if ($found -and (Test-Path $found)) { $msbuild = $found }
+            }
+            if (-not $msbuild) {
+                foreach ($c in @(
+                    "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\MSBuild.exe",
+                    "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\Professional\MSBuild\15.0\Bin\MSBuild.exe",
+                    "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\MSBuild.exe"
+                )) { if (Test-Path $c) { $msbuild = $c; break } }
+            }
+
+            if (-not $msbuild) {
+                # CI runner 上没装 VS2017 是正常的 —— 跳过，不算失败。
+                Write-Host '    VS2017-SKIP  本机没装 VS2017，跳过（本地开发机请务必跑到）'
+                return [pscustomobject]@{
+                    ExitCode = 0
+                    StdOut   = 'VS2017-SKIP'
+                    StdErr   = ''
+                    All      = 'VS2017-SKIP'
+                    Variants = @('VS2017-SKIP')
+                    LogFile  = ''
+                }
+            }
+
+            Write-Host ("    用 " + $msbuild)
+            $repoRoot = Split-Path -Parent $PSScriptRoot
+            $testProj = Join-Path $repoRoot 'tests\Installer.Core.Tests\Installer.Core.Tests.csproj'
+
+            $r = Invoke-Native $msbuild @($testProj, '/t:Build', '/p:Configuration=Debug', '/v:q', '/nologo') '06-vs2017'
+
+            if ($r.ExitCode -ne 0) {
+                Write-Host '    VS2017 构建失败：' -ForegroundColor Red
+                @($r.All -split "`r?`n" | Where-Object { $_ -match 'error ' }) |
+                    Select-Object -First 6 | ForEach-Object { Write-Host ('      ' + $_.Trim()) }
+                return $r
+            }
+
+            Write-Host '    VS2017-OK  测试项目用 VS2017 MSBuild 构建通过（0 错误）'
+
+            # 成功摘要行要能被 harness 的 Expect 断言搜到 —— 所以并进 Variants。
+            # （MSBuild 自己不会打印 "VS2017-OK"，得我们补上。）
+            return [pscustomobject]@{
+                ExitCode = 0
+                StdOut   = ($r.StdOut + "`nVS2017-OK")
+                StdErr   = $r.StdErr
+                All      = ($r.All + "`nVS2017-OK")
+                Variants = @(
+                    ($r.Variants[0] + "`nVS2017-OK"),
+                    ($r.Variants[1] + "`nVS2017-OK"),
+                    ($r.Variants[2] + "`nVS2017-OK")
+                )
+                LogFile  = $r.LogFile
+            }
         }
     }
 )
