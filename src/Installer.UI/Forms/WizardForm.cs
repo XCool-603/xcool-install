@@ -145,20 +145,19 @@ namespace Installer.UI.Forms
         }
 
         /// <summary>
-        /// 给内容容器裁 16px 圆角。
+        /// 给卡片裁 16px 圆角。
         ///
-        /// 裁的是 <c>cardLayout</c> 而不是 <c>card</c>：card 现在铺满整个窗口，
-        /// 裁它会把窗口四角也切掉、连投影带一起切没。cardLayout 正好是 body 区域，
-        /// 裁它等于裁出设计稿的白圆角卡片，同时子控件（表头/步骤条/底栏，各自带
-        /// 不透明白底）的方角也一并被父级 Region 裁掉。
+        /// 裁的是 <c>card</c>：它现在正好就是设计稿那张卡片 (24,24) 640x(h-48)。
+        /// 必须裁 —— 子控件（表头 / 步骤条 / 内容 / 底栏，各自带不透明白底）
+        /// 会把圆角盖成方角。
         /// </summary>
         private void ApplyCardRegion()
         {
             var r = Common.WizardTheme.CardRadius;
             using (var path = new System.Drawing.Drawing2D.GraphicsPath())
             {
-                var w = cardLayout.Width;
-                var h = cardLayout.Height;
+                var w = card.Width;
+                var h = card.Height;
                 var d = r * 2;
 
                 path.AddArc(0, 0, d, d, 180, 90);
@@ -167,7 +166,7 @@ namespace Installer.UI.Forms
                 path.AddArc(0, h - d, d, d, 90, 90);
                 path.CloseFigure();
 
-                cardLayout.Region = new System.Drawing.Region(path);
+                card.Region = new System.Drawing.Region(path);
             }
         }
 
@@ -222,28 +221,26 @@ namespace Installer.UI.Forms
         }
 
         /// <summary>
-        /// 摆卡片：控件铺满整个窗口，白色 body 由 AntdUI 按 Shadow(=24) 自动内缩，
-        /// 正好落在设计稿的 (24,24) 640x(h-48)，投影带铺满四周 24px 直到窗口边缘。
+        /// 把卡片摆到设计稿位置：(24,24)，尺寸 640 x (窗口高 - 48)。
         ///
-        /// ⚠️ 必须在**窗口句柄已创建**之后调用。构造函数里的 Render() 跑在 Show() 之前，
-        /// 那时没有 Graphics，AntdUI.Panel 算不出投影 —— 于是"每个向导的第一页"
-        /// （欢迎 / 确认卸载）会缺一圈投影，底部露出一条平坦的 #F5F7FA 灰带，
-        /// 而后续页面正常。所以 OnShown 里要再补一次。
+        /// 不画投影（Designer 里 Shadow=0），四周留白直接露出窗体底色 #F5F7FA。
+        /// 这样边线干净，也不再依赖 AntdUI 未公开的投影绘制时机。
         /// </summary>
         private void ApplyCardBox(int h)
         {
-            card.Location = new System.Drawing.Point(0, 0);
-            card.Size = new System.Drawing.Size(ClientSize.Width, ClientSize.Height);
-
-            cardLayout.Location = new System.Drawing.Point(24, 24);
-            cardLayout.Size = new System.Drawing.Size(
-                Common.WizardTheme.CardWidth, h - 48);
+            card.Location = new System.Drawing.Point(24, 24);
+            card.Size = new System.Drawing.Size(Common.WizardTheme.CardWidth, h - 48);
 
             ApplyCardRegion();
             card.Invalidate(true);
         }
 
-        /// <summary>窗口真正显示后再补一次卡片布局（见 <see cref="ApplyCardBox"/> 的说明）。</summary>
+        /// <summary>
+        /// 窗口真正显示后再补一次卡片布局。
+        ///
+        /// 构造函数里的 Render() 跑在 Show() 之前，那时控件的最终尺寸还没落定；
+        /// 这里补一次保证首次显示时卡片就在设计稿位置上。代价可以忽略。
+        /// </summary>
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
