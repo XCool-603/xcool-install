@@ -49,27 +49,25 @@ namespace Installer.UI.Forms
             //
             this.card.Back = System.Drawing.Color.White;
             this.card.Controls.Add(this.cardLayout);
-            // 白圆角卡片，落在设计稿的 (24,24) 640x(h-48)，**不画投影**（Shadow=0）。
+            // 卡片**铺满整个窗口**，四周不留任何边距。
             //
-            // 为什么不要投影：AntdUI 的 Shadow 同时决定「body 内缩」和「投影带宽度」，
-            // 两者没法分开调。要用投影把四周 24px 边距填满就得把 Shadow 设成 24，
-            // 结果是卡片四周出现一圈又宽又深的灰色渐变边框，观感很差。
-            // 现在 Shadow=0，四周留白直接露出窗体底色 #F5F7FA（和白色几乎无异），
-            // 边线干净，也不会再依赖 AntdUI 未公开的投影绘制时机
-            // —— 那正是「每页第一屏缺一圈投影」这个查不出来的 bug 的来源。
-            this.card.Location = new System.Drawing.Point(24, 24);
+            // 为什么不留白：留白露出的是窗体底色 #F5F7FA，在白色卡片外形成一圈灰边；
+            // 蓝色标题上方那块尤其明显。用户明确要求"不要任何留白"。
+            //
+            // 也不画投影（Shadow=0）：AntdUI 的 Shadow 同时决定「body 内缩」和
+            // 「投影带宽度」，两者没法分开调 —— 想用投影填满边距就必然得到一圈
+            // 又宽又深的灰色渐变边框，比留白更难看。
+            this.card.Location = new System.Drawing.Point(0, 0);
             this.card.Margin = new System.Windows.Forms.Padding(0);
             this.card.Name = "card";
-            this.card.Radius = 16;
+            this.card.Radius = 0;
             this.card.Shadow = 0;
             this.card.ShadowOffsetY = 0;
             this.card.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(24)))), ((int)(((byte)(40)))));
             this.card.ShadowOpacity = 0F;
             this.card.ShadowOpacityHover = 0F;
             // 尺寸只用于设计器预览，运行时由 ApplyCardBox() 按当前页高度重设。
-            // 取 700 是为了**故意不等于任何设计页高度**（欢迎页是 712），
-            // 保证首次重设尺寸一定产生真实变化。
-            this.card.Size = new System.Drawing.Size(640, 700);
+            this.card.Size = new System.Drawing.Size(688, 700);
             this.card.TabIndex = 0;
             //
             // cardLayout —— 品牌头 / 步骤条 / 内容 / 底栏
@@ -80,9 +78,7 @@ namespace Installer.UI.Forms
             this.cardLayout.Controls.Add(this.stepBar, 0, 1);
             this.cardLayout.Controls.Add(this.pnlContent, 0, 2);
             this.cardLayout.Controls.Add(this.footerLayout, 0, 3);
-            // 卡片内部铺满：card 现在**正好就是**设计稿里那张卡片 (24,24) 640x(h-48)，
-            // 所以内容直接 Dock=Fill 即可。
-            // 圆角由 ApplyCardRegion() 以 card 的 Region 实现（连带裁掉子控件的方角）。
+            // 内容铺满卡片（= 铺满窗口），同样不留边距。
             this.cardLayout.Dock = System.Windows.Forms.DockStyle.Fill;
             this.cardLayout.BackColor = System.Drawing.Color.White;
             this.cardLayout.Location = new System.Drawing.Point(0, 0);
