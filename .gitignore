@@ -80,3 +80,5 @@ UpgradeLog*.txt
 scratch/
 # 旧项目里被误提交的构建产物（Resources/ 下的运行时依赖要保留）
 CheckDotNet/CheckDotNet.exe
+# 界面渲染预览（本地临时产物）
+_preview/

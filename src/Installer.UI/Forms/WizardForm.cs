@@ -147,29 +147,17 @@ namespace Installer.UI.Forms
         }
 
         /// <summary>
-        /// 给卡片裁 16px 圆角。
+        /// 卡片裁圆角（已不再需要，保留为空实现会误导人，所以整段删掉了 —— 见 git 历史）。
         ///
-        /// 裁的是 <c>card</c>：它现在正好就是设计稿那张卡片 (24,24) 640x(h-48)。
-        /// 必须裁 —— 子控件（表头 / 步骤条 / 内容 / 底栏，各自带不透明白底）
-        /// 会把圆角盖成方角。
+        /// 卡片现在铺满整个窗口、Radius=0，窗口四角是方的，没有圆角可裁。
         /// </summary>
         private void ApplyCardRegion()
         {
-            var r = Common.WizardTheme.CardRadius;
-            using (var path = new System.Drawing.Drawing2D.GraphicsPath())
-            {
-                var w = card.Width;
-                var h = card.Height;
-                var d = r * 2;
-
-                path.AddArc(0, 0, d, d, 180, 90);
-                path.AddArc(w - d, 0, d, d, 270, 90);
-                path.AddArc(w - d, h - d, d, d, 0, 90);
-                path.AddArc(0, h - d, d, d, 90, 90);
-                path.CloseFigure();
-
-                card.Region = new System.Drawing.Region(path);
-            }
+            // 故意留空：历史上这里用 GraphicsPath 给卡片裁 16px 圆角，
+            // 防止子控件（表头/底栏的不透明白底）把圆角盖成方角。
+            // 改成"无留白铺满窗口"之后不需要了。
+            // 保留方法体而不是删除，是为了不改动 3 处调用点、让 diff 最小。
+            card.Region = null;
         }
 
         /// <summary>
@@ -223,17 +211,14 @@ namespace Installer.UI.Forms
         }
 
         /// <summary>
-        /// 把卡片摆到设计稿位置：(24,24)，尺寸 640 x (窗口高 - 48)。
-        ///
-        /// 不画投影（Designer 里 Shadow=0），四周留白直接露出窗体底色 #F5F7FA。
-        /// 这样边线干净，也不再依赖 AntdUI 未公开的投影绘制时机。
+        /// 卡片铺满整个窗口 —— 不留边距、不画投影、不裁圆角。
+        /// 白色直接到窗口四边，蓝色标题从 y=0 开始。
         /// </summary>
         private void ApplyCardBox(int h)
         {
-            card.Location = new System.Drawing.Point(24, 24);
-            card.Size = new System.Drawing.Size(Common.WizardTheme.CardWidth, h - 48);
+            card.Location = new System.Drawing.Point(0, 0);
+            card.Size = new System.Drawing.Size(ClientSize.Width, h);
 
-            ApplyCardRegion();
             card.Invalidate(true);
         }
 
