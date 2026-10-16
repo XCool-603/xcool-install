@@ -49,10 +49,13 @@
 
   <ItemGroup>
     <!--
-      WizardHostImpl 是 internal —— 测试要能直接构造它，才能把「向导安装路径」
-      钉住（「没点完成就自动运行」那个 bug 就是从这条缝里漏过去的）。
+      ⚠️ 不要改回 <InternalsVisibleTo Include="Installer.Core.Tests" />。
+      那个 MSBuild 项是 .NET SDK **2.0+** 才支持的（由 GenerateAssemblyInfo 生成
+      [assembly: InternalsVisibleTo] 特性）。VS2017 自带的是 1.x SDK，
+      它**不认**这个项、也不会生成特性，于是测试项目在 VS2017 里编译报：
+          CS0122: "WizardHostImpl" 不可访问，因为它具有一定的保护级别
+      现在改成在 Properties\AssemblyInfo.cs 里手写程序集特性，所有 SDK 版本通吃。
     -->
-    <InternalsVisibleTo Include="Installer.Core.Tests" />
   </ItemGroup>
 
   <ItemGroup>
