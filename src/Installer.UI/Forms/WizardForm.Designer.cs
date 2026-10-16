@@ -1,4 +1,4 @@
-﻿namespace Installer.UI.Forms
+namespace Installer.UI.Forms
 {
     partial class WizardForm
     {
@@ -49,16 +49,34 @@
             //
             this.card.Back = System.Drawing.Color.White;
             this.card.Controls.Add(this.cardLayout);
-            this.card.Location = new System.Drawing.Point(24, 24);
+            // 卡片控件**铺满整个窗口**，Shadow=24 让 AntdUI 把白色 body 内缩 24px
+            // —— body 正好落在设计稿的 (24,24) 640x(h-48)，
+            //    投影带则铺满四周 24px 边距、一直延伸到窗口边缘。
+            //
+            // ⚠️ 别再改回「控件 = body 大小 + 反向补偿 Shadow」那套：
+            // AntdUI 的投影只画在控件**内部**，控件边界在哪投影就到哪，
+            // 于是窗口边缘永远露一圈平坦底色 —— 就是那个"灰色大边子"。
+            // （旧写法：Location=(24-12,24-12)、Size=(640+24, h-48+24)，
+            //   控件底边 = h-12，下面 12px 永远是 #F5F7FA。）
+            this.card.Location = new System.Drawing.Point(0, 0);
             this.card.Margin = new System.Windows.Forms.Padding(0);
             this.card.Name = "card";
             this.card.Radius = 16;
-            this.card.Shadow = 12;
+            this.card.Shadow = 24;
             this.card.ShadowOffsetY = 12;
             this.card.ShadowColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(24)))), ((int)(((byte)(40)))));
             this.card.ShadowOpacity = 0.16F;
             this.card.ShadowOpacityHover = 0.16F;
-            this.card.Size = new System.Drawing.Size(640, 664);
+            // ⚠️ 这个尺寸**故意不等于任何设计页高度**（欢迎页是 712）。
+            //
+            // 原因：ApplyPageSize() 只在 ClientSize 真的变化时才改窗口，而欢迎页的
+            // 设计高度 712 恰好等于这里的 712 —— 于是运行时给 card.Size 赋的值
+            // 和 Designer 里的完全一样，WinForms 判定"没变"、不发 OnSizeChanged，
+            // AntdUI.Panel 也就**不重算「body 内缩 + 投影」**。
+            // 表现：欢迎页 / 确认卸载页（各自向导的第一页）底部露出一条平坦的
+            // #F5F7FA 灰带，而后续页面正常。
+            // 用 700 保证首次 ApplyPageSize 一定产生真实的尺寸变化。
+            this.card.Size = new System.Drawing.Size(688, 700);
             this.card.TabIndex = 0;
             //
             // cardLayout —— 品牌头 / 步骤条 / 内容 / 底栏
@@ -69,9 +87,12 @@
             this.cardLayout.Controls.Add(this.stepBar, 0, 1);
             this.cardLayout.Controls.Add(this.pnlContent, 0, 2);
             this.cardLayout.Controls.Add(this.footerLayout, 0, 3);
-            this.cardLayout.Dock = System.Windows.Forms.DockStyle.Fill;
+            // 不再 Dock=Fill：card 现在铺满窗口，Dock 会让内容铺到投影带上。
+            // 显式落在 body 区域 (24,24)，尺寸 = 窗口高 - 48。
+            // 圆角由 ApplyCardRegion() 以本控件的 Region 实现（连带裁掉子控件的方角）。
+            this.cardLayout.Dock = System.Windows.Forms.DockStyle.None;
             this.cardLayout.BackColor = System.Drawing.Color.White;
-            this.cardLayout.Location = new System.Drawing.Point(0, 0);
+            this.cardLayout.Location = new System.Drawing.Point(24, 24);
             this.cardLayout.Margin = new System.Windows.Forms.Padding(0);
             this.cardLayout.Name = "cardLayout";
             this.cardLayout.RowCount = 4;

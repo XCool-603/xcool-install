@@ -144,13 +144,21 @@ namespace Installer.UI.Forms
             }
         }
 
+        /// <summary>
+        /// 给内容容器裁 16px 圆角。
+        ///
+        /// 裁的是 <c>cardLayout</c> 而不是 <c>card</c>：card 现在铺满整个窗口，
+        /// 裁它会把窗口四角也切掉、连投影带一起切没。cardLayout 正好是 body 区域，
+        /// 裁它等于裁出设计稿的白圆角卡片，同时子控件（表头/步骤条/底栏，各自带
+        /// 不透明白底）的方角也一并被父级 Region 裁掉。
+        /// </summary>
         private void ApplyCardRegion()
         {
             var r = Common.WizardTheme.CardRadius;
             using (var path = new System.Drawing.Drawing2D.GraphicsPath())
             {
-                var w = card.Width;
-                var h = card.Height;
+                var w = cardLayout.Width;
+                var h = cardLayout.Height;
                 var d = r * 2;
 
                 path.AddArc(0, 0, d, d, 180, 90);
@@ -159,7 +167,7 @@ namespace Installer.UI.Forms
                 path.AddArc(0, h - d, d, d, 90, 90);
                 path.CloseFigure();
 
-                card.Region = new System.Drawing.Region(path);
+                cardLayout.Region = new System.Drawing.Region(path);
             }
         }
 
@@ -199,27 +207,48 @@ namespace Installer.UI.Forms
         private void ApplyPageSize(WizardPage page)
         {
             var h = DesignHeight(page);
-            if (ClientSize.Height == h)
+
+            if (ClientSize.Height != h)
             {
-                return;
+                // 先放开约束再改尺寸，否则会被 Minimum/MaximumSize 顶回去
+                MinimumSize = new System.Drawing.Size(0, 0);
+                MaximumSize = new System.Drawing.Size(0, 0);
+                ClientSize = new System.Drawing.Size(Common.WizardTheme.WindowWidth, h);
+                MinimumSize = new System.Drawing.Size(Common.WizardTheme.WindowWidth, h);
+                MaximumSize = new System.Drawing.Size(Common.WizardTheme.WindowWidth, h);
             }
 
-            // 先放开约束再改尺寸，否则会被 Minimum/MaximumSize 顶回去
-            MinimumSize = new System.Drawing.Size(0, 0);
-            MaximumSize = new System.Drawing.Size(0, 0);
-            ClientSize = new System.Drawing.Size(Common.WizardTheme.WindowWidth, h);
-            MinimumSize = new System.Drawing.Size(Common.WizardTheme.WindowWidth, h);
-            MaximumSize = new System.Drawing.Size(Common.WizardTheme.WindowWidth, h);
+            ApplyCardBox(h);
+        }
 
-            // AntdUI.Panel 一旦在**运行时**被重设 Size，就会为了给投影留位置把 body
-            // 内缩 Shadow(=12) px；Designer 里建好后没动过尺寸的卡片不触发这个重算。
-            // 表现是「欢迎页正常，其他页整体内缩 12px、右侧内容被裁」。
-            // 反向补偿：Location 与 Size 各外扩 Shadow，让 body 落回设计稿的 (24,24) 640x(h-48)。
-            var inset = card.Shadow;
-            card.Location = new System.Drawing.Point(24 - inset, 24 - inset);
-            card.Size = new System.Drawing.Size(
-                Common.WizardTheme.CardWidth + inset * 2, h - 48 + inset * 2);
+        /// <summary>
+        /// 摆卡片：控件铺满整个窗口，白色 body 由 AntdUI 按 Shadow(=24) 自动内缩，
+        /// 正好落在设计稿的 (24,24) 640x(h-48)，投影带铺满四周 24px 直到窗口边缘。
+        ///
+        /// ⚠️ 必须在**窗口句柄已创建**之后调用。构造函数里的 Render() 跑在 Show() 之前，
+        /// 那时没有 Graphics，AntdUI.Panel 算不出投影 —— 于是"每个向导的第一页"
+        /// （欢迎 / 确认卸载）会缺一圈投影，底部露出一条平坦的 #F5F7FA 灰带，
+        /// 而后续页面正常。所以 OnShown 里要再补一次。
+        /// </summary>
+        private void ApplyCardBox(int h)
+        {
+            card.Location = new System.Drawing.Point(0, 0);
+            card.Size = new System.Drawing.Size(ClientSize.Width, ClientSize.Height);
+
+            cardLayout.Location = new System.Drawing.Point(24, 24);
+            cardLayout.Size = new System.Drawing.Size(
+                Common.WizardTheme.CardWidth, h - 48);
+
             ApplyCardRegion();
+            card.Invalidate(true);
+        }
+
+        /// <summary>窗口真正显示后再补一次卡片布局（见 <see cref="ApplyCardBox"/> 的说明）。</summary>
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+
+            ApplyCardBox(DesignHeight(_presenter.Current));
         }
 
         private void ApplyAppearance()
