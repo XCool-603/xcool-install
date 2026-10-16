@@ -367,6 +367,24 @@ namespace Installer.UI.Presenters
             Options.AcceptLicense = !_licenseRequired;
         }
 
+        /// <summary>
+        /// **仅供渲染/截图使用**：直接把当前页设成指定值，绕过 <see cref="Primary"/> 的流程约束。
+        ///
+        /// 为什么不能靠 Primary() 逐步推进：
+        ///   · 不需要许可协议时（<c>_licenseRequired=false</c>），
+        ///     Welcome --Primary--> **直接到 Path**，License 页**根本不可达**；
+        ///   · Path --Primary--> **直接到 Installing**，
+        ///     Options 页在设计稿里已经并入 Path，同样不可达。
+        /// 于是"想截 License 页"这件事在流程上做不到 —— 只能直接设页。
+        ///
+        /// 这个方法只影响 <see cref="Current"/>，不改任何用户选项，
+        /// 也不参与真实安装流程。
+        /// </summary>
+        internal void ForceCurrentForPreview(WizardPage page)
+        {
+            Current = page;
+        }
+
         /// <summary>安装成功。</summary>
         public void EnterFinish()
         {

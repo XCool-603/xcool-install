@@ -987,16 +987,35 @@ namespace Installer.UI.Forms
 
         private void RenderPagesToPngCore(string directory)
         {
+            // ⚠️ 列表里**不能有 WizardPage.Options**：
+            // 设计稿把「安装位置」与「附加任务」并成了一页，
+            // 流程是 Welcome -> License -> Path -> Installing -> Finish，
+            // Options 已经不可达（Primary() 从 Path 直接进 Installing）。
+            // 留着它只会生成一张和 Path.png 重复、名字却对不上的图。
             var pages = _uninstallMode
                 ? new[] { WizardPage.UninstallConfirm, WizardPage.Uninstalling, WizardPage.Uninstalled }
                 : new[] { WizardPage.Welcome, WizardPage.License, WizardPage.Path,
-                          WizardPage.Options, WizardPage.Installing, WizardPage.Finish, WizardPage.Failed };
+                          WizardPage.Installing, WizardPage.Finish, WizardPage.Failed };
 
             foreach (var page in pages)
             {
                 ForcePage(page);
                 Render();
                 ApplyPreviewDetail(page);
+
+                // 自检：文件名必须和**实际渲染的页**一致。
+                //
+                // 为什么必须断言：以前 ForcePage 里写死 Primary() 次数，
+                // 在"不需要许可协议"的工程上每一步都少走一格 ——
+                // License.png 里其实是 Path、Path.png 里其实是"正在安装"。
+                // 图照样生成、文件名照样正确，验收表却全是假的。
+                // 这类"静默错页"必须让脚本直接失败，不能靠人眼看出来。
+                if (_presenter.Current != page)
+                {
+                    throw new InvalidOperationException(
+                        "渲染错页：想要 " + page + "，实际停在 " + _presenter.Current +
+                        "。请检查 ForcePage() 的推进逻辑（步数取决于是否需要许可协议）。");
+                }
 
                 using (var bmp = new Bitmap(Width, Height))
                 {
@@ -1054,20 +1073,23 @@ namespace Installer.UI.Forms
                     break;
 
                 case WizardPage.License:
-                    _presenter.Primary();
-                    break;
-
                 case WizardPage.Path:
-                    _presenter.Options.AcceptLicense = true;
-                    _presenter.Primary();   // → License
-                    _presenter.Primary();   // → Path
-                    break;
-
                 case WizardPage.Options:
-                    _presenter.Options.AcceptLicense = true;
-                    _presenter.Primary();   // → License
-                    _presenter.Primary();   // → Path
-                    _presenter.Primary();   // → Options
+                    // 直接设页，**不要改回用 Primary() 逐步推进**。
+                    //
+                    // 为什么逐步推进不可行：
+                    //   ① 不需要许可协议时（_licenseRequired=false），
+                    //      Welcome --Primary--> **直接到 Path**，License 页根本不可达；
+                    //   ② Path --Primary--> **直接到 Installing**
+                    //      （设计稿把「安装位置」与「附加任务」并成一页，没有独立 Options 页）。
+                    // 于是"想截 License 页"在流程上做不到 —— 只能直接设页。
+                    //
+                    // 以前写死 1/2/3 次 Primary()，在"不需要许可协议"的工程上每一步都
+                    // 少走一格：License.png 里其实是 Path、Path.png 里其实是"正在安装"。
+                    // 图照样生成、文件名照样正确，验收表却全是假的。
+                    //
+                    // RenderPagesToPngCore() 里加了自检，页名和实际页不符会直接抛异常。
+                    _presenter.ForceCurrentForPreview(page);
                     break;
 
                 case WizardPage.Installing:

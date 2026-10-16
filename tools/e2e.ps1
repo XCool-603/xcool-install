@@ -550,10 +550,38 @@ foreach ($pair in @(@($uiZh, 'zh-Hans'), @($uiEn, 'en'))) {
     Check "向导渲染（$culture）退出码为 0" ($p.ExitCode -eq 0) "exit=$($p.ExitCode)"
 }
 
-foreach ($page in 'Welcome', 'License', 'Path', 'Options', 'Installing', 'Finish', 'Failed') {
+# ⚠️ 列表里**不能有 Options**：设计稿把「安装位置」与「附加任务」并成了一页，
+#    流程是 Welcome -> License -> Path -> Installing -> Finish，
+#    Options 页已经不可达（Primary() 从 Path 直接进 Installing）。
+#
+# 每页的高度也必须断言 —— 这是"页名和内容对不上"的唯一护栏。
+# 曾经出过：ForcePage 里写死 Primary() 次数，在"不需要许可协议"的工程上
+# 每一步都少走一格，于是 License.png 里其实是 Path、Path.png 里其实是"正在安装"。
+# 图照样生成、文件名照样正确、大小也都 > 4KB —— 上面那些断言全都通过，
+# 只有高度对不上。所以高度必须单独钉死。
+$pageHeights = @{
+    Welcome   = 712
+    License   = 860
+    Path      = 848
+    Installing = 720
+    Finish    = 584
+    Failed    = 584
+}
+
+foreach ($page in $pageHeights.Keys) {
     $f = Join-Path $uiZh "$page.png"
     Check "渲染出 $page.png" (Test-Path $f)
-    Check "$page.png 不是空白（> 4 KB）" ((Get-Item $f).Length -gt 4096) ("{0:N0} B" -f (Get-Item $f).Length)
+    if (Test-Path $f) {
+        Check "$page.png 不是空白（> 4 KB）" ((Get-Item $f).Length -gt 4096) ("{0:N0} B" -f (Get-Item $f).Length)
+
+        # PNG 头：0..7 签名，8..11 数据块长度，12..15 "IHDR"，
+        # 16..19 = **宽度**，20..23 = **高度**（都是大端）。
+        # 别把宽度当高度 —— 这里踩过一次，读出 688（= 宽度）而不是 584。
+        $bytes = [System.IO.File]::ReadAllBytes($f)
+        $h = [int]$bytes[23] + ([int]$bytes[22] -shl 8) + ([int]$bytes[21] -shl 16) + ([int]$bytes[20] -shl 24)
+        Check "$page.png 高度 = $($pageHeights[$page])（页名与内容一致）" `
+              ($h -eq $pageHeights[$page]) ("实际 $h")
+    }
 }
 
 foreach ($page in 'UninstallConfirm', 'Uninstalling', 'Uninstalled') {
