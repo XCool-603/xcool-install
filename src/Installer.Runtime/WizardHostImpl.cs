@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -58,6 +59,22 @@ namespace Installer.Runtime
 
         /// <summary>向导关闭后由宿主读取的退出码。</summary>
         public int ExitCode { get; private set; }
+
+        /// <summary>
+        /// 卸载是否**真的跑完并成功**。
+        ///
+        /// 不能用 <c>ExitCode == 0</c> 代替：ExitCode 是 int 的默认值就是 0，
+        /// 用户打开卸载向导、什么都没点就关掉窗口时它同样是 0。
+        /// 那种情况下如果去安排"自清理"（副本会删掉安装记录、Log 目录、空目录），
+        /// 就会把安装记录毁掉 —— 之后再也无法正常卸载。
+        /// </summary>
+        public bool UninstallCompleted { get; private set; }
+
+        /// <summary>
+        /// 本次卸载中**本进程删不掉**的绝对路径，交给宿主安排清理副本在本进程退出后重试。
+        /// 典型就是安装目录里被卸载器自己加载的 <c>Newtonsoft.Json.dll</c>。
+        /// </summary>
+        public IReadOnlyList<string> BlockedPaths { get; private set; } = new List<string>();
 
         /// <summary>
         /// 真正要装到哪 —— **以清单里的当前值为准**，而不是构造时的快照。
@@ -177,7 +194,9 @@ namespace Installer.Runtime
                         result = new UninstallEngine().Run(record, platform, new ActionProgress(onProgress));
                     }
 
+                    BlockedPaths = new List<string>(result.BlockedPaths);
                     ExitCode = result.Success ? 0 : 1;
+                    UninstallCompleted = result.Success;
                     onDone(result.Success, result.Success ? string.Empty : string.Join("；", result.Issues.ToArray()));
                 }
                 catch (Exception ex)

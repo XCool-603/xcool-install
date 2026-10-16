@@ -495,6 +495,15 @@ Step '12. 完整卸载（按清单删，不是删光目录）'
 $userFile = Join-Path $m1InstallDir 'user-data.txt'
 [System.IO.File]::WriteAllText($userFile, 'this is the user''s own file', $utf8)
 
+# 运行时产物：用户的程序自己写的日志目录，**不在安装清单里**。
+# 卸载器必须整棵删掉它。以前正常卸载路径（Run）压根没调用 DeleteLeftovers ——
+# 而删 "Log" 目录的唯一代码就在那里 —— 所以它必然残留。用户实测残留的 Log 目录即此。
+$runtimeLog = Join-Path $m1InstallDir 'Log\MainLog'
+New-Item -ItemType Directory -Path $runtimeLog -Force | Out-Null
+[System.IO.File]::WriteAllText((Join-Path $runtimeLog 'Info_2026-10-16.txt'), 'runtime log', $utf8)
+Check '运行时日志目录已就位（且不在安装记录里）' `
+      ((Test-Path (Join-Path $m1InstallDir 'Log')) -and (-not (@($rec.files) -contains 'Log\MainLog\Info_2026-10-16.txt')))
+
 $m1UnResult = Join-Path $WorkDir 'm1-uninstall.json'
 # --silent 必填：不带它就会弹出卸载向导（那是给真实用户用的路径）
 $p = Start-Process -FilePath $uninstallerPath -ArgumentList @('--uninstall', '--silent', '--result', $m1UnResult) -Wait -PassThru -NoNewWindow
@@ -502,7 +511,10 @@ Check '卸载退出码为 0' ($p.ExitCode -eq 0) "exit=$($p.ExitCode)"
 
 $ur = Get-Content -LiteralPath $m1UnResult -Raw -Encoding UTF8 | ConvertFrom-Json
 Check '卸载结果 ok' ($ur.ok -eq $true)
-Check '删除了 2 个文件' ($ur.deletedFiles -eq 2) $ur.deletedFiles
+# 3 = bin\App.exe + readme.txt（安装清单里的 2 个）+ .install.log。
+# .install.log 是卸载器自己写在安装目录里的日志 —— 以前正常卸载路径漏了 DeleteLeftovers，
+# 连它都不会被删；现在按预期一起清掉（这正是"卸载后目录里还有东西"的一类残留）。
+Check '删除了 3 个文件（2 个清单文件 + 卸载器自己的 .install.log）' ($ur.deletedFiles -eq 3) $ur.deletedFiles
 Check '删除了 2 个快捷方式' ($ur.deletedShortcuts -eq 2)
 Check '卸载没有报问题' (@($ur.issues).Count -eq 0) (@($ur.issues) -join '; ')
 
@@ -521,6 +533,71 @@ Check '安装记录已删除' (-not (Test-Path (Join-Path $m1InstallDir '.instal
 Check '程序文件所在目录已清空' (-not (Test-Path (Join-Path $m1InstallDir 'bin')))
 Check '用户自己的文件没有被删（按清单删的证明）' (Test-Path $userFile) $userFile
 Check '安装目录本身保留（因为用户文件还在，不是"删光目录"）' (Test-Path $m1InstallDir)
+Check '运行时创建的 Log 目录已整棵删除' (-not (Test-Path (Join-Path $m1InstallDir 'Log')))
+
+# ─────────────────────────────────────────────────────────────
+Step '12.5. payload 自带外部版本 DLL（卸载器"自锁"回归护栏）'
+# ─────────────────────────────────────────────────────────────
+# 用户实测残留三件套里的 Newtonsoft.Json.dll。
+#
+# 根因：卸载器本身运行在安装目录下，.NET 解析程序集时会优先探测"应用程序基目录"里的
+# 同名 DLL —— 于是 payload 里那份被加载进了**卸载器自己的进程**。卸载到"按清单删文件"
+# 这一步时，锁的持有者恰恰就是卸载器本人，File.Delete 必然失败。
+# 能删掉它的只有"清理副本"：副本从 %TEMP% 启动，不加载安装目录的同名 DLL，
+# 而且等卸载器退出、锁释放之后才动手。
+#
+# 注意：必须用**文件版本与内嵌版本不同**的 DLL 才会触发加载（内嵌的是 13.0.3）。
+# 13.0.4 直接取 NuGet 缓存；取不到就显式跳过并打印原因，绝不静默通过。
+$foreignJson = Get-ChildItem (Join-Path $env:USERPROFILE '.nuget\packages\newtonsoft.json\13.0.4\lib\net45\Newtonsoft.Json.dll') -ErrorAction SilentlyContinue | Select-Object -First 1
+
+if ($null -eq $foreignJson) {
+    Write-Host '  [SKIP] 找不到 NuGet 缓存里的 Newtonsoft.Json 13.0.4，本项未验证' -ForegroundColor Yellow
+} else {
+    $fSource = Join-Path $WorkDir 'foreign-source'
+    New-Item -ItemType Directory -Path (Join-Path $fSource 'bin') -Force | Out-Null
+    [System.IO.File]::WriteAllText((Join-Path $fSource 'bin\App.exe'), 'fake app', $utf8)
+    Copy-Item $foreignJson.FullName (Join-Path $fSource 'Newtonsoft.Json.dll') -Force
+
+    $fProject = Join-Path $WorkDir 'foreign.wmpkg.json'
+    @{
+        schemaVersion     = 2
+        productCode       = '{EEEEEEEE-1111-2222-3333-555555555555}'
+        defaultCulture    = 'zh-Hans'
+        product           = @{ name = @{ 'zh-Hans' = '外部DLL产品' }; version = '1.0.0' }
+        scope             = 'perUser'
+        defaultInstallDir = '%LOCALAPPDATA%\Programs\ForeignDll'
+        entryPoint        = 'bin\App.exe'
+        shortcuts         = @()
+        autostart         = $false
+        runAfterInstall   = $false
+    } | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $fProject -Encoding UTF8
+
+    $fSetup = Join-Path $WorkDir 'ForeignDllSetup.exe'
+    $r = Invoke-Cli @('pack', '--project', $fProject, '--source', $fSource, '--stub', $stub,
+                      '--out', $fSetup, '--build-time', $buildTime)
+    Check '外部 DLL 包打包成功' ($r.ExitCode -eq 0)
+
+    $fSandbox = Join-Path $WorkDir 'foreign-sandbox'
+    $fInstall = Join-Path $WorkDir 'foreign-install.json'
+    $p = Start-Process -FilePath $fSetup -ArgumentList @('--silent', '--sandbox', $fSandbox, '--result', $fInstall) -Wait -PassThru -NoNewWindow
+    Check '外部 DLL 包安装成功' ($p.ExitCode -eq 0) "exit=$($p.ExitCode)"
+
+    $fi  = Get-Content -LiteralPath $fInstall -Raw -Encoding UTF8 | ConvertFrom-Json
+    $fDir = $fi.installDir
+    $fDll = Join-Path $fDir 'Newtonsoft.Json.dll'
+    Check '外部版本的 DLL 已落盘' (Test-Path $fDll) $fDll
+
+    $fUninstall = Join-Path $WorkDir 'foreign-uninstall.json'
+    $p = Start-Process -FilePath (Join-Path $fDir 'Uninstall.exe') -ArgumentList @('--uninstall', '--silent', '--result', $fUninstall) -Wait -PassThru -NoNewWindow
+    $fu = Get-Content -LiteralPath $fUninstall -Raw -Encoding UTF8 | ConvertFrom-Json
+
+    Check '卸载时该 DLL 确实被阻塞过（证明护栏不是空跑）' `
+          (@($fu.blockedFiles) -contains $fDll) (@($fu.blockedFiles) -join '; ')
+    Check '没有无法处理的永久残留' (@($fu.undeletedFiles).Count -eq 0) (@($fu.undeletedFiles) -join '; ')
+
+    Start-Sleep -Seconds 4
+    Check '安装目录已整棵删除（清理副本删掉了被自锁的 DLL）' (-not (Test-Path $fDir)) $fDir
+}
 
 # ─────────────────────────────────────────────────────────────
 Step '13. 真实系统零污染（回归护栏）'

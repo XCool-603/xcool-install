@@ -318,6 +318,9 @@ namespace Installer.Runtime
                 modifiedFiles = result.ModifiedFiles,
                 issues = result.Issues,
                 requiresRestart = result.RequiresRestart,
+                undeletedFiles = result.UndeletedPaths,
+                pendingRebootFiles = result.PendingRebootPaths,
+                blockedFiles = result.BlockedPaths,
             });
 
             // 卸载器自己还在安装目录里，删不掉自己 —— 复制到 %TEMP% 让副本收尾
@@ -325,7 +328,7 @@ namespace Installer.Runtime
             {
                 try
                 {
-                    ScheduleSelfCleanup(record.InstallDir, selfPath);
+                    ScheduleSelfCleanup(record.InstallDir, selfPath, result.BlockedPaths);
                 }
                 catch (Exception ex)
                 {
@@ -336,8 +339,15 @@ namespace Installer.Runtime
             return Report(options, result.Success, string.Format(CultureInfo.InvariantCulture,
                 "卸载完成。\r\n删除文件：{0} 个，快捷方式：{1} 个" +
                 (result.ModifiedFiles.Count > 0 ? "\r\n注意：有 {2} 个文件在安装后被修改过，已按记录删除。" : string.Empty) +
+                (result.PendingRebootPaths.Count > 0
+                    ? "\r\n有 {4} 个文件当时被占用，已安排「下次重启时自动删除」。"
+                    : string.Empty) +
+                (result.UndeletedPaths.Count > 0
+                    ? "\r\n有 {5} 个文件被占用且无法安排删除，需要手动清理。"
+                    : string.Empty) +
                 (result.Issues.Count > 0 ? "\r\n问题 {3} 条，详见结果文件。" : string.Empty),
-                result.DeletedFiles, result.DeletedShortcuts, result.ModifiedFiles.Count, result.Issues.Count));
+                result.DeletedFiles, result.DeletedShortcuts, result.ModifiedFiles.Count, result.Issues.Count,
+                result.PendingRebootPaths.Count, result.UndeletedPaths.Count));
         }
 
         /// <summary>
@@ -396,7 +406,7 @@ namespace Installer.Runtime
             {
                 try
                 {
-                    ScheduleSelfCleanup(installDir, selfPath);
+                    ScheduleSelfCleanup(installDir, selfPath, result.BlockedPaths);
                 }
                 catch (Exception ex)
                 {
@@ -523,8 +533,21 @@ namespace Installer.Runtime
             }
         }
 
-        /// <summary>把卸载器复制到 %TEMP%，由副本删掉安装目录残留（含本 exe），再自删。</summary>
-        private static void ScheduleSelfCleanup(string installDir, string selfPath)        {
+        /// <summary>
+        /// 把卸载器复制到 %TEMP%，由副本删掉安装目录残留（含本 exe 自己），再自删。
+        /// </summary>
+        /// <param name="retryPaths">
+        /// 本进程删不掉的绝对路径，交给副本在本进程退出后重试。
+        ///
+        /// 最典型的是安装目录里的 <c>Newtonsoft.Json.dll</c>：卸载器本身运行在安装目录下，
+        /// .NET 探测程序集时会优先命中"应用程序基目录"里的同名 DLL，于是把用户 App 的那份
+        /// 加载进了自己的进程 —— 卸载时去删它，锁的持有者恰恰就是卸载器本人，必然失败。
+        /// 副本从 %TEMP% 启动，不会加载安装目录的 DLL，而且等本进程退出后才动手，
+        /// 那时锁已释放，一次就能删掉（不必等到重启）。
+        /// </param>
+        private static void ScheduleSelfCleanup(string installDir, string selfPath,
+                                               IEnumerable<string> retryPaths = null)
+        {
             var tempDir = Path.Combine(Path.GetTempPath(), "installer-cleanup-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(tempDir);
 
@@ -533,6 +556,20 @@ namespace Installer.Runtime
 
             var pid = Process.GetCurrentProcess().Id;
             var args = "--cleanup \"" + installDir + "\" --wait-pid " + pid;
+
+            if (retryPaths != null)
+            {
+                var list = retryPaths.Where(p => !string.IsNullOrEmpty(p))
+                                     .Distinct(StringComparer.OrdinalIgnoreCase)
+                                     .ToList();
+                if (list.Count > 0)
+                {
+                    // 清单走文件而不是命令行：命令行有长度上限，中文路径也更容易踩引号坑
+                    var pending = Path.Combine(tempDir, "pending.txt");
+                    File.WriteAllLines(pending, list.ToArray(), new UTF8Encoding(false));
+                    args += " --pending \"" + pending + "\"";
+                }
+            }
 
             Process.Start(new ProcessStartInfo
             {
@@ -580,6 +617,55 @@ namespace Installer.Runtime
                 foreach (var file in leftovers)
                 {
                     TryDeleteFile(file);
+                }
+
+                // 运行时产生的日志目录不在安装清单里，卸载引擎删它时可能被占用。
+                // 这里是第二道防线：等主程序退出之后再整棵删一次。
+                var logDir = Path.Combine(dir, "Log");
+                if (Directory.Exists(logDir))
+                {
+                    try
+                    {
+                        Directory.Delete(logDir, true);
+                    }
+                    catch (IOException)
+                    {
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                    }
+                }
+
+                // 卸载器**本进程**占着的文件（典型：它从安装目录加载进来的 Newtonsoft.Json.dll）。
+                // 现在本进程已经退出，锁随之释放 —— 这一次就能删干净，不必等到重启。
+                if (!string.IsNullOrEmpty(options.PendingPath) && File.Exists(options.PendingPath))
+                {
+                    foreach (var line in File.ReadAllLines(options.PendingPath))
+                    {
+                        var target = line.Trim();
+                        if (target.Length == 0)
+                        {
+                            continue;
+                        }
+
+                        if (Directory.Exists(target))
+                        {
+                            try
+                            {
+                                Directory.Delete(target, true);
+                            }
+                            catch (IOException)
+                            {
+                            }
+                            catch (UnauthorizedAccessException)
+                            {
+                            }
+
+                            continue;
+                        }
+
+                        TryDeleteFile(target);
+                    }
                 }
 
                 var rollbackDir = Path.Combine(dir, ".rollback");
@@ -837,6 +923,28 @@ namespace Installer.Runtime
                 System.Windows.Forms.Application.Run(form);
             }
 
+            // 向导跑完之后，卸载器自己（就是本进程）还躺在安装目录里 —— 进程删不掉自己的
+            // 镜像文件。必须在这里安排自清理：把副本复制到 %TEMP%，由副本等本进程退出后
+            // 删掉安装目录里的 Uninstall.exe。
+            //
+            // 以前这条路径**整个漏了这一步**：安静卸载（Uninstall）里有，
+            // 向导卸载（RunUninstallWizard）里没有。于是 e2e 走 --silent 全绿，
+            // 而用户在控制面板点"卸载"（走向导）就会永久残留 Uninstall.exe。
+            var cleanupScheduled = false;
+            if (host.UninstallCompleted)
+            {
+                try
+                {
+                    ScheduleSelfCleanup(installDir, selfPath, host.BlockedPaths);
+                    cleanupScheduled = true;
+                }
+                catch (Exception)
+                {
+                    // 自清理失败不影响卸载本身，但必须如实写进结果文件 ——
+                    // 它意味着 Uninstall.exe 会留在安装目录里。
+                }
+            }
+
             WriteResult(options.ResultPath, new
             {
                 ok = host.ExitCode == 0,
@@ -844,6 +952,8 @@ namespace Installer.Runtime
                 installDir = installDir,
                 productCode = record.ProductCode,
                 exitCode = host.ExitCode,
+                uninstallCompleted = host.UninstallCompleted,
+                selfCleanupScheduled = cleanupScheduled,
             });
 
             return host.ExitCode;
@@ -1048,6 +1158,9 @@ namespace Installer.Runtime
             public bool Uninstall;
             public string LogPath;
             public string CleanupDir;
+
+            /// <summary>--pending 指定的"退出后重试删除"清单文件（每行一个绝对路径）。</summary>
+            public string PendingPath;
             public int WaitPid;
             public string RenderUiDir;
             public bool Repair;
@@ -1118,6 +1231,9 @@ namespace Installer.Runtime
                     case "--wait-pid":
                         int pid;
                         o.WaitPid = int.TryParse(Next(args, ref i), out pid) ? pid : 0;
+                        break;
+                    case "--pending":
+                        o.PendingPath = Next(args, ref i);
                         break;
                 }
             }

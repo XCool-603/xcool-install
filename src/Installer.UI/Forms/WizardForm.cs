@@ -211,19 +211,68 @@ namespace Installer.UI.Forms
         }
 
         /// <summary>
-        /// 卡片铺满整个窗口 —— 不留边距、不画投影、不裁圆角。
+        /// 卡片铺满整个窗口 —— 不留边距、不画投影。
         /// 白色直接到窗口四边，蓝色标题从 y=0 开始。
+        /// 圆角由**窗口**负责（见 <see cref="ApplyWindowRegion"/>），不是控件。
         /// </summary>
         private void ApplyCardBox(int h)
         {
             card.Location = new System.Drawing.Point(0, 0);
             card.Size = new System.Drawing.Size(ClientSize.Width, h);
 
+            ApplyWindowRegion();
             card.Invalidate(true);
         }
 
         /// <summary>
-        /// 窗口真正显示后再补一次卡片布局。
+        /// 给**窗口**裁 16px 圆角。
+        ///
+        /// 为什么圆角必须做在窗口上、而不是做在控件上：
+        ///   控件带圆角时，被切掉的那块露出的是**父容器的底色** ——
+        ///   卡片铺满窗口后就是白色，于是窗口四角出现白色缺口
+        ///   （蓝色标题区以前 Radius=16，左上/右上就是两个白角）。
+        ///   窗口自己带 Region 时，切掉的那块直接是**桌面**，不会有任何露白。
+        ///
+        /// 窗口是 FormBorderStyle.None，所以 Region 就是最终外形。
+        /// </summary>
+        private void ApplyWindowRegion()
+        {
+            var r = Common.WizardTheme.CardRadius;
+            var w = ClientSize.Width;
+            var h = ClientSize.Height;
+
+            if (w <= 0 || h <= 0)
+            {
+                return;
+            }
+
+            // 半径不能超过短边的一半，否则 GraphicsPath 画出来的弧会自交
+            var max = Math.Min(w, h) / 2;
+            if (r > max)
+            {
+                r = max;
+            }
+
+            using (var path = new System.Drawing.Drawing2D.GraphicsPath())
+            {
+                var d = r * 2;
+
+                path.AddArc(0, 0, d, d, 180, 90);
+                path.AddArc(w - d, 0, d, d, 270, 90);
+                path.AddArc(w - d, h - d, d, d, 0, 90);
+                path.AddArc(0, h - d, d, d, 90, 90);
+                path.CloseFigure();
+
+                var old = Region;
+                Region = new System.Drawing.Region(path);
+                if (old != null)
+                {
+                    old.Dispose();
+                }
+            }
+        }
+
+        /// <summary>窗口真正显示后再补一次卡片布局。
         ///
         /// 构造函数里的 Render() 跑在 Show() 之前，那时控件的最终尺寸还没落定；
         /// 这里补一次保证首次显示时卡片就在设计稿位置上。代价可以忽略。
@@ -984,7 +1033,10 @@ namespace Installer.UI.Forms
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            ApplyCardRegion();
+
+            // 窗口圆角跟着尺寸走（这里同时负责了 ApplyCardBox 里的那次调用，
+            // 但 ApplyPageSize 直接改 ClientSize 时也要立刻生效，所以两边都调）。
+            ApplyWindowRegion();
             MakeLabelsTransparent(this);
         }
 
