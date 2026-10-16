@@ -884,6 +884,14 @@ namespace Installer.Runtime
                     form.Show();
                     System.Windows.Forms.Application.DoEvents();
 
+                    // 让首次绘制真正落定再截图。
+                    // Show() 之后只泵一次消息时，**第一个被渲染的页面**
+                    // （安装向导 = 欢迎，卸载向导 = 确认卸载）可能还没画完，
+                    // DrawToBitmap 会抓到未绘制状态 —— 表现就是缺一圈卡片投影、
+                    // 底部露出一条平坦的 #F5F7FA 灰带，而后续页面全都正常。
+                    System.Threading.Thread.Sleep(400);
+                    System.Windows.Forms.Application.DoEvents();
+
                     form.RenderPagesToPng(options.RenderUiDir);
 
                     // 卸载向导也渲染一份
@@ -894,6 +902,8 @@ namespace Installer.Runtime
                         un.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
                         un.Location = new System.Drawing.Point(-4000, -4000);
                         un.Show();
+                        System.Windows.Forms.Application.DoEvents();
+                        System.Threading.Thread.Sleep(400);
                         System.Windows.Forms.Application.DoEvents();
 
                         un.RenderPagesToPng(Path.Combine(options.RenderUiDir, "uninstall"));
