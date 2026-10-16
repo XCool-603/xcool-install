@@ -1,4 +1,4 @@
-﻿namespace Installer.UI.Views
+namespace Installer.UI.Views
 {
     partial class WizardHeaderView
     {
@@ -51,8 +51,11 @@
             this.brandPanel.Location = new System.Drawing.Point(0, 0);
             this.brandPanel.Margin = new System.Windows.Forms.Padding(0);
             this.brandPanel.Name = "brandPanel";
-            this.brandPanel.Radius = 16;
-            this.brandPanel.RadiusAlign = AntdUI.TAlignRound.Top;
+            // ⚠️ Radius 必须是 0，不要再给品牌区加圆角。
+            // 卡片现在铺满整个窗口、品牌区也顶到窗口上沿；一旦给它圆角，
+            // 被切掉的角就露出卡片的白底 —— 在窗口左上/右上角形成白色缺口。
+            // 之前配合 RadiusAlign=Top 只圆上面两角，看起来就像"四角还有留白"。
+            this.brandPanel.Radius = 0;
             this.brandPanel.Size = new System.Drawing.Size(640, 104);
             this.brandPanel.TabIndex = 0;
             //
