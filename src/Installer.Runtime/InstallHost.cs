@@ -340,7 +340,7 @@ namespace Installer.Runtime
                 "卸载完成。\r\n删除文件：{0} 个，快捷方式：{1} 个" +
                 (result.ModifiedFiles.Count > 0 ? "\r\n注意：有 {2} 个文件在安装后被修改过，已按记录删除。" : string.Empty) +
                 (result.PendingRebootPaths.Count > 0
-                    ? "\r\n有 {4} 个文件当时被占用，已安排「下次重启时自动删除」。"
+                    ? "\r\n有 {4} 个文件当时被占用，已交给收尾程序在卸载器退出后重试；若仍删不掉，会在下次重启时自动清理。"
                     : string.Empty) +
                 (result.UndeletedPaths.Count > 0
                     ? "\r\n有 {5} 个文件被占用且无法安排删除，需要手动清理。"
