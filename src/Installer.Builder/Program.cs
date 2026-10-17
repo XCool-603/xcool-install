@@ -57,6 +57,32 @@ namespace Installer.Builder
                 return 0;
             }
 
+            // 开发/验收用：跑一遍"产品名跟随"链路并打印可断言的 key=value 行。
+            //
+            // 为什么要它：这段逻辑住在 BuilderForm 里，靠 --render-ui 只能看到"某个瞬间
+            // 的画面"，验证不了"换启动程序 → 产品名跟着变"这条交互链路 ——
+            // 而用户反馈的恰恰就是这条链路没生效。有它就能在 CI 里断言。
+            var selfTestFolder = GetOption(args, "--selftest-autoname");
+            if (!string.IsNullOrEmpty(selfTestFolder))
+            {
+                try
+                {
+                    Console.OutputEncoding = System.Text.Encoding.UTF8;
+                }
+                catch (System.IO.IOException)
+                {
+                }
+
+                using (var form = new Forms.BuilderForm())
+                {
+                    form.PrepareForRendering();
+                    Console.WriteLine(form.SelfTestAutoName(selfTestFolder));
+                    form.Close();
+                }
+
+                return 0;
+            }
+
             Application.Run(new Forms.BuilderForm());
             return 0;
         }

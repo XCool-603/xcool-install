@@ -62,7 +62,8 @@ param(
     # 181 = 本机实测总数（含 12.5 外部 DLL 段的 6 项）。
     # 12.5 需要 NuGet 缓存里的 Newtonsoft.Json 13.0.4；取不到会少 6 项 → 175。
     [int]$E2eMinChecks = 175,
-    [int]$UiMinChecks = 50,
+    # 57 = 本机实测总数（含第 8 节"产品名跟随"的 7 项）
+    [int]$UiMinChecks = 57,
     [int]$TestMinCount = 198
 )
 

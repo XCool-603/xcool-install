@@ -13,6 +13,7 @@ namespace Installer.Builder.Views
         /// <summary>构造。</summary>
         private bool _mirroring;
         private bool _englishEditedByUser;
+        private bool _settingName;
 
         public InfoStepView()
         {
@@ -21,6 +22,18 @@ namespace Installer.Builder.Views
             txtNameZh.TextChanged += (sender, e) =>
             {
                 MirrorEnglish();
+
+                // 只有"用户敲进来的"才算手动编辑 —— 自动命名写进去的不算，
+                // 否则自动填一次就会把"产品名跟随"自己关掉。
+                if (!_settingName)
+                {
+                    var edited = ProductNameEdited;
+                    if (edited != null)
+                    {
+                        edited();
+                    }
+                }
+
                 Changed?.Invoke();
             };
 
@@ -59,6 +72,14 @@ namespace Installer.Builder.Views
 
         /// <summary>内容变化。</summary>
         public event Action Changed;
+
+        /// <summary>
+        /// 用户**自己敲**了产品名（自动命名写入的不算）。
+        /// 宿主据此关掉"产品名跟随文件夹名"，免得下一次选文件夹 / 换启动程序
+        /// 把用户刚输入的名字冲掉 —— 而且这个"关掉"是看得见的（复选框会取消勾选），
+        /// 不像以前那样只藏在代码里的一个布尔值。
+        /// </summary>
+        public event Action ProductNameEdited;
 
         /// <summary>取中/英文名称与版本、厂商。</summary>
         public void Read(out LocalizedText name, out string version, out LocalizedText publisher)
@@ -107,7 +128,17 @@ namespace Installer.Builder.Views
         /// <summary>填入产品名（自动推导时用）。</summary>
         public void SetProductName(string name)
         {
-            txtNameZh.Text = name ?? string.Empty;
+            // 打上标记：这次变化是程序写的，不是用户敲的 —— 否则会触发
+            // ProductNameEdited，把"产品名跟随"自己关掉。
+            _settingName = true;
+            try
+            {
+                txtNameZh.Text = name ?? string.Empty;
+            }
+            finally
+            {
+                _settingName = false;
+            }
         }
 
         /// <summary>刷新文案。</summary>

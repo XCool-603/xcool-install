@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
@@ -79,10 +80,14 @@ namespace Installer.Builder.Forms
                     : _presenter.S("Status.ReadyToBuild"));
             };
 
-            // 选了文件夹就把文件夹名填进产品名（用户手动改过就不再覆盖）
+            // 选了文件夹就把文件夹名填进产品名；换了启动程序就跟着 exe 名走。
+            // 是否覆盖由"产品名跟随文件夹名"复选框决定（见 ApplyAutoName）。
             folderStep.FolderChosen += AutoFillProductName;
-            // 换了启动程序也让产品名跟着变（用户手动改过就不再覆盖）
             folderStep.EntryChosen += AutoFillProductNameFromEntry;
+            folderStep.AutoNameToggled += OnAutoNameToggled;
+
+            // 用户自己敲了产品名 → 自动关掉"跟随"，让他的输入留得住
+            infoStep.ProductNameEdited += OnProductNameEdited;
 
             btnOpen.Click += (sender, e) => OpenProject();
             btnSave.Click += (sender, e) => SaveProject();
@@ -314,29 +319,35 @@ namespace Installer.Builder.Forms
         // ─────────────────────────────────────────────────────────────
 
         /// <summary>上一次自动填入的产品名，用于判断"这个名字是不是我填的"。</summary>
-        private string _autoFilledName;
+        /// <summary>用户选了文件夹 → 产品名跟随**文件夹名**（与复选框文案一致）。</summary>
+        private void AutoFillProductName(string folder)
+        {
+            ApplyAutoName(BuilderPresenter.SuggestProductName(folder));
+        }
 
-        /// <summary>
-        /// 选了文件夹就把文件夹名填进产品名 —— 省掉一次输入。
-        /// 用户自己改过名字之后就不再覆盖。
-        /// </summary>
-        /// <summary>
-        /// 用户换启动程序时，用 exe 文件名（去扩展名）更新产品名。
-        /// 与 <see cref="AutoFillProductName"/> 共用「用户改过就不覆盖」的规则。
-        /// </summary>
+        /// <summary>用户换了启动程序 → 产品名跟随 **exe 名**（去扩展名）。</summary>
         private void AutoFillProductNameFromEntry(string entry)
         {
-            if (string.IsNullOrWhiteSpace(entry))
+            ApplyAutoName(string.IsNullOrWhiteSpace(entry)
+                ? null
+                : System.IO.Path.GetFileNameWithoutExtension(entry));
+        }
+
+        /// <summary>用户勾上"产品名跟随文件夹名" → 立刻重算一次，让勾选动作当场可见。</summary>
+        private void OnAutoNameToggled(bool on)
+        {
+            if (_initializing || !on)
             {
                 return;
             }
 
-            var suggested = System.IO.Path.GetFileNameWithoutExtension(entry);
-            ApplySuggestedName(suggested);
+            ApplyAutoName(BestAutoName());
         }
 
-        private void AutoFillProductName(string folder)
+        /// <summary>用户自己敲了产品名 → 关掉"跟随"，让他的输入留得住。</summary>
+        private void OnProductNameEdited()
         {
+<<<<<<< HEAD
             if (!string.IsNullOrWhiteSpace(folder))
             {
                 var prevSource = _presenter.Document.Project.Build.SourceDir;
@@ -351,27 +362,65 @@ namespace Installer.Builder.Forms
             }
 
             ApplySuggestedName(BuilderPresenter.SuggestProductName(folder));
+=======
+            if (_initializing)
+            {
+                return;
+            }
+
+            folderStep.AutoNameFromFolder = false;
+>>>>>>> 7bccd0e (修掉"产品名跟随启动程序"完全不生效)
         }
 
-        /// <summary>套用自动推导出的产品名（用户手动改过就尊重用户）。</summary>
-        private void ApplySuggestedName(string suggested)
+        /// <summary>当前最合适的产品名：启动程序更具体，优先用它；没有就退回文件夹名。</summary>
+        private string BestAutoName()
         {
+            var entry = folderStep.EntryPoint;
+            if (!string.IsNullOrWhiteSpace(entry))
+            {
+                var fromExe = System.IO.Path.GetFileNameWithoutExtension(entry);
+                if (!string.IsNullOrWhiteSpace(fromExe))
+                {
+                    return fromExe;
+                }
+            }
+
+            return BuilderPresenter.SuggestProductName(folderStep.Folder);
+        }
+
+        /// <summary>
+        /// 套用自动推导出的产品名。
+        ///
+        /// 唯一的开关就是"产品名跟随文件夹名"那个复选框：勾着就跟随，取消就一个字符都不碰。
+        ///
+        /// 以前这里用的是一段隐藏的"当前名字 != 上次自动填的名字就不覆盖"启发式：
+        /// 用户一旦手动填过产品名（或从工程里载入了名字），自动命名就**永久失效**；
+        /// 而界面上那个复选框宿主从来没读过 —— 于是"选启动程序 → 产品名跟着变"
+        /// 看起来完全没生效。现在开关可见、行为可预期。
+        /// </summary>
+        private void ApplyAutoName(string suggested)
+        {
+            if (!folderStep.AutoNameFromFolder)
+            {
+                return;
+            }
+
             if (string.IsNullOrWhiteSpace(suggested))
             {
                 return;
             }
 
-            var current = infoStep.CurrentProductName;
-
-            // 用户自己填过（而且不是上次自动填的那个）→ 尊重用户
-            if (!string.IsNullOrEmpty(current)
-                && !string.Equals(current, _autoFilledName, StringComparison.Ordinal))
-            {
-                return;
-            }
-
-            _autoFilledName = suggested;
             infoStep.SetProductName(suggested);
+        }
+
+        /// <summary>
+        /// 打开 / 新建工程之后决定"产品名跟随"的初始状态：
+        /// 工程里已经有产品名 → 关掉跟随（工程里的名字是权威，不该被启动程序的选择冲掉）；
+        /// 名字还是空的（新建工程）→ 打开跟随，选文件夹即自动命名。
+        /// </summary>
+        private void SyncAutoNameToggle()
+        {
+            folderStep.AutoNameFromFolder = string.IsNullOrWhiteSpace(infoStep.CurrentProductName);
         }
 
         private void OpenProject()
@@ -390,6 +439,7 @@ namespace Installer.Builder.Forms
                 {
                     _presenter.Load(dialog.FileName);
                     WriteToViews();
+                    SyncAutoNameToggle();
                     UpdateOutputPath();
                     _presenter.Document.Dirty = false;
                     UpdateTitle();
@@ -699,6 +749,7 @@ namespace Installer.Builder.Forms
             // 截图必须可复现，也不能受"用户上次的工程"影响 → 从干净的默认工程开始
             _presenter.NewProject();
             WriteToViews();
+            SyncAutoNameToggle();
             UpdateOutputPath();
 
             ShowInTaskbar = false;
@@ -734,6 +785,75 @@ namespace Installer.Builder.Forms
 
             _presenter.Document.Dirty = false;
             UpdateTitle();
+        }
+
+        /// <summary>
+        /// 验收 / CI 用：跑一遍"产品名跟随"的完整链路，返回可断言的 key=value 行。
+        ///
+        /// 对应这条用户反馈：**选了别的启动程序，产品名根本不变**。
+        /// 根因是自动命名被一段隐藏的"用户改过就不覆盖"启发式永久关掉了，
+        /// 而界面上那个唯一的开关（"产品名跟随文件夹名"复选框）宿主从来没读过。
+        ///
+        /// 这里把三条保证固化成可断言输出：
+        ///   ① 换启动程序 → 产品名跟着 exe 名变（pickChanged=True）
+        ///   ② 用户自己敲名字 → 跟随自动关掉，且名字留住（autoNameAfterTyping=False）
+        ///   ③ 重新勾上跟随 → 立刻按当前启动程序重算（nameAfterRecheck == pick1）
+        /// </summary>
+        public string SelfTestAutoName(string folder)
+        {
+            var lines = new List<string>();
+
+            _initializing = true;
+            try
+            {
+                folderStep.Folder = folder;
+                SyncAutoNameToggle();
+            }
+            finally
+            {
+                _initializing = false;
+            }
+
+            var exes = BuilderPresenter.FindExecutables(folder);
+            lines.Add("exes=" + exes.Count.ToString(CultureInfo.InvariantCulture));
+            lines.Add("autoNameOnLoad=" + folderStep.AutoNameFromFolder);
+
+            if (exes.Count < 2)
+            {
+                lines.Add("AUTONAME-NEED-2-EXES");
+                return string.Join("\n", lines.ToArray());
+            }
+
+            // ① 换启动程序 → 产品名跟着变。
+            //    先点最后一个、再点第一个：两次都保证是"真的换了选项"。
+            //    （目标索引恰好等于当前选中项时，WinForms 不触发 SelectedIndexChanged，
+            //      断言就会变成空跑 —— 第一版自检就踩了这个坑。）
+            folderStep.SimulateEntryPick(exes[exes.Count - 1]);
+            var pickedLast = infoStep.CurrentProductName;
+            lines.Add("pickLast=" + pickedLast);
+
+            folderStep.SimulateEntryPick(exes[0]);
+            var pickedFirst = infoStep.CurrentProductName;
+            lines.Add("pickFirst=" + pickedFirst);
+            lines.Add("pickChanged=" + (!string.Equals(pickedLast, pickedFirst, StringComparison.Ordinal)));
+
+            // ② 用户自己敲名字 → 跟随自动关掉、名字留住。
+            //    Write() 直接写文本框，等价于"用户敲进去"，会触发 ProductNameEdited。
+            //    名字故意用纯 ASCII：这条输出要被 CI 解析，中文在重定向管道里会因
+            //    控制台编码不同而乱码（实测踩过）。
+            infoStep.Write(
+                new LocalizedText { { "zh-Hans", "MyOwnName" }, { "en", "MyOwnName" } },
+                infoStep.Version,
+                new LocalizedText { { "zh-Hans", "TestPublisher" }, { "en", "TestPublisher" } });
+            lines.Add("autoNameAfterTyping=" + folderStep.AutoNameFromFolder);
+            lines.Add("nameAfterTyping=" + infoStep.CurrentProductName);
+
+            // ③ 重新勾上"跟随" → 立刻按当前启动程序重算
+            folderStep.AutoNameFromFolder = true;
+            lines.Add("nameAfterRecheck=" + infoStep.CurrentProductName);
+            lines.Add("AUTONAME-DONE");
+
+            return string.Join("\n", lines.ToArray());
         }
 
         private void CaptureMain(string path)
