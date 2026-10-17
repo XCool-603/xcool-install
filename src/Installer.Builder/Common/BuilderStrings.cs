@@ -46,10 +46,13 @@ namespace Installer.Builder.Common
                 "{0} executables found - pick the one to launch");
             Add(t, "Field.NameEn.Hint", "可留空（英文系统会显示中文名）", "Optional");
 
+            // 这四条必须和安装向导「安装设置」页的四张任务卡**逐字一致** ——
+            // 用户反馈过：制作端写「开机自动启动」，安装端写「安装后自动运行」，
+            // 同一个选项两边叫法不同，根本认不出是同一件事。
             Add(t, "Shortcut.Desktop", "创建桌面快捷方式", "Desktop shortcut");
             Add(t, "Shortcut.StartMenu", "创建开始菜单快捷方式", "Start Menu shortcut");
-            Add(t, "Shortcut.Autostart", "开机自动启动", "Start with Windows");
-            Add(t, "Shortcut.RunAfter", "安装完成后立即运行", "Run after install");
+            Add(t, "Shortcut.Autostart", "开机时自动启动", "Start with Windows");
+            Add(t, "Shortcut.RunAfter", "安装完成后运行", "Run after installation");
 
             Add(t, "Files.None", "还没有选择文件夹", "No folder selected yet");
             Add(t, "Files.Count", "共 {0} 个文件 · 安装后约需 {1}", "{0} files · about {1} installed");
