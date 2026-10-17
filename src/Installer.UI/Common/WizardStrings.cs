@@ -50,6 +50,12 @@ namespace Installer.UI.Common
             Add(t, "Welcome.HintNoLicense", "确认安装位置与附加任务后，点击「下一步」开始安装。",
                 "Review the install location and tasks, then click Next to begin.");
             Add(t, "Finish.RunHint", "点击「完成」后将自动启动程序", "The app will start after you click Finish");
+            // 完成页的勾选标签与「运行」那一行 —— 设计稿第 5 页的措辞和安装设置页不同，
+            // 不能和 Options.* 共用（共用必然有一边写错，这正是之前"两边不一致"的根因）。
+            Add(t, "Finish.ChipDesktop", "桌面快捷方式", "Desktop shortcut");
+            Add(t, "Finish.ChipStartMenu", "开始菜单", "Start Menu");
+            Add(t, "Finish.ChipAutostart", "安装后自动运行", "Run after install");
+            Add(t, "Finish.RunNow", "立即运行「{0}」", "Run {0} now");
             Add(t, "Finish.UninstallHint", "如需卸载，可在「设置 → 应用 → 已安装的应用」中找到「{0}」。",
                 "To uninstall, find {0} in Settings > Apps.");
             Add(t, "Finish.OpenDir", "打开安装目录", "Open install folder");
@@ -113,11 +119,23 @@ namespace Installer.UI.Common
                 "Free space: {0}, required: {1}");
             Add(t, "Path.Empty", "安装路径不能为空。", "Install path cannot be empty.");
 
+            // 「安装设置」页的四张任务卡 —— 逐字对齐设计稿第 3 页，
+            // 并且必须和制作端「快捷方式」那一步的用词完全一致。
+            //
+            // 这里踩过一个坑：Options.Autostart 被写成「安装后自动运行」，但它其实是
+            // **开机自启**那张卡的标题 —— 标题和它自己的描述（「登录系统后自动运行」）
+            // 自相矛盾，也和制作端的「开机自动启动」对不上。用户反馈的
+            // "制作流程和安装过程选项不一致"就是这里。
+            //
+            // 根因是同一个 key 被两个页面复用，而设计稿两页的措辞本来就不同：
+            //   安装设置页：创建桌面快捷方式 / 创建开始菜单快捷方式 / 开机时自动启动 / 安装完成后运行
+            //   完成页    ：桌面快捷方式     / 开始菜单             / 安装后自动运行   / 立即运行「{0}」
+            // 所以完成页那套单独用 Finish.Chip* / Finish.RunNow，不再和这里共用。
             Add(t, "Options.Title", "附加任务", "Additional tasks");
-            Add(t, "Options.Desktop", "桌面快捷方式", "Desktop shortcut");
-            Add(t, "Options.StartMenu", "开始菜单", "Start Menu");
-            Add(t, "Options.Autostart", "安装后自动运行", "Run after install");
-            Add(t, "Options.RunAfter", "立即运行「{0}」", "Run after installation");
+            Add(t, "Options.Desktop", "创建桌面快捷方式", "Create a desktop shortcut");
+            Add(t, "Options.StartMenu", "创建开始菜单快捷方式", "Create a Start Menu shortcut");
+            Add(t, "Options.Autostart", "开机时自动启动", "Start with Windows");
+            Add(t, "Options.RunAfter", "安装完成后运行", "Run after installation");
 
             Add(t, "Progress.Title", "正在安装「{0}」", "Installing {0}");
             Add(t, "Progress.Preparing", "正在准备…", "Preparing...");

@@ -580,14 +580,14 @@ namespace Installer.UI.Forms
                     _finishView.Body = string.Format(CultureInfo.CurrentCulture,
                         _presenter.Text("Finish.Body"), _presenter.Options.InstallDir, _manifest.Files.Count, BuildSpaceText());
                     _finishView.RunText = string.Format(CultureInfo.CurrentCulture,
-                        _presenter.Text("Options.RunAfter"), _presenter.ProductName);
+                        _presenter.Text("Finish.RunNow"), _presenter.ProductName);
                     _finishView.RunHint = _presenter.Text("Finish.RunHint");
                     _finishView.FooterHint = string.Format(CultureInfo.CurrentCulture,
                         _presenter.Text("Finish.UninstallHint"), _presenter.ProductName);
                     _finishView.SetChips(
-                        HasShortcut("Desktop") ? _presenter.Text("Options.Desktop") : null,
-                        HasShortcut("StartMenu") ? _presenter.Text("Options.StartMenu") : null,
-                        _manifest.Autostart ? _presenter.Text("Options.Autostart") : null);
+                        HasShortcut("Desktop") ? _presenter.Text("Finish.ChipDesktop") : null,
+                        HasShortcut("StartMenu") ? _presenter.Text("Finish.ChipStartMenu") : null,
+                        _manifest.Autostart ? _presenter.Text("Finish.ChipAutostart") : null);
                     _finishView.ShowRunOption = _manifest.RunAfterInstall;
                     _finishView.RunChecked = true;
                     _finishView.SetState(true);

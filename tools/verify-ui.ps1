@@ -389,6 +389,37 @@ Check ((Get-Auto $auto 'nameAfterRecheck') -eq 'Helper') `
       '重新勾上「跟随」→ 立刻按当前启动程序重算' (Get-Auto $auto 'nameAfterRecheck')
 
 # ─────────────────────────────────────────────────────────────
+Write-Host "== 9. 制作端与安装端「附加任务」用词一致" -ForegroundColor Cyan
+
+# 用户反馈：制作流程和安装过程里同一组选项（尤其"开机自启"）用词不一致 ——
+# 制作端写「开机自动启动」，安装端写「安装后自动运行」，根本认不出是同一件事。
+#
+# 根因：同一组 key 被「安装设置」页和「完成」页复用，而设计稿两页的措辞本来就不同
+# （安装设置页"开机时自动启动"，完成页"安装后自动运行"），于是必然有一边写错。
+# 修法是两页各用一套 key，再断言两端的用词逐字相同。
+$bldFile = Join-Path $root 'src\Installer.Builder\Common\BuilderStrings.cs'
+$bldText = if (Test-Path $bldFile) {
+    [System.IO.File]::ReadAllText($bldFile, [System.Text.UTF8Encoding]::new($false))
+} else { '' }
+
+$taskWording = @(
+    @{ name = '桌面快捷方式';     frag = '创建桌面快捷方式' },
+    @{ name = '开始菜单快捷方式'; frag = '创建开始菜单快捷方式' },
+    @{ name = '开机自启';         frag = '开机时自动启动' },
+    @{ name = '完成后运行';       frag = '安装完成后运行' }
+)
+foreach ($w in $taskWording) {
+    Check ($strText.Contains($w.frag) -and $bldText.Contains($w.frag)) `
+        ("制作端与安装端用词一致：{0}" -f $w.name) `
+        ("安装端={0} 制作端={1}" -f $strText.Contains($w.frag), $bldText.Contains($w.frag))
+}
+
+# 完成页必须用自己那套 key —— 一旦有人图省事改回 Options.*，这条立刻失败
+Check ($strText.Contains('Finish.ChipDesktop') -and $strText.Contains('Finish.ChipStartMenu') `
+       -and $strText.Contains('Finish.ChipAutostart') -and $strText.Contains('Finish.RunNow')) `
+      '完成页有独立的标签文案（不与安装设置页共用 key）'
+
+# ─────────────────────────────────────────────────────────────
 $empty.Dispose()
 $sel.Dispose()
 if ($ref) { $ref.Dispose() }
