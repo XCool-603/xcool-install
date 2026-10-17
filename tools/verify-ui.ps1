@@ -346,6 +346,49 @@ foreach ($c in $iconChecks) {
 }
 
 # ─────────────────────────────────────────────────────────────
+Write-Host "== 8. 产品名跟随（用户反馈：换了启动程序产品名根本不变）" -ForegroundColor Cyan
+
+# 用户反馈：界面上"产品名跟随文件夹名"勾着，但换启动程序时产品名根本不变。
+# 根因是自动命名被一段隐藏的"用户改过就不覆盖"启发式永久关掉了，
+# 而那个复选框宿主从来没读过 —— 勾了、取消了都没有任何反应。
+#
+# 这条**交互**链路 --render-ui 看不见（它只能拍某个瞬间的画面），
+# 所以制作端提供了 --selftest-autoname 无头入口，把三条保证固化成可断言输出。
+$autoDir = Join-Path $work 'autoname'
+New-Item -ItemType Directory -Path $autoDir -Force | Out-Null
+$noBom = [System.Text.UTF8Encoding]::new($false)
+[System.IO.File]::WriteAllText((Join-Path $autoDir 'PhotoStudio.exe'), 'fake', $noBom)
+[System.IO.File]::WriteAllText((Join-Path $autoDir 'Helper.exe'), 'fake', $noBom)
+
+$autoOut = Join-Path $work 'autoname.txt'
+$autoErr = Join-Path $work 'autoname.err'
+Start-Process -FilePath $exe -ArgumentList @('--selftest-autoname', $autoDir) -Wait -NoNewWindow `
+    -RedirectStandardOutput $autoOut -RedirectStandardError $autoErr
+$auto = @(Get-Content -LiteralPath $autoOut -Encoding UTF8)
+
+function Get-Auto($lines, $key) {
+    $m = $lines | Where-Object { $_ -like ($key + '=*') } | Select-Object -First 1
+    if ($null -eq $m) { return '<缺失>' }
+    return $m.Substring($key.Length + 1)
+}
+
+# 完成标记是裸行（没有 key=value），单独判断
+Check ($auto -contains 'AUTONAME-DONE') `
+      '产品名自检跑完（没有中途退出）' ($auto -join ' | ')
+Check ((Get-Auto $auto 'autoNameOnLoad') -eq 'True') '新建工程默认打开「产品名跟随」'
+Check ((Get-Auto $auto 'pickChanged') -eq 'True') `
+      '换启动程序 → 产品名跟着变（这条就是用户报的 bug）' `
+      ("pickLast=$(Get-Auto $auto 'pickLast')  pickFirst=$(Get-Auto $auto 'pickFirst')")
+Check ((Get-Auto $auto 'pickFirst') -eq 'Helper') `
+      '产品名 = 启动程序的 exe 名（去扩展名）' (Get-Auto $auto 'pickFirst')
+Check ((Get-Auto $auto 'autoNameAfterTyping') -eq 'False') `
+      '用户自己敲产品名后「跟随」自动关掉（输入不会被下一次选择覆盖）'
+Check ((Get-Auto $auto 'nameAfterTyping') -eq 'MyOwnName') `
+      '用户输入的产品名留住了' (Get-Auto $auto 'nameAfterTyping')
+Check ((Get-Auto $auto 'nameAfterRecheck') -eq 'Helper') `
+      '重新勾上「跟随」→ 立刻按当前启动程序重算' (Get-Auto $auto 'nameAfterRecheck')
+
+# ─────────────────────────────────────────────────────────────
 $empty.Dispose()
 $sel.Dispose()
 if ($ref) { $ref.Dispose() }

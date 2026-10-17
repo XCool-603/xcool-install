@@ -51,7 +51,22 @@ namespace Installer.Builder.Views
                 Raise();
             };
 
-            chkAutoName.CheckedChanged += (sender, e) => Raise();
+            // "产品名跟随文件夹名"是自动命名的**唯一开关**。
+            //
+            // 以前宿主从来不读这个复选框 —— 勾了、取消了都没有任何反应。真正决定要不要
+            // 覆盖产品名的是一段隐藏的"用户改过就不覆盖"启发式：用户手动填过一次名字
+            // （或者从工程里载入了名字）之后它就永久失效，于是"选启动程序 → 产品名跟着变"
+            // 看起来完全没生效。现在把开关交给这个复选框，行为可见、可预期。
+            chkAutoName.CheckedChanged += (sender, e) =>
+            {
+                var toggled = AutoNameToggled;
+                if (toggled != null)
+                {
+                    toggled(chkAutoName.Checked);
+                }
+
+                Raise();
+            };
 
             // 整个卡片都可以拖
             dropPanel.AllowDrop = true;
@@ -68,6 +83,12 @@ namespace Installer.Builder.Views
 
         /// <summary>用户**主动**换了启动程序，用于让产品名跟着 exe 名走。</summary>
         public event Action<string> EntryChosen;
+
+        /// <summary>
+        /// 用户勾选 / 取消"产品名跟随文件夹名"（true = 打开跟随）。
+        /// 宿主据此立刻重算一次产品名，让勾选动作当场可见。
+        /// </summary>
+        public event Action<bool> AutoNameToggled;
 
         /// <summary>当前文件夹。</summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -118,6 +139,26 @@ namespace Installer.Builder.Views
             {
                 PopulateEntries(value);
             }
+        }
+
+        /// <summary>
+        /// 验收 / CI 用：模拟"用户在下拉框里选了另一个启动程序"。
+        ///
+        /// 为什么需要它：正常入口 <see cref="EntryPoint"/> 的 setter 会走 PopulateEntries，
+        /// 而那里把事件抑制掉了（_populating）—— 于是"用户换启动程序 → 产品名跟着变"
+        /// 这条链路在无头环境里根本触发不了，也就没法回归验证。这里不抑制，
+        /// 只改选中项，让 SelectedIndexChanged 照常走一遍。
+        /// </summary>
+        public void SimulateEntryPick(string entry)
+        {
+            var exes = BuilderPresenter.FindExecutables(_folder);
+            var index = exes.IndexOf(entry);
+            if (index < 0)
+            {
+                return;
+            }
+
+            cboEntry.SelectedIndex = index;
         }
 
         /// <summary>刷新文案。</summary>
