@@ -117,6 +117,7 @@ namespace Installer.Core.Uninstall
             Step(progress, ++index, total, "uninstall-registry", "正在清理注册表…");
             TryDeleteAutostart(record, platform, result);
             TryDeleteUninstallKey(record, platform, result);
+            TryDeleteLegacyKeys(record, platform, result);
 
             // ③.5 反注册 COM —— 必须在删文件**之前**，DLL 没了就反注册不了了
             Step(progress, ++index, total, "uninstall-com", "正在反注册组件…");
@@ -255,6 +256,42 @@ namespace Installer.Core.Uninstall
             catch (Exception ex)
             {
                 result.Issues.Add("删除标准卸载键失败：" + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// 删掉为兼容老约定而写的私有键（<c>HKCU\SOFTWARE\WayMark\&lt;名字&gt;</c>）。
+        ///
+        /// 整棵删：老安装器只删自己的子键、把 <c>SOFTWARE\WayMark</c> 父键留在注册表里
+        /// （项目分析报告.md L273 就是这么写的）。这里删到只剩必要的父键 ——
+        /// 父键里还有别的产品时不能动，所以删完子键后再尝试删空父键。
+        /// </summary>
+        private static void TryDeleteLegacyKeys(InstallRecord record, IPlatformServices platform,
+                                               UninstallRunResult result)
+        {
+            if (record.LegacyKeys == null || record.LegacyKeys.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var fullPath in record.LegacyKeys)
+            {
+                if (string.IsNullOrWhiteSpace(fullPath))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    var hive = InstallEngine.ParseHive(fullPath);
+                    var subKey = StripHive(fullPath);
+                    platform.Registry.DeleteSubKeyTree(hive, subKey);
+                    result.Messages.Add("已删除老约定兼容键：" + fullPath);
+                }
+                catch (Exception ex)
+                {
+                    result.Issues.Add("删除老约定兼容键失败 " + fullPath + "：" + ex.Message);
+                }
             }
         }
 

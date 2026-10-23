@@ -61,6 +61,8 @@ namespace Installer.Core.Install
                 Directories = new List<string>(ctx.Manifest.Directories ?? new List<string>()),
                 Shortcuts = new List<string>(ctx.CreatedShortcuts),
                 RegistryValues = new List<RegistryValueRecord>(ctx.WrittenRegistryValues),
+                // 老约定的兼容键 —— 卸载时要整棵删掉，否则留一堆空键
+                LegacyKeys = new List<string>(ctx.LegacyRegistryKeys),
                 UninstallKeyPath = InstallEngine.HiveName(StandardSteps.HiveFor(ctx.Manifest)) + "\\" +
                                    StandardSteps.UninstallKeyPath(ctx),
                 UninstallerPath = Path.Combine(ctx.InstallDir, "Uninstall.exe"),
