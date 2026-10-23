@@ -33,6 +33,9 @@ namespace Installer.Core.Install
                 new AutostartStep(),
                 new CleanupOrphanUninstallKeysStep(),
                 new UninstallInfoStep(),
+                // 老版安装器的私有键（HKCU\SOFTWARE\WayMark\<名字>）兼容垫片。
+                // 放在标准卸载键之后：那批按老约定读版本号的程序靠它才能拿到值。
+                new LegacyCompatStep(),
                 new DeployUninstallerStep(),
                 new WriteInstallRecordStep(),
                 new RunAfterInstallStep(),

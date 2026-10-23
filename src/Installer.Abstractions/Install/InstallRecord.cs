@@ -75,6 +75,13 @@ namespace Installer.Abstractions.Install
         [JsonProperty("registryValues", Order = 12)]
         public List<RegistryValueRecord> RegistryValues { get; set; } = new List<RegistryValueRecord>();
 
+        /// <summary>
+        /// 为兼容老安装器的私有约定而写的键，完整路径形如
+        /// <c>HKCU\SOFTWARE\WayMark\&lt;产品名&gt;</c>。卸载时整棵删掉。
+        /// </summary>
+        [JsonProperty("legacyKeys", NullValueHandling = NullValueHandling.Ignore, Order = 16)]
+        public List<string> LegacyKeys { get; set; } = new List<string>();
+
         /// <summary>开机启动项的注册表路径（形如 <c>HKCU\Software\...\Run</c>）；没有则为 null。</summary>
         [JsonProperty("autostartKeyPath", NullValueHandling = NullValueHandling.Ignore, Order = 13)]
         public string AutostartKeyPath { get; set; }

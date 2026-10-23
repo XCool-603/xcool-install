@@ -59,9 +59,9 @@ param(
     [string[]]$Only = @('clean', 'build', 'test', 'e2e', 'ui', 'vs2017'),
 
     [string]$LogDir = '',
-    # 181 = 本机实测总数（含 12.5 外部 DLL 段的 6 项）。
-    # 12.5 需要 NuGet 缓存里的 Newtonsoft.Json 13.0.4；取不到会少 6 项 → 175。
-    [int]$E2eMinChecks = 175,
+    # 189 = 本机实测总数（含 12.5 外部 DLL 段 6 项、老约定兼容键 8 项）。
+    # 12.5 需要 NuGet 缓存里的 Newtonsoft.Json 13.0.4；取不到会少 6 项 → 183。
+    [int]$E2eMinChecks = 183,
     # 62 = 本机实测总数（含第 8 节"产品名跟随"7 项 + 第 9 节"两端用词一致"5 项）
     [int]$UiMinChecks = 62,
     [int]$TestMinCount = 198

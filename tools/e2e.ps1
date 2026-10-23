@@ -441,7 +441,7 @@ Check '安装退出码为 0' ($p.ExitCode -eq 0) "exit=$($p.ExitCode)"
 
 $ir = Get-Content -LiteralPath $m1Result -Raw -Encoding UTF8 | ConvertFrom-Json
 Check '安装结果 ok' ($ir.ok -eq $true) $ir.error
-Check '执行了全部 11 个步骤' ($ir.stepsExecuted -eq 11 -and $ir.stepCount -eq 11) "$($ir.stepsExecuted)/$($ir.stepCount)"
+Check '执行了全部 12 个步骤' ($ir.stepsExecuted -eq 12 -and $ir.stepCount -eq 12) "$($ir.stepsExecuted)/$($ir.stepCount)"
 Check '没有发生回滚' ($ir.rolledBack -eq $false)
 Check '语言解析为 zh-Hans' ($ir.culture -eq 'zh-Hans')
 Check '产品名按语言取（不是字典里的任意一个）' ($ir.productName -eq 'M1测试产品') $ir.productName
@@ -482,6 +482,25 @@ Check 'QuietUninstallString 也带上了 --product-code' `
       ($unValues.QuietUninstallString -match ('--product-code\s+' + [regex]::Escape($m1ProductCode))) $unValues.QuietUninstallString
 Check '写了 NoModify/NoRepair（交给系统隐藏修改与修复按钮）' `
       ($unValues.NoModify -eq '1' -and $unValues.NoRepair -eq '1')
+
+# 老版安装器的私有键兼容垫片：HKCU\SOFTWARE\WayMark\<名字>
+#
+# 用户已经有一批程序是按老约定读版本号的：
+#   var name = Path.GetFileNameWithoutExtension(assembly.Location);
+#   Registry.CurrentUser.OpenSubKey("SOFTWARE\\WayMark\\" + name).GetValue("DisplayVersion")
+# 新安装器只写标准卸载键，那批程序就永远读到空串。
+# 这里断言两个子键都写了：产品名（老安装器的原始约定）+ 入口 exe 名（上面那段代码实际用的）。
+$legacyKeyProduct = 'HKCU\SOFTWARE\WayMark\M1测试产品'
+$legacyKeyExe = 'HKCU\SOFTWARE\WayMark\App'
+$legacyProduct = $reg.$legacyKeyProduct
+$legacyExe = $reg.$legacyKeyExe
+Check '老约定兼容键已写入（按产品名）' ($null -ne $legacyProduct) $legacyKeyProduct
+Check '兼容键有 DisplayVersion（用户程序就是读这个）' `
+      ($legacyProduct.DisplayVersion -eq '1.0.0') $legacyProduct.DisplayVersion
+Check '兼容键有 InstallPath' ($legacyProduct.InstallPath -eq $m1InstallDir) $legacyProduct.InstallPath
+Check '兼容键有 DisplayName' ($legacyProduct.DisplayName -eq 'M1测试产品') $legacyProduct.DisplayName
+Check '老约定兼容键也按入口 exe 名写入' ($null -ne $legacyExe) $legacyKeyExe
+Check '按 exe 名的那份也有 DisplayVersion' ($legacyExe.DisplayVersion -eq '1.0.0') $legacyExe.DisplayVersion
 Check '开机启动项已写入（perUser → HKCU Run）' ($null -ne $reg.$runKey.'M1测试产品')
 
 $rec = Get-Content -LiteralPath (Join-Path $m1InstallDir '.install-record.json') -Raw -Encoding UTF8 | ConvertFrom-Json
@@ -527,6 +546,8 @@ Check '开始菜单快捷方式已删除' (-not (Test-Path (Join-Path $sb 'Start
 $reg2 = Get-Content -LiteralPath $regPath -Raw -Encoding UTF8 | ConvertFrom-Json
 Check '标准卸载键已完整删除' ($null -eq $reg2.$unKey)
 Check '开机启动项已删除' ($null -eq $reg2.$runKey.'M1测试产品')
+Check '老约定兼容键已删除（按产品名）' ($null -eq $reg2.$legacyKeyProduct) $legacyKeyProduct
+Check '老约定兼容键已删除（按 exe 名）' ($null -eq $reg2.$legacyKeyExe) $legacyKeyExe
 
 Check '卸载器自删除成功' (-not (Test-Path $uninstallerPath))
 Check '安装记录已删除' (-not (Test-Path (Join-Path $m1InstallDir '.install-record.json')))

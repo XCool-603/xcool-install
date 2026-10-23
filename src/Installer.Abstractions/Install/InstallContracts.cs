@@ -168,6 +168,12 @@ namespace Installer.Abstractions.Install
         /// <summary>安装时写入的注册表值（供安装记录与卸载使用）。</summary>
         public List<RegistryValueRecord> WrittenRegistryValues { get; set; } = new List<RegistryValueRecord>();
 
+        /// <summary>
+        /// 为兼容老约定而写的私有键完整路径（如 <c>HKCU\SOFTWARE\WayMark\照相馆</c>）。
+        /// 卸载时要整棵删掉，否则会留一堆空键。
+        /// </summary>
+        public List<string> LegacyRegistryKeys { get; set; } = new List<string>();
+
         /// <summary>是否只校验不落盘（试运行）。</summary>
         public bool DryRun { get; set; }
 
