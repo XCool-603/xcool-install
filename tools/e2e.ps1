@@ -609,9 +609,14 @@ if ($null -eq $foreignJson) {
     Check '外部版本的 DLL 已落盘' (Test-Path $fDll) $fDll
 
     $fUninstall = Join-Path $WorkDir 'foreign-uninstall.json'
-    $p = Start-Process -FilePath (Join-Path $fDir 'Uninstall.exe') -ArgumentList @('--uninstall', '--silent', '--result', $fUninstall) -Wait -PassThru -NoNewWindow
+    # 故意**不带** --uninstall —— 模拟用户在资源管理器里双击 Uninstall.exe。
+    # 控制面板调用时会带 --uninstall，但双击不带任何参数，以前会掉进安装流程、
+    # 报一句"这个 exe 里没有本程序的安装包容器"（用户实测反馈）。
+    # 现在靠"自己叫 Uninstall.exe / 旁边有安装记录"识别出自己是卸载器。
+    $p = Start-Process -FilePath (Join-Path $fDir 'Uninstall.exe') -ArgumentList @('--silent', '--result', $fUninstall) -Wait -PassThru -NoNewWindow
     $fu = Get-Content -LiteralPath $fUninstall -Raw -Encoding UTF8 | ConvertFrom-Json
 
+    Check '双击卸载器（不带 --uninstall）也能进卸载流程' ($fu.mode -eq 'uninstall') $fu.mode
     Check '卸载时该 DLL 确实被阻塞过（证明护栏不是空跑）' `
           (@($fu.blockedFiles) -contains $fDll) (@($fu.blockedFiles) -join '; ')
     Check '没有无法处理的永久残留' (@($fu.undeletedFiles).Count -eq 0) (@($fu.undeletedFiles) -join '; ')

@@ -130,9 +130,26 @@ namespace Installer.Runtime
                 var info = ContainerFormat.TryRead(self);
                 if (info == null)
                 {
+                    // 没有容器 —— 两种完全不同的情况，不能一律报错：
+                    //
+                    // ① 这是部署在安装目录里的 Uninstall.exe 被**双击**运行了。
+                    //    控制面板/设置里点"卸载"时命令行带 --uninstall，但资源管理器
+                    //    双击**不带任何参数** —— 于是会掉进安装流程，用户看到的是一句
+                    //    莫名其妙的"这个 exe 里没有本程序的安装包容器"（用户实测反馈）。
+                    // ② 真的是尚未打包的 stub 模板，或者旧版 v1 安装包。
+                    //
+                    // 部署出来的卸载器本身就是 stub 的前 N 字节（本来就没有容器），
+                    // 所以只能靠"自己叫什么 / 旁边有没有安装记录"来区分。
+                    if (LooksLikeDeployedUninstaller(selfPath))
+                    {
+                        return RunUninstall(options, args);
+                    }
+
                     throw new InvalidDataException(
                         "这个 exe 里没有本程序的安装包容器。\r\n" +
-                        "它可能是一个尚未打包的 stub 模板，或者是旧版（v1）安装包。");
+                        "它可能是一个尚未打包的 stub 模板，或者是旧版（v1）安装包。\r\n\r\n" +
+                        "如果你是想卸载已安装的程序：请运行安装目录里的 Uninstall.exe，" +
+                        "或者从「设置 → 应用」里卸载。");
                 }
 
                 if (!ContainerFormat.VerifyStubHash(self, info))
@@ -261,6 +278,40 @@ namespace Installer.Runtime
         // ─────────────────────────────────────────────────────────────
         // 卸载
         // ─────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// 这个 exe 是不是"部署在安装目录里的卸载器"？
+        ///
+        /// 判据（满足其一即可）：
+        /// ① 文件名就叫 <c>Uninstall.exe</c> —— 安装时 <c>DeployUninstallerStep</c> 就是这么放的；
+        /// ② 同目录下存在安装记录 <c>.install-record.json</c> —— 覆盖用户把卸载器改过名的情况。
+        ///
+        /// 部署出来的卸载器只是 stub 的前 <c>StubLength</c> 字节，**本来就没有容器**，
+        /// 所以不能用"有没有容器"来判断，只能用上面这两条。
+        /// </summary>
+        private static bool LooksLikeDeployedUninstaller(string selfPath)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(selfPath))
+                {
+                    return false;
+                }
+
+                if (string.Equals(Path.GetFileName(selfPath), "Uninstall.exe",
+                                  StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                var dir = Path.GetDirectoryName(selfPath);
+                return !string.IsNullOrEmpty(dir) && File.Exists(InstallRecord.GetPath(dir));
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
 
         private static int RunUninstall(RuntimeOptions options, string[] args)
         {
