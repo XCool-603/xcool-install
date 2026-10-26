@@ -1030,6 +1030,71 @@ $p = Start-Process -FilePath (Join-Path $upDir 'Uninstall.exe') `
      -ArgumentList @('--uninstall', '--silent', '--result', (Join-Path $WorkDir 'up-un.json')) -Wait -PassThru -NoNewWindow
 Check '升级后的卸载仍然成功' ($p.ExitCode -eq 0) "exit=$($p.ExitCode)"
 
+# ── 数据保护：被改动过的文件不能删 ────────────────────────────────
+# 场景：v1 的 payload 带一个种子数据库，程序运行后里面已经是用户数据；
+# v2 不再带它。清理步骤必须**放过**它，否则就是把用户数据删了。
+$dsSrc = Join-Path $WorkDir 'ds-src'
+New-Item -ItemType Directory -Path $dsSrc, (Join-Path $dsSrc 'Data') -Force | Out-Null
+[System.IO.File]::WriteAllText((Join-Path $dsSrc 'App.exe'), 'MZ', $utf8NoBom)
+[System.IO.File]::WriteAllText((Join-Path $dsSrc 'Data\app.db'), 'SEED', $utf8NoBom)
+[System.IO.File]::WriteAllText((Join-Path $dsSrc 'Gone.dll'), 'gone', $utf8NoBom)
+
+$dsProj = Join-Path $WorkDir 'ds.wmpkg.json'
+@{
+    schemaVersion     = 2
+    productCode       = '{FFFF4444-2222-3333-4444-555566667777}'
+    defaultCulture    = 'zh-Hans'
+    product           = @{ name = @{ 'zh-Hans' = '数据保护测试' }; version = '1.0.0' }
+    scope             = 'perUser'
+    defaultInstallDir = '%LOCALAPPDATA%\Programs\DataSafety'
+    entryPoint        = 'App.exe'
+    shortcuts         = @()
+} | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $dsProj -Encoding UTF8
+
+$dsDir = Join-Path $WorkDir 'ds-installed'
+$r = Invoke-Cli @('pack', '--project', $dsProj, '--source', $dsSrc, '--stub', $stub,
+                  '--out', (Join-Path $WorkDir 'ds-v1.exe'))
+Check '数据保护用例 v1 打包成功' ($r.ExitCode -eq 0)
+$p = Start-Process -FilePath (Join-Path $WorkDir 'ds-v1.exe') `
+     -ArgumentList @('--silent', '--target', $dsDir) -Wait -PassThru -NoNewWindow
+Check '数据保护用例 v1 安装成功' ($p.ExitCode -eq 0)
+
+# 模拟"程序运行后写入了用户数据"
+$dsDb = Join-Path $dsDir 'Data\app.db'
+[System.IO.File]::WriteAllText($dsDb, 'USER-REAL-DATA', $utf8NoBom)
+
+# v2：不再带 Data\app.db 与 Gone.dll
+Remove-Item -LiteralPath (Join-Path $dsSrc 'Data\app.db'), (Join-Path $dsSrc 'Gone.dll') -Force
+$dsProj2 = Join-Path $WorkDir 'ds2.wmpkg.json'
+@{
+    schemaVersion     = 2
+    productCode       = '{FFFF4444-2222-3333-4444-555566667777}'
+    defaultCulture    = 'zh-Hans'
+    product           = @{ name = @{ 'zh-Hans' = '数据保护测试' }; version = '2.0.0' }
+    scope             = 'perUser'
+    defaultInstallDir = '%LOCALAPPDATA%\Programs\DataSafety'
+    entryPoint        = 'App.exe'
+    shortcuts         = @()
+} | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $dsProj2 -Encoding UTF8
+
+$r = Invoke-Cli @('pack', '--project', $dsProj2, '--source', $dsSrc, '--stub', $stub,
+                  '--out', (Join-Path $WorkDir 'ds-v2.exe'))
+Check '数据保护用例 v2 打包成功' ($r.ExitCode -eq 0)
+
+$dsRes = Join-Path $WorkDir 'ds2.json'
+$p = Start-Process -FilePath (Join-Path $WorkDir 'ds-v2.exe') `
+     -ArgumentList @('--silent', '--target', $dsDir, '--result', $dsRes) -Wait -PassThru -NoNewWindow
+Check '数据保护用例 v2 安装成功' ($p.ExitCode -eq 0) "exit=$($p.ExitCode)"
+
+Check '被改动过的文件（用户数据）没有被删' (Test-Path $dsDb)
+Check '用户数据内容原样保留' `
+      ((Get-Content -LiteralPath $dsDb -Raw -Encoding UTF8).Trim() -eq 'USER-REAL-DATA')
+Check '未改动的上一版文件照常清理' (-not (Test-Path (Join-Path $dsDir 'Gone.dll')))
+
+$p = Start-Process -FilePath (Join-Path $dsDir 'Uninstall.exe') `
+     -ArgumentList @('--uninstall', '--silent') -Wait -PassThru -NoNewWindow
+Check '数据保护用例卸载成功' ($p.ExitCode -eq 0) "exit=$($p.ExitCode)"
+
 
 # ─────────────────────────────────────────────────────────────
 Write-Host ''
