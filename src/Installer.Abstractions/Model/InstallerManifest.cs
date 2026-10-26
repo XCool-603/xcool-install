@@ -123,6 +123,19 @@ namespace Installer.Abstractions.Model
         /// <summary>构建信息。</summary>
         [JsonProperty("build", Order = 18)]
         public BuildInfo Build { get; set; }
+
+        /// <summary>
+        /// 是否**始终**请求管理员权限（默认 false）。
+        ///
+        /// 默认不加：安装器以 asInvoker 启动，只有真正需要时才弹 UAC ——
+        /// 普通用户装到自己的目录、写 HKCU，全程不该出现 UAC 框。
+        ///
+        /// 打开它的场景：程序自身运行时要写 HKLM、装驱动/服务、或者要往
+        /// Program Files 写文件。这类包即使 <see cref="Scope"/> 是 perUser，
+        /// 也应该一开始就提权，否则用户装完运行起来才发现权限不够。
+        /// </summary>
+        [JsonProperty("alwaysElevate", Order = 19)]
+        public bool AlwaysElevate { get; set; }
     }
 
     /// <summary>产品信息，字段均为多语言文本。</summary>

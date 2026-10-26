@@ -31,6 +31,7 @@ namespace Installer.Builder.Views
             this.rootLayout = new System.Windows.Forms.TableLayoutPanel();
             this.lblScope = new AntdUI.Label();
             this.cboScope = new AntdUI.Select();
+            this.chkAlwaysElevate = new AntdUI.Checkbox();
             this.lblDir = new AntdUI.Label();
             this.txtDir = new AntdUI.Input();
             this.lblIcon = new AntdUI.Label();
@@ -51,18 +52,20 @@ namespace Installer.Builder.Views
             this.rootLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.rootLayout.Controls.Add(this.lblScope, 0, 0);
             this.rootLayout.Controls.Add(this.cboScope, 1, 0);
-            this.rootLayout.Controls.Add(this.lblDir, 0, 1);
-            this.rootLayout.Controls.Add(this.txtDir, 1, 1);
-            this.rootLayout.Controls.Add(this.lblIcon, 0, 2);
-            this.rootLayout.Controls.Add(this.iconLayout, 1, 2);
-            this.rootLayout.Controls.Add(this.lblCom, 0, 3);
-            this.rootLayout.Controls.Add(this.txtCom, 1, 3);
-            this.rootLayout.Controls.Add(this.lblComHint, 1, 4);
+            this.rootLayout.Controls.Add(this.chkAlwaysElevate, 1, 1);
+            this.rootLayout.Controls.Add(this.lblDir, 0, 2);
+            this.rootLayout.Controls.Add(this.txtDir, 1, 2);
+            this.rootLayout.Controls.Add(this.lblIcon, 0, 3);
+            this.rootLayout.Controls.Add(this.iconLayout, 1, 3);
+            this.rootLayout.Controls.Add(this.lblCom, 0, 4);
+            this.rootLayout.Controls.Add(this.txtCom, 1, 4);
+            this.rootLayout.Controls.Add(this.lblComHint, 1, 5);
             this.rootLayout.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rootLayout.Location = new System.Drawing.Point(0, 0);
             this.rootLayout.Name = "rootLayout";
             this.rootLayout.Padding = new System.Windows.Forms.Padding(12);
-            this.rootLayout.RowCount = 5;
+            this.rootLayout.RowCount = 6;
+            this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 48F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 48F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 48F));
             this.rootLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 48F));
@@ -90,6 +93,19 @@ namespace Installer.Builder.Views
             this.cboScope.Name = "cboScope";
             this.cboScope.Size = new System.Drawing.Size(478, 40);
             this.cboScope.TabIndex = 1;
+            //
+            // chkAlwaysElevate —— 「始终请求管理员权限」
+            //
+            // 默认不勾：普通用户装到自己的目录、写 HKCU，全程不该出现 UAC。
+            // 只有程序自身运行时确实需要管理员（写 HKLM、装驱动/服务）才勾。
+            //
+            this.chkAlwaysElevate.AutoSize = false;
+            this.chkAlwaysElevate.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chkAlwaysElevate.Location = new System.Drawing.Point(147, 61);
+            this.chkAlwaysElevate.Name = "chkAlwaysElevate";
+            this.chkAlwaysElevate.Size = new System.Drawing.Size(478, 40);
+            this.chkAlwaysElevate.TabIndex = 2;
+            this.chkAlwaysElevate.Text = "始终请求管理员权限";
             //
             // lblDir
             //
@@ -212,6 +228,7 @@ namespace Installer.Builder.Views
         private System.Windows.Forms.TableLayoutPanel rootLayout;
         private AntdUI.Label lblScope;
         private AntdUI.Select cboScope;
+        private AntdUI.Checkbox chkAlwaysElevate;
         private AntdUI.Label lblDir;
         private AntdUI.Input txtDir;
         private AntdUI.Label lblIcon;

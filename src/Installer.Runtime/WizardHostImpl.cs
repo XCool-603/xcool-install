@@ -208,6 +208,41 @@ namespace Installer.Runtime
         }
 
         /// <inheritdoc />
+        public bool NeedsElevationRestart(WizardOptions options)
+        {
+            // 沙箱/测试环境一律不提权 —— 否则 e2e 会弹 UAC 卡死
+            if (_uninstallMode || !string.IsNullOrEmpty(_sandboxRoot) || InstallHost.IsElevated())
+            {
+                return false;
+            }
+
+            // ① 制作端勾了「始终请求管理员权限」
+            if (_manifest != null && _manifest.AlwaysElevate)
+            {
+                return true;
+            }
+
+            // ② 用户勾了「为所有用户安装」—— 要写 HKLM
+            if (options != null && options.AllUsers)
+            {
+                return true;
+            }
+
+            // ③ 安装目录本身写不进去（典型：改到了 C:\Program Files）
+            var dir = options != null && !string.IsNullOrWhiteSpace(options.InstallDir)
+                ? options.InstallDir
+                : EffectiveInstallDir;
+
+            return !string.IsNullOrWhiteSpace(dir) && !ElevationProbe.CanWrite(dir);
+        }
+
+        /// <inheritdoc />
+        public bool RestartElevated(WizardOptions options)
+        {
+            return InstallHost.RestartElevatedForWizard(_selfPath, options, _logPath, _culture, _sandboxRoot);
+        }
+
+        /// <inheritdoc />
         public void RequestCancel()
         {
             if (_cts != null && !_cts.IsCancellationRequested)

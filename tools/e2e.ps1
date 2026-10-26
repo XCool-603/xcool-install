@@ -893,6 +893,72 @@ $leftKeys = Get-UninstallKeys $dupReg
 Check '降级卸载后卸载项已清空' ($leftKeys.Count -eq 0) ("还剩 {0} 条" -f $leftKeys.Count)
 
 # ─────────────────────────────────────────────────────────────
+Step '15. 打包体检（程序会不会往安装目录里写）'
+# ─────────────────────────────────────────────────────────────
+# 老 WinForm 程序常把 App.db / Log\ / Data\ 放在 Application.StartupPath 下面。
+# 这类程序装到 %LOCALAPPDATA%\Programs 没问题，装到 %ProgramFiles% 就写不进去 ——
+# 启动正常、一操作就抛异常。必须在**打包时**提示，装完再排查代价太大。
+$riskSrc = Join-Path $WorkDir 'risk-src'
+$riskDist = Join-Path $WorkDir 'risk-dist'
+New-Item -ItemType Directory -Path $riskSrc, $riskDist -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $riskSrc 'Log'), (Join-Path $riskSrc 'SQLiteDB'), (Join-Path $riskSrc 'x64') -Force | Out-Null
+
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+[System.IO.File]::WriteAllText((Join-Path $riskSrc 'App.exe'), 'x', $utf8NoBom)
+[System.IO.File]::WriteAllText((Join-Path $riskSrc 'Config.ini'), 'x', $utf8NoBom)
+[System.IO.File]::WriteAllText((Join-Path $riskSrc 'App.db'), 'x', $utf8NoBom)
+
+$riskProj = Join-Path $WorkDir 'risk.wmpkg.json'
+@{
+    schemaVersion     = 2
+    productCode       = '{FFFF1111-2222-3333-4444-555566667777}'
+    defaultCulture    = 'zh-Hans'
+    product           = @{ name = @{ 'zh-Hans' = '体检测试' }; version = '1.0.0' }
+    scope             = 'perUser'
+    defaultInstallDir = '%LOCALAPPDATA%\Programs\Risk'
+    entryPoint        = 'App.exe'
+    shortcuts         = @()
+    alwaysElevate     = $true
+} | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $riskProj -Encoding UTF8
+
+$riskSetup = Join-Path $riskDist 'Risk.exe'
+$r = Invoke-Cli @('pack', '--project', $riskProj, '--source', $riskSrc, '--stub', $stub, '--out', $riskSetup)
+
+Check '体检提示不阻断打包' ($r.ExitCode -eq 0) "exit=$($r.ExitCode)"
+Check '打包时提示「程序会往安装目录里写」' ($r.Output -match '往安装目录里写') (($r.Output -split "`r?`n") | Select-String '往安装目录里写' | Select-Object -First 1)
+Check '提示里点名了数据目录 SQLiteDB' ($r.Output -match 'SQLiteDB')
+Check '提示里点名了数据文件 App.db' ($r.Output -match 'App\.db')
+Check '提示里点名了 Config.ini' ($r.Output -match 'Config\.ini')
+Check '运行库目录 x64 不被误报' (-not ($r.Output -match 'x64\\'))
+
+$r = Invoke-Cli @('verify', $riskSetup)
+Check '带体检提示的产物仍能通过 verify' ($r.ExitCode -eq 0)
+
+$r = Invoke-Cli @('inspect', $riskSetup)
+Check 'alwaysElevate 已写进清单' ($r.Output -match '"alwaysElevate"\s*:\s*true')
+
+$cleanSrc = Join-Path $WorkDir 'clean-src'
+New-Item -ItemType Directory -Path $cleanSrc -Force | Out-Null
+[System.IO.File]::WriteAllText((Join-Path $cleanSrc 'App.exe'), 'x', $utf8NoBom)
+[System.IO.File]::WriteAllText((Join-Path $cleanSrc 'App.dll'), 'x', $utf8NoBom)
+
+$cleanProj = Join-Path $WorkDir 'clean.wmpkg.json'
+@{
+    schemaVersion     = 2
+    productCode       = '{FFFF2222-2222-3333-4444-555566667777}'
+    defaultCulture    = 'zh-Hans'
+    product           = @{ name = @{ 'zh-Hans' = '干净测试' }; version = '1.0.0' }
+    scope             = 'perUser'
+    defaultInstallDir = '%LOCALAPPDATA%\Programs\Clean'
+    entryPoint        = 'App.exe'
+    shortcuts         = @()
+} | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $cleanProj -Encoding UTF8
+
+$r = Invoke-Cli @('pack', '--project', $cleanProj, '--source', $cleanSrc, '--stub', $stub,
+                  '--out', (Join-Path $WorkDir 'clean-again.exe'))
+Check '干净的工程不会出现体检提示' (-not ($r.Output -match '往安装目录里写')) (($r.Output -split "`r?`n") | Select-Object -Last 3)
+
+# ─────────────────────────────────────────────────────────────
 Write-Host ''
 Write-Host ("全部 {0} 项断言通过。" -f $script:Checks) -ForegroundColor Green
 Write-Host ''

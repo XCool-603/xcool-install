@@ -40,6 +40,12 @@ namespace Installer.UI.Forms
         private bool _finished;
 
         /// <summary>
+        /// 本次会话是不是"为了提权而主动让位"关掉的。
+        /// 提权后的新实例会接管安装，所以宿主不能把这个实例的退出当成失败。
+        /// </summary>
+        private bool _relaunchedForElevation;
+
+        /// <summary>
         /// 设计期构造函数。
         ///
         /// VS 的 WinForms 设计器**必须**能无参实例化类型，否则只会报
@@ -101,6 +107,42 @@ namespace Installer.UI.Forms
                 _presenter.EnterUninstallConfirm();
             }
 
+            Render();
+        }
+
+        /// <summary>
+        /// 本次向导是不是"为了让位给提权后的新实例"而关掉的。
+        /// 宿主据此判断"这次没有真的安装"，不要把它当成功上报。
+        /// </summary>
+        public bool RelaunchedForElevation
+        {
+            get { return _relaunchedForElevation; }
+        }
+
+        /// <summary>
+        /// 提权重启后的续跑：把上次向导里的选择原样恢复，并直接停在「安装位置」页。
+        ///
+        /// 提权前用户已经确认过许可协议、勾过选项 —— 让他重来一遍是不能接受的，
+        /// 所以把整份 <see cref="WizardOptions"/> 序列化进续跑文件带过来。
+        /// </summary>
+        /// <param name="options">上次会话的选择。</param>
+        public void ApplyResume(WizardOptions options)
+        {
+            if (options == null)
+            {
+                return;
+            }
+
+            var o = _presenter.Options;
+            o.InstallDir = options.InstallDir;
+            o.AcceptLicense = options.AcceptLicense;
+            o.DesktopShortcut = options.DesktopShortcut;
+            o.StartMenuShortcut = options.StartMenuShortcut;
+            o.Autostart = options.Autostart;
+            o.RunAfterInstall = options.RunAfterInstall;
+            o.AllUsers = options.AllUsers;
+
+            _presenter.StartAt(WizardPage.Path);
             Render();
         }
 
@@ -368,6 +410,35 @@ namespace Installer.UI.Forms
             _pathView.PathChanged += () =>
             {
                 _presenter.Options.InstallDir = _pathView.InstallPath;
+                UpdateButtons();
+            };
+
+            // 这一排勾选框以前**没有回写**：PathView.OptionsChanged 声明了、也在勾选时
+            // 触发了，但整个项目里没有任何订阅者。后果是用户在界面上取消勾选毫无效果 ——
+            // 安装照样按清单里的默认值走（照样建桌面快捷方式、照样开机自启）。
+            _pathView.OptionsChanged += () =>
+            {
+                _presenter.Options.DesktopShortcut = _pathView.DesktopShortcut;
+                _presenter.Options.StartMenuShortcut = _pathView.StartMenuShortcut;
+                _presenter.Options.Autostart = _pathView.Autostart;
+                _presenter.Options.RunAfterInstall = _pathView.RunAfterInstall;
+                UpdateButtons();
+            };
+
+            _pathView.AllUsersChanged += () =>
+            {
+                var allUsers = _pathView.AllUsers;
+
+                // Render() 会把 Options 写进界面，那同样会触发本事件 ——
+                // 值没变就直接返回，否则会和下面的"换默认目录"互相触发成死循环。
+                if (allUsers == _presenter.Options.AllUsers)
+                {
+                    return;
+                }
+
+                _presenter.Options.AllUsers = allUsers;
+                _presenter.ApplyScopeDefaultDir();
+                _pathView.InstallPath = _presenter.Options.InstallDir;
                 UpdateButtons();
             };
 
@@ -802,6 +873,31 @@ namespace Installer.UI.Forms
 
             if (after == WizardPage.Installing && before != WizardPage.Installing)
             {
+                // 提权必须发生在**进度条开始之前**。
+                //
+                // 以前这里完全不判：用户在「安装位置」页勾了「为所有用户安装」、
+                // 或者把目录改到 C:\Program Files，安装照样以普通权限开始 ——
+                // 前面几步（建目录、写注册表）看着都成功，到解压文件才失败，
+                // 还得靠回滚收拾。用户看到的就是"进度条跑到一半突然失败"。
+                if (_host.NeedsElevationRestart(_presenter.Options))
+                {
+                    if (_host.RestartElevated(_presenter.Options))
+                    {
+                        // 提权后的新实例从「安装位置」页接着走，本实例功成身退。
+                        // 必须先置 _finished，否则 OnFormClosing 会当成"用户想取消安装"拦下来。
+                        _relaunchedForElevation = true;
+                        _finished = true;
+                        Close();
+                        return;
+                    }
+
+                    // UAC 被拒：退回「安装位置」页，不能让用户以为安装已经开始
+                    _presenter.StartAt(WizardPage.Path);
+                    AntdUI.Message.warn(this, _presenter.Text("Path.NeedsAdmin"));
+                    Render();
+                    return;
+                }
+
                 StartInstall();
                 return;
             }

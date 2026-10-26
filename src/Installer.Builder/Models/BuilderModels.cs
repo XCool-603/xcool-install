@@ -36,7 +36,9 @@ namespace Installer.Builder.Models
                         Url = "",
                     },
                     Scope = InstallScopes.PerUser,
-                    DefaultInstallDir = @"%LOCALAPPDATA%\Programs\我的产品",
+                    // 默认目录跟安装范围共用同一份规则（InstallPaths），
+                    // 不再在这里硬编码一串路径 —— 否则改了范围、目录还留在原档。
+                    DefaultInstallDir = InstallPaths.Suggest("我的产品", false),
                     EntryPoint = "",
                     License = new LicenseInfo
                     {

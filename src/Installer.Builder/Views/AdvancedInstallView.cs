@@ -16,19 +16,38 @@ namespace Installer.Builder.Views
     /// </summary>
     public partial class AdvancedInstallView : UserControl
     {
+        /// <summary>正在往界面里灌值 —— 期间不响应"切换范围时同步目录"的逻辑。</summary>
+        private bool _loading;
+
+        /// <summary>当前清单（切范围时要用产品名算默认目录）。</summary>
+        private InstallerManifest _manifest;
+
         /// <summary>构造。</summary>
         public AdvancedInstallView()
         {
             InitializeComponent();
             btnIcon.Click += (sender, e) => PickIcon();
+            cboScope.SelectedIndexChanged += (sender, e) => SyncDirToScope();
         }
 
         /// <summary>写回界面。</summary>
         public void Write(InstallerManifest m, ProjectBuildSettings build)
         {
-            cboScope.SelectedIndex = string.Equals(m.Scope, InstallScopes.PerMachine,
-                StringComparison.OrdinalIgnoreCase) ? 1 : 0;
-            txtDir.Text = m.DefaultInstallDir ?? string.Empty;
+            _manifest = m;
+
+            _loading = true;
+            try
+            {
+                cboScope.SelectedIndex = string.Equals(m.Scope, InstallScopes.PerMachine,
+                    StringComparison.OrdinalIgnoreCase) ? 1 : 0;
+                txtDir.Text = m.DefaultInstallDir ?? string.Empty;
+                chkAlwaysElevate.Checked = m.AlwaysElevate;
+            }
+            finally
+            {
+                _loading = false;
+            }
+
             txtIcon.Text = build == null ? string.Empty : build.IconPath ?? string.Empty;
 
             txtCom.Text = m.Com == null || m.Com.Count == 0
@@ -41,6 +60,7 @@ namespace Installer.Builder.Views
         {
             m.Scope = cboScope.SelectedIndex == 1 ? InstallScopes.PerMachine : InstallScopes.PerUser;
             m.DefaultInstallDir = txtDir.Text.Trim();
+            m.AlwaysElevate = chkAlwaysElevate.Checked;
 
             if (build != null)
             {
@@ -68,6 +88,7 @@ namespace Installer.Builder.Views
             lblIcon.Text = text.Get("Advanced.Icon");
             lblCom.Text = text.Get("Advanced.Com");
             lblComHint.Text = text.Get("Advanced.Com.Hint");
+            chkAlwaysElevate.Text = text.Get("Advanced.AlwaysElevate");
             btnIcon.Text = text.Get("Output.Change");
 
             var index = cboScope.SelectedIndex;
@@ -75,6 +96,56 @@ namespace Installer.Builder.Views
             cboScope.Items.Add(new AntdUI.SelectItem(text.Get("Advanced.ScopePerUser"), InstallScopes.PerUser));
             cboScope.Items.Add(new AntdUI.SelectItem(text.Get("Advanced.ScopePerMachine"), InstallScopes.PerMachine));
             cboScope.SelectedIndex = index < 0 ? 0 : index;
+        }
+
+        /// <summary>
+        /// 切换安装范围时把默认目录换成对应的那一档。
+        ///
+        /// 只在"当前目录正好是另一档的默认值"时才换 —— 用户手填的路径一律不动。
+        /// 不换的话会出现"范围=所有用户、目录还在 %LOCALAPPDATA%"这种自相矛盾的包。
+        /// </summary>
+        private void SyncDirToScope()
+        {
+            if (_loading)
+            {
+                return;
+            }
+
+            var name = ResolveProductName();
+            var allUsers = cboScope.SelectedIndex == 1;
+            var wanted = InstallPaths.Suggest(name, allUsers);
+            var other = InstallPaths.Suggest(name, !allUsers);
+            var current = txtDir.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(current) ||
+                string.Equals(current, other, StringComparison.OrdinalIgnoreCase))
+            {
+                txtDir.Text = wanted;
+            }
+        }
+
+        /// <summary>取产品名（优先简体中文，其次默认语言，最后取第一个）。</summary>
+        private string ResolveProductName()
+        {
+            var name = _manifest == null ? null : _manifest.Product == null ? null : _manifest.Product.Name;
+            if (name == null || name.Count == 0)
+            {
+                return "我的产品";
+            }
+
+            string value;
+            if (name.TryGetValue("zh-Hans", out value) && !string.IsNullOrWhiteSpace(value))
+            {
+                return value;
+            }
+
+            if (_manifest.DefaultCulture != null && name.TryGetValue(_manifest.DefaultCulture, out value)
+                && !string.IsNullOrWhiteSpace(value))
+            {
+                return value;
+            }
+
+            return name.Values.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v)) ?? "我的产品";
         }
 
         private void PickIcon()
