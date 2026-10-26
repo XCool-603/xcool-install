@@ -161,8 +161,8 @@ namespace Installer.Runtime
                 // ① 「所有用户」/「始终请求管理员权限」—— 要写 HKLM，asInvoker 必被拒；
                 // ② 安装目录本身写不进去 —— 用户把目录改到了 Program Files，
                 //    以前不判这一条，结果是装到一半才失败（还得回滚）。
-                if (!options.AlreadyElevated && !IsElevated()
-                    && (NeedsElevation(manifest) || NeedsElevationForDir(installDir)))
+                if (!options.AlreadyElevated
+                    && ElevationRules.InstallNeedsAdmin(manifest, installDir, IsElevated()))
                 {
                     return RelaunchElevated(options, args);
                 }
@@ -461,52 +461,9 @@ namespace Installer.Runtime
         // 提权
         // ─────────────────────────────────────────────────────────────
 
-        /// <summary>
-        /// 这次安装是否需要管理员权限。
-        ///
-        /// 两个来源：
-        /// ① 「所有用户」要写 <c>HKLM</c>，而 stub 声明的是 <c>asInvoker</c> —— 不提权必然被拒；
-        /// ② 制作端勾了「始终请求管理员权限」（<see cref="InstallerManifest.AlwaysElevate"/>）。
-        ///
-        /// 注意：这**不是**唯一的提权判据。安装目录本身写不进去（用户把目录改到了
-        /// <c>C:\Program Files</c>）同样要提权，那一项由 <see cref="NeedsElevationForDir"/> 判。
-        /// </summary>
-        private static bool NeedsElevation(InstallerManifest manifest)
-        {
-            if (manifest == null)
-            {
-                return false;
-            }
-
-            // 「所有用户」要写 HKLM
-            if (string.Equals(manifest.Scope, InstallScopes.PerMachine, StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-
-            // 制作端勾了「始终请求管理员权限」—— 程序自身运行时需要管理员
-            // （写 HKLM、装驱动/服务），所以安装阶段就先提权，
-            // 不要等用户装完运行起来才发现权限不够。
-            return manifest.AlwaysElevate;
-        }
-
-        /// <summary>
-        /// 安装目录本身写不进去 —— 典型是普通用户把目录改到了 <c>C:\Program Files</c>。
-        ///
-        /// 这种情况**必须**提权：否则前面建目录、写注册表都成功了，
-        /// 到解压文件那一步才失败，还得靠回滚收拾残局。
-        ///
-        /// 已经是管理员时一律返回 false（管理员写哪儿都行）。
-        /// </summary>
-        private static bool NeedsElevationForDir(string dir)
-        {
-            if (string.IsNullOrWhiteSpace(dir) || IsElevated())
-            {
-                return false;
-            }
-
-            return !Installer.Core.Platform.ElevationProbe.CanWrite(dir);
-        }
+        // 判据本身在 Installer.Core.Platform.ElevationRules 里 —— 那里是纯函数，
+        // 可以穷举测试（这台验证机 UAC 是关的，弹不出 UAC 就只能靠单测覆盖决策）。
+        // 这里只负责"判完之后真的重启自己"。
 
         /// <summary>卸载是否需要管理员（卸载键在 HKLM，或安装范围是所有用户）。</summary>
         private static bool NeedsElevationForUninstall(InstallRecord record)

@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using Installer.UI.Common;
+using Installer.UI.Models;
 
 namespace Installer.UI.Views
 {
@@ -66,6 +67,34 @@ namespace Installer.UI.Views
 
         /// <summary>「为所有用户安装」勾选变化（切换范围要连带换默认目录）。</summary>
         public event Action AllUsersChanged;
+
+        /// <summary>
+        /// 把界面上这一排勾选框的**当前状态读进** <paramref name="options"/>。
+        ///
+        /// 单独抽成方法的理由很实际：这个方向以前整条是断的 ——
+        /// <see cref="OptionsChanged"/> 声明了、勾选时也触发了，但全项目没有任何订阅者，
+        /// 于是用户在界面上取消勾选完全没效果（照样建桌面快捷方式、照样开机自启）。
+        /// 抽出来之后，"界面 → 选项"这个方向可以被单测直接钉住。
+        /// </summary>
+        /// <param name="options">要写入的选项对象；为 null 时忽略。</param>
+        public void ReadInto(WizardOptions options)
+        {
+            if (options == null)
+            {
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(InstallPath))
+            {
+                options.InstallDir = InstallPath;
+            }
+
+            options.DesktopShortcut = DesktopShortcut;
+            options.StartMenuShortcut = StartMenuShortcut;
+            options.Autostart = Autostart;
+            options.RunAfterInstall = RunAfterInstall;
+            options.AllUsers = AllUsers;
+        }
 
         /// <summary>标题。</summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]

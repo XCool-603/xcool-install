@@ -515,6 +515,39 @@ namespace Installer.UI.Presenters
             Current = page;
         }
 
+        /// <summary>
+        /// 提权重启后的续跑：把上次会话的选择合并进来，并停在「安装位置」页。
+        ///
+        /// 放在 Presenter 而不是窗体里，是为了**能被单测覆盖** ——
+        /// 这段代码决定"用户提权后要不要重新勾一遍选项"，
+        /// 写错了不会报错，只会让用户刚才的选择悄悄丢失。
+        /// </summary>
+        /// <param name="saved">上次会话的选择；为 null 时什么都不做。</param>
+        public void ApplyResume(WizardOptions saved)
+        {
+            if (saved == null)
+            {
+                return;
+            }
+
+            var o = Options;
+
+            // 目录为空说明上次没选过，保留清单里的默认值
+            if (!string.IsNullOrWhiteSpace(saved.InstallDir))
+            {
+                o.InstallDir = saved.InstallDir;
+            }
+
+            o.AcceptLicense = saved.AcceptLicense;
+            o.DesktopShortcut = saved.DesktopShortcut;
+            o.StartMenuShortcut = saved.StartMenuShortcut;
+            o.Autostart = saved.Autostart;
+            o.RunAfterInstall = saved.RunAfterInstall;
+            o.AllUsers = saved.AllUsers;
+
+            Current = WizardPage.Path;
+        }
+
         private ShortcutSpec FindOrCreate(string location)
         {
             var existing = _manifest.Shortcuts != null
