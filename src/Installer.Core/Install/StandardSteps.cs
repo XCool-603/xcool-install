@@ -27,6 +27,10 @@ namespace Installer.Core.Install
             {
                 new PreflightStep(),
                 new KillRunningProcessesStep(),
+                // 先清掉上一版独有、这一版已经没有的文件 ——
+                // 放在解压**之前**：既让"覆盖安装"真的变成新版本的文件集，
+                // 也能在磁盘紧张时先腾出空间。
+                new CleanupOldVersionFilesStep(),
                 new ExtractPayloadStep(),
                 new ComRegistrationStep(),
                 new ShortcutsStep(),
