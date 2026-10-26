@@ -135,16 +135,8 @@ namespace Installer.UI.Forms
                 return;
             }
 
-            var o = _presenter.Options;
-            o.InstallDir = options.InstallDir;
-            o.AcceptLicense = options.AcceptLicense;
-            o.DesktopShortcut = options.DesktopShortcut;
-            o.StartMenuShortcut = options.StartMenuShortcut;
-            o.Autostart = options.Autostart;
-            o.RunAfterInstall = options.RunAfterInstall;
-            o.AllUsers = options.AllUsers;
-
-            _presenter.StartAt(WizardPage.Path);
+            // 合并逻辑在 Presenter 里（那边有单测）；这里只负责重画界面
+            _presenter.ApplyResume(options);
             Render();
         }
 
@@ -420,10 +412,7 @@ namespace Installer.UI.Forms
             // 安装照样按清单里的默认值走（照样建桌面快捷方式、照样开机自启）。
             _pathView.OptionsChanged += () =>
             {
-                _presenter.Options.DesktopShortcut = _pathView.DesktopShortcut;
-                _presenter.Options.StartMenuShortcut = _pathView.StartMenuShortcut;
-                _presenter.Options.Autostart = _pathView.Autostart;
-                _presenter.Options.RunAfterInstall = _pathView.RunAfterInstall;
+                _pathView.ReadInto(_presenter.Options);
                 UpdateButtons();
             };
 
@@ -438,7 +427,7 @@ namespace Installer.UI.Forms
                     return;
                 }
 
-                _presenter.Options.AllUsers = allUsers;
+                _pathView.ReadInto(_presenter.Options);
                 _presenter.ApplyScopeDefaultDir();
                 _pathView.InstallPath = _presenter.Options.InstallDir;
                 UpdateButtons();

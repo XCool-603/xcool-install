@@ -64,10 +64,28 @@ param(
     [int]$E2eMinChecks = 192,
     # 62 = 本机实测总数（含第 8 节"产品名跟随"7 项 + 第 9 节"两端用词一致"5 项）
     [int]$UiMinChecks = 62,
-    [int]$TestMinCount = 198
+    [int]$TestMinCount = 245,
+
+    # 单个外部程序（dotnet / powershell）的硬超时。默认 15 分钟 ——
+    # e2e 在本机约 66 秒，留足慢机器和冷缓存余量。
+    [int]$NativeTimeoutMs = 900000
 )
 
 $ErrorActionPreference = 'Stop'
+
+# ─────────────────────────────────────────────────────────────────────────
+# 关掉 MSBuild 的常驻节点和编译器服务器。
+#
+# 为什么必须关（这是真踩过的坑）：dotnet build/restore 默认用 /nodeReuse:true
+# 起一批常驻节点，这些节点**继承了 Start-Process 的重定向句柄**。
+# 于是 dotnet 主进程明明已经退出（日志里"已还原 xxx"都写完了），
+# 而 Invoke-Native 里的 Start-Process -Wait 还在等句柄 EOF —— 永远等不到，
+# 整个 CI 就卡死在第一步，看不出任何报错。
+# 关掉之后每个 dotnet 进程退出时把手柄一起带走，-Wait 正常返回。
+# ─────────────────────────────────────────────────────────────────────────
+$env:MSBUILDDISABLENODEREUSE = '1'
+$env:DOTNET_CLI_USE_MSBUILD_SERVER = '0'
+$env:DOTNET_CLI_TELEMETRY_OPTOUT = '1'
 
 $Repo = Split-Path -Parent $PSScriptRoot
 if (-not $LogDir) { $LogDir = Join-Path $Repo 'artifacts\ci-logs' }
@@ -177,9 +195,63 @@ function Invoke-Native {
 
     $argList = @($Arguments | ForEach-Object { if ($_ -match '\s') { '"' + $_ + '"' } else { $_ } })
 
-    $p = Start-Process -FilePath $File -ArgumentList $argList `
-        -NoNewWindow -Wait -PassThru `
-        -RedirectStandardOutput $outFile -RedirectStandardError $errFile
+    # 这里**不用 Start-Process**，两个原因都是踩出来的：
+    #
+    # ① Start-Process -Wait 等的是"重定向句柄 EOF"，不是"进程退出"。
+    #    只要还有子进程继承着那两个句柄（MSBuild 常驻节点 /nodeReuse:true、
+    #    VBCSCompiler、MSBuild server），即使主进程早就退出、日志都写完了，
+    #    -Wait 也会永远挂住 —— 表现是 CI 卡死在第一步，没有任何报错。
+    #
+    # ② 去掉 -Wait 之后，-PassThru 拿到的 Process 在本机 PowerShell 5.1 上
+    #    ExitCode 恒为 $null（有没有 WaitForExit 都一样），断言直接失效。
+    #
+    # 用 .NET Process API 自己管：流式把**原始字节**复制到文件（保住中文摘要行的
+    # 编码，下游 Read-TextSmart 才能正确解码），进程句柄在我们手里，退出码可靠，
+    # 而且可以加硬超时 —— 以后再出问题就是明确报错，不是静默卡住。
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = $File
+    $psi.Arguments = ($argList -join ' ')
+    $psi.UseShellExecute = $false
+    # ⚠ 必须是 $false（子进程**共用**当前控制台，等价于原来的 -NoNewWindow）。
+    # 设成 $true 会让子进程没有控制台，[Console]::OutputEncoding 退回 ANSI(GBK)；
+    # 而 e2e / verify-ui 自己并不钉编码，它们靠继承上面的 UTF-8 控制台。
+    # 一旦退回去，e2e 里「inspect 能读出中文产品名」这类断言就会挂。
+    $psi.CreateNoWindow = $false
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
+    $psi.WorkingDirectory = $Repo
+
+    $proc = [System.Diagnostics.Process]::Start($psi)
+    $outFs = [System.IO.File]::Create($outFile)
+    $errFs = [System.IO.File]::Create($errFile)
+
+    $exitCode = $null
+
+    try {
+        $outCopy = $proc.StandardOutput.BaseStream.CopyToAsync($outFs)
+        $errCopy = $proc.StandardError.BaseStream.CopyToAsync($errFs)
+
+        $deadline = (Get-Date).AddMilliseconds($NativeTimeoutMs)
+        while (-not $proc.HasExited) {
+            if ((Get-Date) -gt $deadline) {
+                try { $proc.Kill() } catch { }
+                throw ("外部程序超时（{0:N0} 秒）：{1} {2}" -f ($NativeTimeoutMs / 1000), $File, ($Arguments -join ' '))
+            }
+
+            Start-Sleep -Milliseconds 100
+        }
+
+        $exitCode = $proc.ExitCode
+
+        # 进程已退出，把管道里残留的输出读完再落盘
+        [void]$outCopy.Wait(30000)
+        [void]$errCopy.Wait(30000)
+    }
+    finally {
+        $outFs.Dispose()
+        $errFs.Dispose()
+        $proc.Dispose()
+    }
 
     $stdout = Read-TextSmart $outFile
     $stderr = Read-TextSmart $errFile
@@ -195,7 +267,7 @@ function Invoke-Native {
     )
 
     return [pscustomobject]@{
-        ExitCode = $p.ExitCode
+        ExitCode = $exitCode
         StdOut   = $stdout
         StdErr   = $stderr
         All      = ($stdout + "`n" + $stderr)

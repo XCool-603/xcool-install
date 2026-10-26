@@ -324,6 +324,228 @@ namespace Installer.Core.Tests
         }
 
         // ─────────────────────────────────────────────────────────────
+        // 提权决策（纯函数，穷举）
+        //
+        // 验证机是内置 Administrator 且 EnableLUA=0 —— 根本不存在非提权进程，
+        // 弹不出 UAC。所以这一组把"要不要提权"的每一种组合都钉死，
+        // 而不是靠"真的弹一次"。
+        // ─────────────────────────────────────────────────────────────
+
+        [Fact]
+        public void 已是管理员时安装一律不再提权()
+        {
+            var m = TestManifest.Create(scope: InstallScopes.PerMachine);
+            Assert.False(ElevationRules.InstallNeedsAdmin(m, @"C:\Program Files\X", true));
+        }
+
+        [Fact]
+        public void 所有用户安装需要提权()
+        {
+            var m = TestManifest.Create(scope: InstallScopes.PerMachine);
+            Assert.True(ElevationRules.InstallNeedsAdmin(m, @"C:\Anywhere\X", false));
+        }
+
+        [Fact]
+        public void 始终提权标记需要提权()
+        {
+            var m = TestManifest.Create(scope: InstallScopes.PerUser);
+            m.AlwaysElevate = true;
+            Assert.True(ElevationRules.InstallNeedsAdmin(m, @"C:\Anywhere\X", false));
+        }
+
+        [Fact]
+        public void 仅当前用户且目录可写时不需要提权()
+        {
+            var m = TestManifest.Create(scope: InstallScopes.PerUser);
+            Assert.False(ElevationRules.InstallNeedsAdmin(m, Path.GetTempPath(), false));
+        }
+
+        [Fact]
+        public void 目录写不进去时即使仅当前用户也要提权()
+        {
+            WithDeniedDir(dir =>
+            {
+                var m = TestManifest.Create(scope: InstallScopes.PerUser);
+                Assert.True(ElevationRules.InstallNeedsAdmin(m, dir, false),
+                    "目录不可写却判定为不需要提权 —— 这正是「装到一半才失败」的成因");
+            });
+        }
+
+        [Fact]
+        public void 清单为空时只看目录()
+        {
+            Assert.False(ElevationRules.InstallNeedsAdmin(null, Path.GetTempPath(), false));
+        }
+
+        [Fact]
+        public void 向导里已是管理员时不再提权()
+        {
+            Assert.False(ElevationRules.WizardNeedsAdmin(true, false, true, true, @"C:\Program Files\X"));
+        }
+
+        [Fact]
+        public void 沙箱里一律不提权()
+        {
+            Assert.False(ElevationRules.WizardNeedsAdmin(false, true, true, true, @"C:\Program Files\X"));
+        }
+
+        [Fact]
+        public void 向导里勾所有用户需要提权()
+        {
+            Assert.True(ElevationRules.WizardNeedsAdmin(false, false, false, true, Path.GetTempPath()));
+        }
+
+        [Fact]
+        public void 向导里始终提权标记需要提权()
+        {
+            Assert.True(ElevationRules.WizardNeedsAdmin(false, false, true, false, Path.GetTempPath()));
+        }
+
+        [Fact]
+        public void 向导里目录不可写需要提权()
+        {
+            WithDeniedDir(dir =>
+            {
+                Assert.True(ElevationRules.WizardNeedsAdmin(false, false, false, false, dir));
+            });
+        }
+
+        [Fact]
+        public void 向导里普通选择不需要提权()
+        {
+            Assert.False(ElevationRules.WizardNeedsAdmin(false, false, false, false, Path.GetTempPath()));
+            Assert.False(ElevationRules.WizardNeedsAdmin(false, false, false, false, null));
+            Assert.False(ElevationRules.WizardNeedsAdmin(false, false, false, false, "  "));
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // 提权重启后的续跑
+        // ─────────────────────────────────────────────────────────────
+
+        [Fact]
+        public void 续跑会把上次的选择原样恢复()
+        {
+            var m = TestManifest.Create(scope: InstallScopes.PerUser);
+            var p = NewPresenter(m);
+
+            p.ApplyResume(new WizardOptions
+            {
+                InstallDir = @"D:\Apps\续跑",
+                AcceptLicense = true,
+                DesktopShortcut = false,
+                StartMenuShortcut = true,
+                Autostart = true,
+                RunAfterInstall = false,
+                AllUsers = true,
+            });
+
+            Assert.Equal(@"D:\Apps\续跑", p.Options.InstallDir);
+            Assert.True(p.Options.AcceptLicense);
+            Assert.False(p.Options.DesktopShortcut);
+            Assert.True(p.Options.StartMenuShortcut);
+            Assert.True(p.Options.Autostart);
+            Assert.False(p.Options.RunAfterInstall);
+            Assert.True(p.Options.AllUsers);
+
+            // 提权后应该直接落在「安装位置」页，而不是让用户从欢迎页重走
+            Assert.Equal(WizardPage.Path, p.Current);
+        }
+
+        [Fact]
+        public void 续跑时目录为空则保留默认值()
+        {
+            var m = TestManifest.Create();
+            var p = NewPresenter(m);
+            var original = p.Options.InstallDir;
+
+            p.ApplyResume(new WizardOptions { InstallDir = null });
+
+            Assert.Equal(original, p.Options.InstallDir);
+        }
+
+        [Fact]
+        public void 续跑传空对象不改变任何状态()
+        {
+            var m = TestManifest.Create();
+            var p = NewPresenter(m);
+            var before = p.Current;
+
+            p.ApplyResume(null);
+
+            Assert.Equal(before, p.Current);
+        }
+
+        [Fact]
+        public void 续跑文件的内容能序列化并读回()
+        {
+            // 提权重启时走的是「序列化 → 写 %TEMP% → 新实例反序列化」，
+            // 这里钉死这个契约：少一个字段，用户提权后就得重勾一遍。
+            var saved = new WizardOptions
+            {
+                InstallDir = @"D:\Apps\X",
+                AcceptLicense = true,
+                DesktopShortcut = true,
+                StartMenuShortcut = false,
+                Autostart = true,
+                RunAfterInstall = true,
+                AllUsers = false,
+            };
+
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(saved);
+            var back = Newtonsoft.Json.JsonConvert.DeserializeObject<WizardOptions>(json);
+
+            Assert.Equal(saved.InstallDir, back.InstallDir);
+            Assert.Equal(saved.AcceptLicense, back.AcceptLicense);
+            Assert.Equal(saved.DesktopShortcut, back.DesktopShortcut);
+            Assert.Equal(saved.StartMenuShortcut, back.StartMenuShortcut);
+            Assert.Equal(saved.Autostart, back.Autostart);
+            Assert.Equal(saved.RunAfterInstall, back.RunAfterInstall);
+            Assert.Equal(saved.AllUsers, back.AllUsers);
+        }
+
+        // ─────────────────────────────────────────────────────────────
+
+        /// <summary>造一个"确定性写不进去"的目录（Everyone 显式 Deny 写权限）。</summary>
+        private static void WithDeniedDir(Action<string> body)
+        {
+            var dir = Path.Combine(Path.GetTempPath(), "wm-deny-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(dir);
+
+            var everyone = new System.Security.Principal.SecurityIdentifier(
+                System.Security.Principal.WellKnownSidType.WorldSid, null);
+
+            var rule = new System.Security.AccessControl.FileSystemAccessRule(
+                everyone,
+                System.Security.AccessControl.FileSystemRights.CreateFiles
+                | System.Security.AccessControl.FileSystemRights.WriteData,
+                System.Security.AccessControl.InheritanceFlags.ContainerInherit
+                | System.Security.AccessControl.InheritanceFlags.ObjectInherit,
+                System.Security.AccessControl.PropagationFlags.None,
+                System.Security.AccessControl.AccessControlType.Deny);
+
+            var acl = Directory.GetAccessControl(dir);
+            acl.AddAccessRule(rule);
+            Directory.SetAccessControl(dir, acl);
+
+            try
+            {
+                body(dir);
+            }
+            finally
+            {
+                var back = Directory.GetAccessControl(dir);
+                back.RemoveAccessRule(rule);
+                Directory.SetAccessControl(dir, back);
+
+                try
+                {
+                    Directory.Delete(dir, true);
+                }
+                catch (IOException)
+                {
+                }
+            }
+        }
 
         private static WizardPresenter NewPresenter(InstallerManifest m)
         {
