@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    自测用的小工具：按屏幕坐标点击一下鼠标。
+
+    为什么单独一个工程：本机 Add-Type -TypeDefinition 和框架自带的 csc.exe 都报
+    "cannot seek in file"（编译器临时文件读不了），只有 dotnet build 这条链路是好的。
+    所以把 P/Invoke 挪到一个独立小工程里，用 dotnet build 编译。
+
+    这个工程**不在 Installer.sln 里**，不会被 CI 构建；只在 tools\selftest-*.ps1 里按需编译。
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>click</AssemblyName>
+    <RootNamespace>UiAuto</RootNamespace>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <RuntimeIdentifier></RuntimeIdentifier>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Click.cs" />
+  </ItemGroup>
+
+</Project>

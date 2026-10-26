@@ -441,7 +441,7 @@ Check '安装退出码为 0' ($p.ExitCode -eq 0) "exit=$($p.ExitCode)"
 
 $ir = Get-Content -LiteralPath $m1Result -Raw -Encoding UTF8 | ConvertFrom-Json
 Check '安装结果 ok' ($ir.ok -eq $true) $ir.error
-Check '执行了全部 12 个步骤' ($ir.stepsExecuted -eq 12 -and $ir.stepCount -eq 12) "$($ir.stepsExecuted)/$($ir.stepCount)"
+Check '执行了全部 13 个步骤' ($ir.stepsExecuted -eq 13 -and $ir.stepCount -eq 13) "$($ir.stepsExecuted)/$($ir.stepCount)"
 Check '没有发生回滚' ($ir.rolledBack -eq $false)
 Check '语言解析为 zh-Hans' ($ir.culture -eq 'zh-Hans')
 Check '产品名按语言取（不是字典里的任意一个）' ($ir.productName -eq 'M1测试产品') $ir.productName
@@ -893,7 +893,7 @@ $leftKeys = Get-UninstallKeys $dupReg
 Check '降级卸载后卸载项已清空' ($leftKeys.Count -eq 0) ("还剩 {0} 条" -f $leftKeys.Count)
 
 # ─────────────────────────────────────────────────────────────
-Step '15. 打包体检（程序会不会往安装目录里写）'
+Step '20. 打包体检（程序会不会往安装目录里写）'
 # ─────────────────────────────────────────────────────────────
 # 老 WinForm 程序常把 App.db / Log\ / Data\ 放在 Application.StartupPath 下面。
 # 这类程序装到 %LOCALAPPDATA%\Programs 没问题，装到 %ProgramFiles% 就写不进去 ——
@@ -957,6 +957,79 @@ $cleanProj = Join-Path $WorkDir 'clean.wmpkg.json'
 $r = Invoke-Cli @('pack', '--project', $cleanProj, '--source', $cleanSrc, '--stub', $stub,
                   '--out', (Join-Path $WorkDir 'clean-again.exe'))
 Check '干净的工程不会出现体检提示' (-not ($r.Output -match '往安装目录里写')) (($r.Output -split "`r?`n") | Select-Object -Last 3)
+
+# ─────────────────────────────────────────────────────────────
+Step '21. 升级安装（同 productCode）清理上一版残留文件'
+# ─────────────────────────────────────────────────────────────
+# 真实踩到的坑：v1 有 V1Only.dll、v2 里删掉了，覆盖安装后 V1Only.dll 还留在安装目录里。
+# 这类残留会让程序加载到旧 DLL —— "装完第二版反而更坏"，而且极难排查。
+$upSrc = Join-Path $WorkDir 'up-src'
+New-Item -ItemType Directory -Path $upSrc, (Join-Path $upSrc 'sub') -Force | Out-Null
+[System.IO.File]::WriteAllText((Join-Path $upSrc 'App.exe'), 'MZ', $utf8NoBom)
+[System.IO.File]::WriteAllText((Join-Path $upSrc 'Keep.dll'), 'keep', $utf8NoBom)
+[System.IO.File]::WriteAllText((Join-Path $upSrc 'Old.dll'), 'old', $utf8NoBom)
+[System.IO.File]::WriteAllText((Join-Path $upSrc 'sub\Old.dat'), 'old', $utf8NoBom)
+
+$upProj = Join-Path $WorkDir 'up.wmpkg.json'
+@{
+    schemaVersion     = 2
+    productCode       = '{FFFF3333-2222-3333-4444-555566667777}'
+    defaultCulture    = 'zh-Hans'
+    product           = @{ name = @{ 'zh-Hans' = '升级测试' }; version = '1.0.0' }
+    scope             = 'perUser'
+    defaultInstallDir = '%LOCALAPPDATA%\Programs\UpgradeTest'
+    entryPoint        = 'App.exe'
+    shortcuts         = @()
+} | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $upProj -Encoding UTF8
+
+$upDir = Join-Path $WorkDir 'up-installed'
+$r = Invoke-Cli @('pack', '--project', $upProj, '--source', $upSrc, '--stub', $stub,
+                  '--out', (Join-Path $WorkDir 'up-v1.exe'))
+Check 'v1 打包成功' ($r.ExitCode -eq 0)
+$p = Start-Process -FilePath (Join-Path $WorkDir 'up-v1.exe') `
+     -ArgumentList @('--silent', '--target', $upDir, '--result', (Join-Path $WorkDir 'up1.json')) -Wait -PassThru -NoNewWindow
+Check 'v1 安装成功' ($p.ExitCode -eq 0)
+Check 'v1 独有的文件确实装上了' (Test-Path (Join-Path $upDir 'Old.dll')) 'Old.dll'
+
+# v2：删掉 Old.dll 和 sub\Old.dat，加上 New.dll，版本提到 2.0.0
+Remove-Item -LiteralPath (Join-Path $upSrc 'Old.dll'), (Join-Path $upSrc 'sub\Old.dat') -Force
+[System.IO.File]::WriteAllText((Join-Path $upSrc 'New.dll'), 'new', $utf8NoBom)
+
+$upProj2 = Join-Path $WorkDir 'up2.wmpkg.json'
+@{
+    schemaVersion     = 2
+    productCode       = '{FFFF3333-2222-3333-4444-555566667777}'
+    defaultCulture    = 'zh-Hans'
+    product           = @{ name = @{ 'zh-Hans' = '升级测试' }; version = '2.0.0' }
+    scope             = 'perUser'
+    defaultInstallDir = '%LOCALAPPDATA%\Programs\UpgradeTest'
+    entryPoint        = 'App.exe'
+    shortcuts         = @()
+} | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $upProj2 -Encoding UTF8
+
+$r = Invoke-Cli @('pack', '--project', $upProj2, '--source', $upSrc, '--stub', $stub,
+                  '--out', (Join-Path $WorkDir 'up-v2.exe'))
+Check 'v2 打包成功' ($r.ExitCode -eq 0)
+
+$up2 = Join-Path $WorkDir 'up2.json'
+$p = Start-Process -FilePath (Join-Path $WorkDir 'up-v2.exe') `
+     -ArgumentList @('--silent', '--target', $upDir, '--result', $up2) -Wait -PassThru -NoNewWindow
+$u2 = Get-Content -LiteralPath $up2 -Raw -Encoding UTF8 | ConvertFrom-Json
+
+Check 'v2 覆盖安装成功' ($p.ExitCode -eq 0 -and $u2.ok -eq $true) $u2.error
+Check '执行了全部 13 个步骤（含升级清理）' ($u2.stepsExecuted -eq 13) "$($u2.stepsExecuted)/$($u2.stepCount)"
+Check '上一版独有文件已清理 Old.dll' (-not (Test-Path (Join-Path $upDir 'Old.dll')))
+Check '子目录里的上一版文件也已清理' (-not (Test-Path (Join-Path $upDir 'sub\Old.dat')))
+Check '两版都有的文件保留 Keep.dll' (Test-Path (Join-Path $upDir 'Keep.dll'))
+Check '新版新增的文件已装上 New.dll' (Test-Path (Join-Path $upDir 'New.dll'))
+Check '安装记录版本已更新为 2.0.0' `
+      ((Get-Content -LiteralPath (Join-Path $upDir '.install-record.json') -Raw -Encoding UTF8 | ConvertFrom-Json).productVersion -eq '2.0.0')
+
+# 清理
+$p = Start-Process -FilePath (Join-Path $upDir 'Uninstall.exe') `
+     -ArgumentList @('--uninstall', '--silent', '--result', (Join-Path $WorkDir 'up-un.json')) -Wait -PassThru -NoNewWindow
+Check '升级后的卸载仍然成功' ($p.ExitCode -eq 0) "exit=$($p.ExitCode)"
+
 
 # ─────────────────────────────────────────────────────────────
 Write-Host ''

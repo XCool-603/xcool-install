@@ -148,6 +148,7 @@ namespace Installer.UI.Common
             Add(t, "Install.Com", "正在注册组件…", "Registering components...");
             Add(t, "Install.Repair", "正在校验并修复文件…", "Verifying and repairing files...");
             Add(t, "Install.CleanupOrphans", "正在清理残留的卸载项…", "Cleaning up stale uninstall entries...");
+            Add(t, "Install.CleanupOldFiles", "正在清理上一版残留文件…", "Removing files from the previous version...");
 
             Add(t, "Finish.Title", "「{0}」安装完成", "{0} is installed");
             Add(t, "Finish.Body", "已成功安装到 {0}，共写入 {1} 个文件、{2}。", "Installed to {0} ({1} files, {2}).");
