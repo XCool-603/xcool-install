@@ -64,6 +64,9 @@ namespace Installer.UI.Views
         /// <summary>任一附加任务勾选变化。</summary>
         public event Action OptionsChanged;
 
+        /// <summary>「为所有用户安装」勾选变化（切换范围要连带换默认目录）。</summary>
+        public event Action AllUsersChanged;
+
         /// <summary>标题。</summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Title
@@ -274,6 +277,15 @@ namespace Installer.UI.Views
             // 设计稿把「为所有用户安装」的复选框和文字拆成两个控件（文字要跟两行文案居中对齐），
             // 这里补回「点文字也能勾选」的可用性。
             lblAllUsers.Click += (sender, e) => chkAllUsers.Checked = !chkAllUsers.Checked;
+
+            chkAllUsers.CheckedChanged += (sender, e) =>
+            {
+                var handler = AllUsersChanged;
+                if (handler != null)
+                {
+                    handler();
+                }
+            };
 
             Action<bool> onTask = _ =>
             {

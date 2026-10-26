@@ -118,6 +118,11 @@ namespace Installer.UI.Common
             Add(t, "Path.Space", "可用空间：{0}，需要约：{1}",
                 "Free space: {0}, required: {1}");
             Add(t, "Path.Empty", "安装路径不能为空。", "Install path cannot be empty.");
+            Add(t, "Path.NeedsAdmin",
+                "这个安装位置需要管理员权限，但 UAC 授权被取消了。\r\n" +
+                "可以换一个自己能写的目录（例如「文档」下面），或者再点一次「下一步」重新授权。",
+                "This location needs administrator rights, but the UAC prompt was declined.\r\n" +
+                "Pick a folder you can write to, or click Next again to retry the prompt.");
 
             // 「安装设置」页的四张任务卡 —— 逐字对齐设计稿第 3 页，
             // 并且必须和制作端「快捷方式」那一步的用词完全一致。

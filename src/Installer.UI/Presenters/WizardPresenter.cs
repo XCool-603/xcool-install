@@ -55,9 +55,10 @@ namespace Installer.UI.Presenters
                 StartMenuShortcut = HasShortcutAt("StartMenu"),
                 Autostart = manifest.Autostart,
                 RunAfterInstall = manifest.RunAfterInstall,
-                WorkflowMode = workflowMode,
-                InstalledVersion = installedVersion,
-                RepairMode = (workflowMode == InstallWorkflowMode.Repair),
+                // 「为所有用户安装」必须从清单的 scope 初始化，否则界面显示的状态
+                // 和实际安装范围不一致（清单是 perMachine 时复选框却是空的）。
+                AllUsers = string.Equals(manifest.Scope, InstallScopes.PerMachine,
+                                         StringComparison.OrdinalIgnoreCase),
             };
 
             Current = WizardPage.Welcome;
@@ -537,12 +538,39 @@ namespace Installer.UI.Presenters
             _manifest.Autostart = Options.Autostart;
             _manifest.RunAfterInstall = Options.RunAfterInstall;
 
+            // 安装范围也必须写回去！
+            // 漏了这一句的后果：「为所有用户安装」勾了等于没勾 —— Scope 还是 perUser，
+            // 于是装进用户目录、只写 HKCU、不建 HKLM 卸载项，控制面板里所有用户都看不到它。
+            _manifest.Scope = Options.AllUsers ? InstallScopes.PerMachine : InstallScopes.PerUser;
+
             // 安装位置也必须写回去！
             // 漏了这一句的后果：用户在"安装位置"页改成 D:\，装完还是在 C:\ —— 因为引擎读的是清单里的旧值。
             if (!string.IsNullOrWhiteSpace(Options.InstallDir))
             {
                 _manifest.DefaultInstallDir = Options.InstallDir;
             }
+        }
+
+        /// <summary>
+        /// 切换安装范围时把安装目录换成对应的默认值。
+        ///
+        /// 只在这一下重置：用户之后手工改过的路径不会被覆盖。
+        /// 不重置的话会出现"勾了所有用户、目录还在 %LOCALAPPDATA%"——
+        /// 名义上是全机器安装，实际却装在用户目录里，权限和位置都对不上。
+        /// </summary>
+        public void ApplyScopeDefaultDir()
+        {
+            Options.InstallDir = Environment.ExpandEnvironmentVariables(
+                InstallPaths.Suggest(ProductName, Options.AllUsers));
+        }
+
+        /// <summary>
+        /// 直接把当前页设成指定页。
+        /// 用于两处：提权重启后的续跑（回到「安装位置」页）、以及 UAC 被拒后回退。
+        /// </summary>
+        public void StartAt(WizardPage page)
+        {
+            Current = page;
         }
 
         private ShortcutSpec FindOrCreate(string location)

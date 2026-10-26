@@ -616,6 +616,16 @@ namespace Installer.Builder.Forms
 
             UpdateStatus(string.Format(CultureInfo.CurrentCulture, _presenter.S("Status.Done"), fileName, size));
 
+            // 打包时的"体检"结果先弹出来 —— 最典型的是"程序会往安装目录里写数据"，
+            // 这种包装到 Program Files 之后普通用户写不进去，属于装完才会炸的坑，
+            // 必须在制作阶段就提醒。
+            if (result.Warnings != null && result.Warnings.Count > 0)
+            {
+                AntdUI.Modal.open(new AntdUI.Modal.Config(this,
+                    _presenter.S("Msg.Warn.Title"),
+                    string.Join("\r\n\r\n", result.Warnings.ToArray())));
+            }
+
             var body = string.Format(CultureInfo.CurrentCulture, _presenter.S("Msg.Done.Body"),
                 result.OutputPath, size);
 
@@ -663,6 +673,21 @@ namespace Installer.Builder.Forms
             public void StartUninstall(Action<InstallProgress> onProgress, Action<bool, string> onDone)
             {
                 onDone(false, "这是预览，不会真的卸载。");
+            }
+
+            /// <summary>
+            /// 预览模式永远不提权。
+            /// 制作人员点「预览向导」只是想看界面长什么样，不该被弹一个 UAC 框。
+            /// </summary>
+            public bool NeedsElevationRestart(WizardOptions options)
+            {
+                return false;
+            }
+
+            /// <summary>预览模式不可能走到这里（上面恒返回 false），兜底返回 false。</summary>
+            public bool RestartElevated(WizardOptions options)
+            {
+                return false;
             }
 
             public void LaunchEntryPoint()

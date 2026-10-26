@@ -143,6 +143,16 @@ namespace Installer.Core.Packaging
                     10);
                 result.StageMilliseconds[BuildStage.Collect] = sw.ElapsedMilliseconds;
 
+                // 顺手做一次"老程序会不会往安装目录里写"的体检。
+                // 不阻断构建 —— 但装到 Program Files 之后才发现的成本高得多，
+                // 所以在打包阶段就把话说明白。
+                var writeRisk = InstallDirWriteHeuristic.Describe(sourceFull,
+                    string.Equals(manifest.Scope, InstallScopes.PerMachine, StringComparison.OrdinalIgnoreCase));
+                if (!string.IsNullOrEmpty(writeRisk))
+                {
+                    result.Warnings.Add(writeRisk);
+                }
+
                 // ── Stage 3：哈希 ────────────────────────────────────────
                 sw = Stopwatch.StartNew();
                 for (var i = 0; i < files.Count; i++)

@@ -211,6 +211,17 @@ namespace Installer.Cli
             Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "  构建时间  : {0:o}", result.BuildTimestamp));
             Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "  payload哈希: {0}", result.PayloadSha256));
             Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "  产物哈希  : {0}", result.OutputSha256));
+
+            if (result.Warnings != null && result.Warnings.Count > 0)
+            {
+                Console.WriteLine();
+                Console.WriteLine("提示：");
+                foreach (var warning in result.Warnings)
+                {
+                    Console.WriteLine("  * " + warning);
+                }
+            }
+
             return 0;
         }
 

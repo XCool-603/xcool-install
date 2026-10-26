@@ -77,6 +77,9 @@ namespace Installer.Builder.Common
             Add(t, "Advanced.Scope", "安装范围", "Scope");
             Add(t, "Advanced.ScopePerUser", "仅当前用户（不需要管理员）", "Current user only (no admin)");
             Add(t, "Advanced.ScopePerMachine", "所有用户（需要管理员）", "All users (requires admin)");
+            Add(t, "Advanced.AlwaysElevate",
+                "始终请求管理员权限（程序自身需要管理员时才勾选）",
+                "Always require administrator (only if the app itself needs it)");
             Add(t, "Advanced.InstallDir", "默认安装目录", "Default install folder");
             Add(t, "Advanced.Com", "需要注册的 COM 组件", "COM components to register");
             Add(t, "Advanced.Com.Hint", "填相对打包文件夹的路径，一行一个",
@@ -107,6 +110,7 @@ namespace Installer.Builder.Common
                 "Installer created:\r\n\r\n{0}\r\n\r\nSize {1}.\r\n\r\nOpen the containing folder?");
             Add(t, "Msg.Fix.Title", "还差一点", "Almost there");
             Add(t, "Msg.Error.Title", "出错了", "Something went wrong");
+            Add(t, "Msg.Warn.Title", "有几点需要注意", "A few things to note");
 
             Add(t, "Filter.Icon", "图标 (*.ico)|*.ico|所有文件 (*.*)|*.*",
                 "Icon (*.ico)|*.ico|All files (*.*)|*.*");

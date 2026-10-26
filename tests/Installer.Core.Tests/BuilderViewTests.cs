@@ -82,6 +82,39 @@ namespace Installer.Core.Tests
         }
 
         [Fact]
+        public void 高级选项_安装细节_始终提权往返不丢()
+        {
+            var m = Manifest();
+            var b = new ProjectBuildSettings();
+            m.AlwaysElevate = true;
+
+            var view = new AdvancedInstallView();
+            view.ApplyText(Text());
+            view.Write(m, b);
+            view.Read(m, b);
+
+            Assert.True(m.AlwaysElevate, "勾选的「始终请求管理员权限」读回来丢了");
+
+            ((IDisposable)view).Dispose();
+        }
+
+        [Fact]
+        public void 高级选项_安装细节_始终提权默认关闭()
+        {
+            var m = Manifest();
+            var b = new ProjectBuildSettings();
+
+            var view = new AdvancedInstallView();
+            view.ApplyText(Text());
+            view.Write(m, b);
+            view.Read(m, b);
+
+            Assert.False(m.AlwaysElevate, "默认不该要求管理员权限");
+
+            ((IDisposable)view).Dispose();
+        }
+
+        [Fact]
         public void 高级选项_安装细节_空图标不应变成空白字符串()
         {
             // 空图标是"不打补丁"的信号，必须保持 null，

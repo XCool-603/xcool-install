@@ -16,6 +16,7 @@ using Installer.Core.Install;
 using Installer.Core.Packaging;
 using Installer.Core.Platform;
 using Installer.Core.Uninstall;
+using Installer.UI.Models;
 using Newtonsoft.Json;
 
 namespace Installer.Runtime
@@ -189,9 +190,14 @@ namespace Installer.Runtime
 
                 var installDir = ResolveInstallDir(options, manifest, CreatePlatform(options), productName);
 
-                // 「所有用户」要写 HKLM，而 stub 声明的是 asInvoker —— 不主动提权就必然被拒。
-                // 这里在**进向导之前**就把自己重启成管理员，用户只需要点一次 UAC。
-                if (NeedsElevation(manifest) && !options.AlreadyElevated && !IsElevated())
+                // 提权必须发生在**进向导之前**，用户只需要点一次 UAC。
+                //
+                // 判据有两类，缺一不可：
+                // ① 「所有用户」/「始终请求管理员权限」—— 要写 HKLM，asInvoker 必被拒；
+                // ② 安装目录本身写不进去 —— 用户把目录改到了 Program Files，
+                //    以前不判这一条，结果是装到一半才失败（还得回滚）。
+                if (!options.AlreadyElevated && !IsElevated()
+                    && (NeedsElevation(manifest) || NeedsElevationForDir(installDir)))
                 {
                     return RelaunchElevated(options, args);
                 }
@@ -199,7 +205,7 @@ namespace Installer.Runtime
                 // 非静默 → 走向导界面
                 if (!options.Silent)
                 {
-                    return RunWizard(options, selfPath, manifest, installDir);
+                    return RunWizard(options, selfPath, manifest, installDir, LoadResume(options));
                 }
 
                 var journalPath = Path.Combine(installDir, ".install-journal.jsonl");
@@ -492,12 +498,49 @@ namespace Installer.Runtime
 
         /// <summary>
         /// 这次安装是否需要管理员权限。
-        /// 「所有用户」要写 <c>HKLM</c>，而 stub 声明的是 <c>asInvoker</c> —— 不提权就必然被拒。
+        ///
+        /// 两个来源：
+        /// ① 「所有用户」要写 <c>HKLM</c>，而 stub 声明的是 <c>asInvoker</c> —— 不提权必然被拒；
+        /// ② 制作端勾了「始终请求管理员权限」（<see cref="InstallerManifest.AlwaysElevate"/>）。
+        ///
+        /// 注意：这**不是**唯一的提权判据。安装目录本身写不进去（用户把目录改到了
+        /// <c>C:\Program Files</c>）同样要提权，那一项由 <see cref="NeedsElevationForDir"/> 判。
         /// </summary>
         private static bool NeedsElevation(InstallerManifest manifest)
         {
-            return manifest != null
-                   && string.Equals(manifest.Scope, InstallScopes.PerMachine, StringComparison.OrdinalIgnoreCase);
+            if (manifest == null)
+            {
+                return false;
+            }
+
+            // 「所有用户」要写 HKLM
+            if (string.Equals(manifest.Scope, InstallScopes.PerMachine, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            // 制作端勾了「始终请求管理员权限」—— 程序自身运行时需要管理员
+            // （写 HKLM、装驱动/服务），所以安装阶段就先提权，
+            // 不要等用户装完运行起来才发现权限不够。
+            return manifest.AlwaysElevate;
+        }
+
+        /// <summary>
+        /// 安装目录本身写不进去 —— 典型是普通用户把目录改到了 <c>C:\Program Files</c>。
+        ///
+        /// 这种情况**必须**提权：否则前面建目录、写注册表都成功了，
+        /// 到解压文件那一步才失败，还得靠回滚收拾残局。
+        ///
+        /// 已经是管理员时一律返回 false（管理员写哪儿都行）。
+        /// </summary>
+        private static bool NeedsElevationForDir(string dir)
+        {
+            if (string.IsNullOrWhiteSpace(dir) || IsElevated())
+            {
+                return false;
+            }
+
+            return !Installer.Core.Platform.ElevationProbe.CanWrite(dir);
         }
 
         /// <summary>卸载是否需要管理员（卸载键在 HKLM，或安装范围是所有用户）。</summary>
@@ -519,7 +562,7 @@ namespace Installer.Runtime
         }
 
         /// <summary>当前进程是不是管理员。</summary>
-        private static bool IsElevated()
+        internal static bool IsElevated()
         {
             try
             {
@@ -559,11 +602,31 @@ namespace Installer.Runtime
         private static int RelaunchElevated(RuntimeOptions options, string[] args)
         {
             var selfPath = GetSelfPath();
+            var ok = StartElevated(selfPath, RebuildArguments(args));
 
+            if (ok)
+            {
+                return 0;
+            }
+
+            // 用户在 UAC 上点了「否」
+            return Report(options, false,
+                "这次安装需要管理员权限，但 UAC 授权被取消了。\r\n\r\n" +
+                "如果不想每次都提权：在制作端的「高级选项 → 安装细节」里把安装范围改成" +
+                "「仅当前用户」，并把默认安装目录留在 %LOCALAPPDATA% 下面，" +
+                "这样安装和卸载都不需要管理员。");
+        }
+
+        /// <summary>
+        /// 以管理员身份启动 <paramref name="selfPath"/>。
+        /// </summary>
+        /// <returns>启动成功返回 true；用户在 UAC 上点了「否」返回 false。</returns>
+        private static bool StartElevated(string selfPath, string arguments)
+        {
             var psi = new ProcessStartInfo
             {
                 FileName = selfPath,
-                Arguments = RebuildArguments(args),
+                Arguments = arguments,
                 UseShellExecute = true,          // runas 必须走 ShellExecute
                 Verb = "runas",
                 WorkingDirectory = Path.GetDirectoryName(selfPath),
@@ -572,15 +635,116 @@ namespace Installer.Runtime
             try
             {
                 Process.Start(psi);
-                return 0;
+                return true;
             }
             catch (System.ComponentModel.Win32Exception)
             {
-                // 用户在 UAC 上点了「否」
-                return Report(options, false,
-                    "安装到「所有用户」需要管理员权限，但 UAC 授权被取消了。\r\n\r\n" +
-                    "如果不想每次都提权：在制作端的「高级选项 → 安装细节」里把安装范围改成" +
-                    "「仅当前用户」，这样安装和卸载都不需要管理员。");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 向导里发现"用户这次的选择需要管理员"时调用：把自己重启成管理员，
+        /// 并把用户已经做过的选择写进续跑文件，让新实例直接从「安装位置」页接着走。
+        ///
+        /// 以前不做这一步的后果：用户在向导里勾了「为所有用户安装」、或者把目录
+        /// 改到 Program Files，安装照样以普通权限开始 —— 进度条跑到一半才失败。
+        /// </summary>
+        /// <returns>启动成功返回 true；UAC 被拒返回 false（调用方应留在原页面）。</returns>
+        internal static bool RestartElevatedForWizard(string selfPath, WizardOptions wizardOptions,
+                                                      string logPath, string culture, string sandboxRoot)
+        {
+            var resumePath = Path.Combine(Path.GetTempPath(),
+                "installer-resume-" + Guid.NewGuid().ToString("N") + ".json");
+
+            try
+            {
+                File.WriteAllText(resumePath,
+                    JsonConvert.SerializeObject(wizardOptions, Formatting.Indented),
+                    new UTF8Encoding(false));
+            }
+            catch (Exception)
+            {
+                // 写不了续跑文件就别提权了：提权后用户要从头再点一遍，体验更差。
+                return false;
+            }
+
+            var parts = new List<string> { "--resume " + Quote(resumePath) };
+
+            if (!string.IsNullOrWhiteSpace(wizardOptions.InstallDir))
+            {
+                parts.Add("--target " + Quote(wizardOptions.InstallDir));
+            }
+
+            if (!string.IsNullOrWhiteSpace(logPath))
+            {
+                parts.Add("--log " + Quote(logPath));
+            }
+
+            if (!string.IsNullOrWhiteSpace(culture))
+            {
+                parts.Add("--culture " + culture);
+            }
+
+            if (!string.IsNullOrWhiteSpace(sandboxRoot))
+            {
+                parts.Add("--sandbox " + Quote(sandboxRoot));
+            }
+
+            parts.Add("--elevated");
+
+            if (StartElevated(selfPath, string.Join(" ", parts.ToArray())))
+            {
+                return true;
+            }
+
+            try
+            {
+                File.Delete(resumePath);
+            }
+            catch (Exception)
+            {
+            }
+
+            return false;
+        }
+
+        /// <summary>命令行参数里带空格的加引号。</summary>
+        private static string Quote(string value)
+        {
+            return value.IndexOf(' ') >= 0 ? "\"" + value + "\"" : value;
+        }
+
+        /// <summary>
+        /// 读取"提权后重启"留下的续跑文件（**读完即删**，不留在 %TEMP% 里）。
+        /// 解析失败就当没有 —— 大不了用户从头再走一遍向导，绝不能因此装不上。
+        /// </summary>
+        private static WizardOptions LoadResume(RuntimeOptions options)
+        {
+            var path = options.ResumePath;
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+            {
+                return null;
+            }
+
+            try
+            {
+                var json = File.ReadAllText(path, Encoding.UTF8);
+                return JsonConvert.DeserializeObject<WizardOptions>(json);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+            finally
+            {
+                try
+                {
+                    File.Delete(path);
+                }
+                catch (Exception)
+                {
+                }
             }
         }
 
@@ -889,7 +1053,8 @@ namespace Installer.Runtime
         }
 
         private static int RunWizard(RuntimeOptions options, string selfPath,
-                                     InstallerManifest manifest, string installDir)
+                                     InstallerManifest manifest, string installDir,
+                                     WizardOptions resume = null)
         {
             var platform = CreatePlatform(options);
             var existing = DetectExistingInstallation(manifest, platform, installDir);
@@ -925,19 +1090,31 @@ namespace Installer.Runtime
             var host = new WizardHostImpl(selfPath, options.SandboxRoot, options.LogPath, options.Culture,
                 manifest, installDir, false);
 
-            using (var form = new Installer.UI.Forms.WizardForm(manifest, host, installDir, options.Culture, false, workflowMode, installedVersion))
+            var relaunched = false;
+
+            using (var form = new Installer.UI.Forms.WizardForm(manifest, host, installDir, options.Culture))
             {
+                // 提权重启后的续跑：把上次的选择原样恢复，并直接停在「安装位置」页。
+                // 用户已经确认过许可协议、勾过选项，不能让他重来一遍。
+                if (resume != null)
+                {
+                    form.ApplyResume(resume);
+                }
+
                 System.Windows.Forms.Application.Run(form);
+                relaunched = form.RelaunchedForElevation;
             }
 
             WriteResult(options.ResultPath, new
             {
-                ok = host.ExitCode == 0,
-                mode = "install-wizard",
+                // 提权让位不算"安装成功"—— 真正干活的是新启动的那个管理员实例
+                ok = !relaunched && host.ExitCode == 0,
+                mode = relaunched ? "install-wizard-elevating" : "install-wizard",
                 installDir = installDir,
                 sandbox = options.SandboxRoot,
                 productCode = manifest.ProductCode,
                 exitCode = host.ExitCode,
+                elevating = relaunched,
             });
 
             return host.ExitCode;
@@ -1224,6 +1401,12 @@ namespace Installer.Runtime
 
             /// <summary>内部用：已经提过权了，别再重启自己（防无限循环）。</summary>
             public bool AlreadyElevated;
+
+            /// <summary>
+            /// 内部用：向导里提权重启时留下的"续跑文件"（JSON 序列化的 <c>WizardOptions</c>）。
+            /// 新实例读完即删，然后把用户的选择原样恢复。
+            /// </summary>
+            public string ResumePath;
         }
 
         private static RuntimeOptions ParseOptions(string[] args)
@@ -1259,6 +1442,9 @@ namespace Installer.Runtime
                         break;
                     case "--elevated":
                         o.AlreadyElevated = true;
+                        break;
+                    case "--resume":
+                        o.ResumePath = Next(args, ref i);
                         break;
                     case "--target":
                         o.Target = Next(args, ref i);

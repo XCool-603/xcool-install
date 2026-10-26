@@ -134,6 +134,15 @@ namespace Installer.Abstractions.Packaging
         /// <summary>各阶段耗时（毫秒），用于诊断。</summary>
         public Dictionary<BuildStage, long> StageMilliseconds { get; set; } =
             new Dictionary<BuildStage, long>();
+
+        /// <summary>
+        /// 打包时发现的**非致命**问题。不阻断构建，但值得在界面上提示制作人员。
+        ///
+        /// 目前只有一类：源目录里有 <c>Data</c>/<c>Log</c>/<c>*.db</c> 这种
+        /// "程序运行时会往安装目录里写"的东西 —— 装到 Program Files 后
+        /// 普通用户写不进去，程序启动正常、一操作就报错。
+        /// </summary>
+        public List<string> Warnings { get; set; } = new List<string>();
     }
 
     /// <summary>打包过程中的失败。</summary>

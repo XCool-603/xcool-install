@@ -110,6 +110,22 @@ namespace Installer.UI.Models
         /// <summary>开始卸载。</summary>
         void StartUninstall(Action<InstallProgress> onProgress, Action<bool, string> onDone);
 
+        /// <summary>
+        /// 按用户当前的选择，安装**开始之前**是否必须先提权。
+        ///
+        /// 三种情况都要提：
+        /// ① 清单勾了「始终请求管理员权限」；
+        /// ② 用户勾了「为所有用户安装」（要写 HKLM）；
+        /// ③ 安装目录本身写不进去（典型：普通用户把目录改到了 Program Files）。
+        /// </summary>
+        bool NeedsElevationRestart(WizardOptions options);
+
+        /// <summary>
+        /// 以管理员身份重启安装程序，并把当前选择带过去（新实例从「安装位置」页接着走）。
+        /// </summary>
+        /// <returns>true = 已启动，本实例应关闭；false = 用户在 UAC 上点了「否」。</returns>
+        bool RestartElevated(WizardOptions options);
+
         /// <summary>安装完成后启动入口程序。</summary>
         void LaunchEntryPoint();
     }
