@@ -97,5 +97,70 @@ namespace Installer.Core.Install
         {
             return @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\" + ctx.Manifest.ProductCode;
         }
+
+        /// <summary>
+        /// 比较两个版本号：<paramref name="left"/> 小于 <paramref name="right"/> 返回负数，相等返回 0，大于返回正数。
+        ///
+        /// 用途：判定这次到底是**升级**（Update）、**修复**（Repair）还是**降级**（Downgrade）。
+        ///
+        /// 规则：
+        /// ① 按点分段，逐段比数字（**"1.10" &gt; "1.9"**，不是字符串比较）；
+        /// ② 缺的段当 0 —— 所以 "1.0" 与 "1.0.0" **相等**（同一个版本，应当判为修复而不是升级）；
+        /// ③ 某段不是纯数字（如 "1.2.3-beta"）时，该段按不区分大小写字符串比；
+        /// ④ 空值视为"最小版本"：没装过 &lt; 装过任何版本。
+        /// </summary>
+        public static int CompareVersions(string left, string right)
+        {
+            var a = (left ?? string.Empty).Trim();
+            var b = (right ?? string.Empty).Trim();
+
+            if (a.Length == 0 && b.Length == 0)
+            {
+                return 0;
+            }
+
+            if (a.Length == 0)
+            {
+                return -1;
+            }
+
+            if (b.Length == 0)
+            {
+                return 1;
+            }
+
+            var pa = a.Split('.');
+            var pb = b.Split('.');
+            var count = Math.Max(pa.Length, pb.Length);
+
+            for (var i = 0; i < count; i++)
+            {
+                var sa = i < pa.Length ? pa[i].Trim() : "0";
+                var sb = i < pb.Length ? pb[i].Trim() : "0";
+
+                long na, nb;
+                var isNumberA = long.TryParse(sa, NumberStyles.Integer, CultureInfo.InvariantCulture, out na);
+                var isNumberB = long.TryParse(sb, NumberStyles.Integer, CultureInfo.InvariantCulture, out nb);
+
+                if (isNumberA && isNumberB)
+                {
+                    if (na != nb)
+                    {
+                        return na < nb ? -1 : 1;
+                    }
+
+                    continue;
+                }
+
+                // 有一段不是纯数字（预发布标记之类）—— 退回字符串比较，但仍逐段比
+                var text = string.Compare(sa, sb, StringComparison.OrdinalIgnoreCase);
+                if (text != 0)
+                {
+                    return text < 0 ? -1 : 1;
+                }
+            }
+
+            return 0;
+        }
     }
 }

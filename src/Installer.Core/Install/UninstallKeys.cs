@@ -17,6 +17,12 @@ namespace Installer.Core.Install
         /// <summary>显示名。</summary>
         public string DisplayName { get; set; }
 
+        /// <summary>
+        /// 显示版本（<c>DisplayVersion</c>）。
+        /// 升级/修复/降级判定要拿它跟新包的版本比，所以必须读出来。
+        /// </summary>
+        public string DisplayVersion { get; set; }
+
         /// <summary>安装目录。</summary>
         public string InstallLocation { get; set; }
 
@@ -83,6 +89,8 @@ namespace Installer.Core.Install
                         Hive = hive,
                         KeyName = name,
                         DisplayName = registry.GetString(hive, SubKeyRoot + "\\" + name, "DisplayName"),
+                        // 升级/修复判定要拿它跟新版本比 —— 缺了这个字段就只能永远当"新装"
+                        DisplayVersion = registry.GetString(hive, SubKeyRoot + "\\" + name, "DisplayVersion"),
                         InstallLocation = registry.GetString(hive, SubKeyRoot + "\\" + name, "InstallLocation"),
                         UninstallString = registry.GetString(hive, SubKeyRoot + "\\" + name, "UninstallString"),
                     });

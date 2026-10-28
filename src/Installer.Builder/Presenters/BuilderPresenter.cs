@@ -10,6 +10,7 @@ using Installer.Builder.Common;
 using Installer.Builder.Models;
 using Installer.Builder.Services;
 using Installer.Core.Packaging;
+using Installer.Core.Security;
 
 namespace Installer.Builder.Presenters
 {

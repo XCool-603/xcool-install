@@ -145,6 +145,16 @@ namespace Installer.Core.Tests
         /// <summary>模拟正在运行的进程名。</summary>
         public HashSet<string> Running { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+        /// <summary>
+        /// 模拟"进程名 → 可执行文件路径"。
+        ///
+        /// 没登记的按"路径读不到"处理 —— 与真实实现一致：
+        /// <c>WindowsPlatform.KillInDirectory</c> 在拿不到主模块路径时**仍然会结束进程**，
+        /// 只有在"拿到了路径、且路径不在目标目录内"时才放过（避免误杀别人的同名进程）。
+        /// </summary>
+        public Dictionary<string, string> RunningPaths { get; } =
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
         /// <summary>启动过的程序。</summary>
         public List<string> Started { get; } = new List<string>();
 
@@ -158,6 +168,32 @@ namespace Installer.Core.Tests
         public int Kill(string processName)
         {
             return Running.Remove(processName) ? 1 : 0;
+        }
+
+        /// <inheritdoc />
+        public int KillInDirectory(string processName, string targetDirectory)
+        {
+            if (!Running.Contains(processName))
+            {
+                return 0;
+            }
+
+            if (!string.IsNullOrEmpty(targetDirectory))
+            {
+                string exePath;
+                if (RunningPaths.TryGetValue(processName, out exePath) && !string.IsNullOrEmpty(exePath))
+                {
+                    if (!Installer.Core.Security.SafePath.IsWithin(targetDirectory, exePath))
+                    {
+                        // 同名但不在安装目录里 —— 是别人的进程，不能动
+                        return 0;
+                    }
+                }
+            }
+
+            Running.Remove(processName);
+            RunningPaths.Remove(processName);
+            return 1;
         }
 
         /// <inheritdoc />

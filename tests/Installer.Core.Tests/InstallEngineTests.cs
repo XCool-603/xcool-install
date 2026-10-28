@@ -302,18 +302,36 @@ namespace Installer.Core.Tests
         }
 
         [Fact]
-        public void 失败后_journal_文件应保留以便崩溃恢复()
+        public void 失败回滚后_journal_与备份目录应被清理()
         {
             var ctx = NewContext();
+
+            // 先放一个同名文件：这样 WriterStep 覆盖它时会真的产生一份备份，
+            // 下面"备份目录也被清掉"的断言才有意义。
+            var bin = Path.Combine(ctx.InstallDir, "bin");
+            Directory.CreateDirectory(bin);
+            File.WriteAllText(Path.Combine(bin, "a.txt"), "旧内容");
+
             var journalPath = Path.Combine(_root, "journal2.jsonl");
-            ctx.Journal = new InstallJournal(journalPath, Path.Combine(_root, "backup2"));
+            var backupDir = Path.Combine(_root, "backup2");
+            ctx.Journal = new InstallJournal(journalPath, backupDir);
 
             var engine = new InstallEngine(() => new List<IInstallStep> { new WriterStep(), new BoomStep() });
-            engine.Run(ctx);
+            var run = engine.Run(ctx);
 
-            // 回滚之后文件还在（内容可被 LoadPending 读回做诊断）
-            Assert.True(File.Exists(journalPath));
-            Assert.NotEmpty(InstallJournal.LoadPending(journalPath));
+            Assert.False(run.Success);
+            Assert.True(run.RolledBack);
+
+            // 回滚已经把改动全部撤销了 —— journal 和 .rollback 再留着就是残留垃圾。
+            //
+            // 注意别和"崩溃恢复"搞混：进程被杀、回滚根本没跑的那种情况，
+            // journal **必须保留**，由下次安装的预检读回来先回滚残留 ——
+            // 那条链路由 InterruptedInstallTests 覆盖。
+            Assert.False(File.Exists(journalPath), "回滚完成后 journal 应被清理");
+            Assert.False(Directory.Exists(backupDir), "回滚完成后备份目录应被清理");
+
+            // 被覆盖的旧文件内容应当已经还原
+            Assert.Equal("旧内容", File.ReadAllText(Path.Combine(bin, "a.txt")));
         }
 
         // ─────────────────────────────────────────────────────────────
