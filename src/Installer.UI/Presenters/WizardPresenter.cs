@@ -113,7 +113,14 @@ namespace Installer.UI.Presenters
 
                     case WizardPage.Path:
                     case WizardPage.Options:
-                        // 设计稿把「安装位置」与「附加任务」合成一页，所以这一页的主按钮直接是「安装」
+                        if (Options.WorkflowMode == InstallWorkflowMode.Update)
+                        {
+                            return "Wizard.Update";
+                        }
+                        if (Options.WorkflowMode == InstallWorkflowMode.Repair)
+                        {
+                            return "Wizard.Repair";
+                        }
                         return "Wizard.Install";
                     case WizardPage.Installing:
                     case WizardPage.Uninstalling:
@@ -227,6 +234,8 @@ namespace Installer.UI.Presenters
                     switch (Current)
                     {
                         case WizardPage.Welcome:
+                        case WizardPage.Path:
+                        case WizardPage.License:
                             return 0;
                         case WizardPage.Installing:
                             return 1;
@@ -391,6 +400,15 @@ namespace Installer.UI.Presenters
 
                 default:
                     return false;
+            }
+        }
+
+        /// <summary>从欢迎页进入自定义安装/更换目录设置。</summary>
+        public void Customize()
+        {
+            if (Current == WizardPage.Welcome)
+            {
+                Current = _licenseRequired ? WizardPage.License : WizardPage.Path;
             }
         }
 

@@ -649,7 +649,7 @@ namespace Installer.UI.Forms
                         HasShortcut("StartMenu") ? _presenter.Text("Finish.ChipStartMenu") : null,
                         _manifest.Autostart ? _presenter.Text("Finish.ChipAutostart") : null);
                     _finishView.ShowRunOption = _manifest.RunAfterInstall;
-                    _finishView.RunChecked = true;
+                    _finishView.RunChecked = _presenter.Options.RunAfterInstall;
                     _finishView.SetState(true);
                     break;
 
@@ -807,7 +807,7 @@ namespace Installer.UI.Forms
             LocalizeSteps();
 
             btnPrimary.Text = _presenter.Text(_presenter.PrimaryKey);
-            btnBack.Text = _presenter.Text("Wizard.Back");
+            btnBack.Text = _presenter.Text(_presenter.BackKey);
             btnCancel.Text = _presenter.Text(_presenter.SecondaryKey);
 
             btnPrimary.Enabled = _presenter.PrimaryEnabled;
@@ -942,7 +942,14 @@ namespace Installer.UI.Forms
 
         private void BtnBackClick(object sender, EventArgs e)
         {
-            _presenter.Back();
+            if (_presenter.Current == WizardPage.Welcome)
+            {
+                _presenter.Customize();
+            }
+            else
+            {
+                _presenter.Back();
+            }
             Render();
         }
 

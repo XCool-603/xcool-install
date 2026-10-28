@@ -244,9 +244,17 @@ namespace Installer.Builder.Forms
         {
             ReadFromViews();
 
-            // 用户没有固定过输出路径 → 自动推导
-            _presenter.Document.Project.Build.OutputPath = null;
-            outputBar.OutputPath = _presenter.ResolveOutputPath();
+            // 保护用户的输出路径选择：只有在工程未设置输出路径时才自动推导默认值，
+            // 绝不在用户修改其他配置时强行覆盖重置用户的输出路径！
+            var b = _presenter.Document.Project.Build;
+            if (b == null || string.IsNullOrWhiteSpace(b.OutputPath))
+            {
+                outputBar.OutputPath = _presenter.ResolveOutputPath();
+            }
+            else
+            {
+                outputBar.OutputPath = b.OutputPath;
+            }
 
             UpdateFolderDependentState();
         }

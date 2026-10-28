@@ -977,15 +977,46 @@ namespace Installer.Runtime
             if (!string.IsNullOrEmpty(manifest.ProductCode))
             {
                 var refKey = Installer.Core.Install.UninstallKeys.FindByProductCode(platform.Registry, manifest.ProductCode);
-                if (refKey != null && !string.IsNullOrEmpty(refKey.InstallLocation) && Directory.Exists(refKey.InstallLocation))
+                if (refKey != null)
                 {
-                    return new InstalledAppInfo
+                    var loc = refKey.InstallLocation;
+                    if (string.IsNullOrEmpty(loc) && !string.IsNullOrEmpty(refKey.UninstallString))
                     {
-                        IsInstalled = true,
-                        Version = refKey.DisplayVersion,
-                        InstallLocation = refKey.InstallLocation,
-                        DisplayName = refKey.DisplayName,
-                    };
+                        try
+                        {
+                            var raw = refKey.UninstallString.Trim().Trim('"');
+                            var firstExe = raw.IndexOf(".exe", StringComparison.OrdinalIgnoreCase);
+                            if (firstExe > 0)
+                            {
+                                var exe = raw.Substring(0, firstExe + 4).Trim('"');
+                                if (File.Exists(exe))
+                                {
+                                    loc = Path.GetDirectoryName(exe);
+                                }
+                            }
+                        }
+                        catch
+                        {
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(loc) && Directory.Exists(loc))
+                    {
+                        var ver = refKey.DisplayVersion;
+                        if (string.IsNullOrEmpty(ver))
+                        {
+                            var rec = UninstallEngine.LoadRecord(loc);
+                            if (rec != null) ver = rec.ProductVersion;
+                        }
+
+                        return new InstalledAppInfo
+                        {
+                            IsInstalled = true,
+                            Version = ver,
+                            InstallLocation = loc,
+                            DisplayName = refKey.DisplayName,
+                        };
+                    }
                 }
             }
 
@@ -1026,7 +1057,7 @@ namespace Installer.Runtime
                     installDir = existing.InstallLocation; // 原地更新/修复，自动锁定原路径
                 }
 
-                var cmp = StandardSteps.CompareVersions(existing.Version, manifest.Product.Version);
+                var cmp = PreflightStep.CompareVersions(existing.Version, manifest.Product.Version);
                 if (cmp < 0)
                 {
                     workflowMode = Installer.UI.Models.InstallWorkflowMode.Update;
@@ -1049,7 +1080,8 @@ namespace Installer.Runtime
 
             var relaunched = false;
 
-            using (var form = new Installer.UI.Forms.WizardForm(manifest, host, installDir, options.Culture))
+            using (var form = new Installer.UI.Forms.WizardForm(manifest, host, installDir, options.Culture,
+                                                                false, workflowMode, installedVersion))
             {
                 // 提权重启后的续跑：把上次的选择原样恢复，并直接停在「安装位置」页。
                 // 用户已经确认过许可协议、勾过选项，不能让他重来一遍。

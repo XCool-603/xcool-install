@@ -26,6 +26,8 @@ namespace Installer.UI.Common
             Add(t, "Wizard.Install", "立即安装", "Install");
             Add(t, "Wizard.Update", "立即更新", "Update Now");
             Add(t, "Wizard.Repair", "立即修复", "Repair Now");
+            Add(t, "Wizard.Customize", "自定义安装", "Customize");
+            Add(t, "Wizard.ChangeDir", "更换目录", "Change Directory");
             Add(t, "Step.UpdateConfirm", "确认更新", "Confirm Update");
             Add(t, "Step.RepairConfirm", "确认修复", "Confirm Repair");
             Add(t, "Update.Title", "「{0}」版本更新", "{0} Update");
