@@ -347,6 +347,54 @@ namespace Installer.Core.Tests
             Assert.Equal("Wizard.Close", p.SecondaryKey);
         }
 
+        [Fact]
+        public void 升级模式_欢迎页直接一键到安装中_且支持更换目录()
+        {
+            var m = TestManifest.Create();
+            var table = new StringTable(WizardStrings.Merge(m.Strings), "zh-Hans", m.DefaultCulture);
+            var p = new WizardPresenter(m, table, @"C:\Test\App", InstallWorkflowMode.Update, "1.0.0");
+
+            Assert.Equal(WizardPage.Welcome, p.Current);
+            Assert.Equal("Wizard.Update", p.PrimaryKey);
+            Assert.True(p.CanGoBack);
+            Assert.Equal("Wizard.ChangeDir", p.BackKey);
+            Assert.Equal(3, p.StepCount);
+            Assert.Equal(0, p.StepIndex);
+
+            // 用户点更换目录进入路径选择
+            p.Customize();
+            Assert.Equal(WizardPage.Path, p.Current);
+            Assert.Equal("Wizard.Update", p.PrimaryKey);
+            Assert.True(p.CanGoBack);
+            Assert.Equal("Wizard.Back", p.BackKey);
+
+            // 点返回退回欢迎页
+            p.Back();
+            Assert.Equal(WizardPage.Welcome, p.Current);
+
+            // 点主按钮直接开始更新
+            Assert.True(p.Primary());
+            Assert.Equal(WizardPage.Installing, p.Current);
+            Assert.Equal(1, p.StepIndex);
+        }
+
+        [Fact]
+        public void 修复模式_欢迎页直接一键到安装中_且置位RepairMode()
+        {
+            var m = TestManifest.Create();
+            var table = new StringTable(WizardStrings.Merge(m.Strings), "zh-Hans", m.DefaultCulture);
+            var p = new WizardPresenter(m, table, @"C:\Test\App", InstallWorkflowMode.Repair, "1.0.0");
+
+            Assert.Equal(WizardPage.Welcome, p.Current);
+            Assert.Equal("Wizard.Repair", p.PrimaryKey);
+            Assert.True(p.CanGoBack);
+            Assert.Equal("Wizard.Customize", p.BackKey);
+
+            Assert.True(p.Primary());
+            Assert.Equal(WizardPage.Installing, p.Current);
+            Assert.True(p.Options.RepairMode);
+        }
+
         private static InstallerManifest GetManifest(WizardPresenter p)
         {
             // 反射拿私有字段：测试需要确认"选择写回了清单"

@@ -969,71 +969,125 @@ namespace Installer.Runtime
             public string DisplayName;
         }
 
+        private static InstalledAppInfo ExtractAppInfo(UninstallKeyRef refKey)
+        {
+            if (refKey == null) return null;
+
+            var loc = refKey.InstallLocation;
+            if (string.IsNullOrEmpty(loc) && !string.IsNullOrEmpty(refKey.UninstallString))
+            {
+                try
+                {
+                    var raw = refKey.UninstallString.Trim().Trim('"');
+                    var firstExe = raw.IndexOf(".exe", StringComparison.OrdinalIgnoreCase);
+                    if (firstExe > 0)
+                    {
+                        var exe = raw.Substring(0, firstExe + 4).Trim('"');
+                        if (File.Exists(exe))
+                        {
+                            loc = Path.GetDirectoryName(exe);
+                        }
+                    }
+                }
+                catch
+                {
+                }
+            }
+
+            if (!string.IsNullOrEmpty(loc) && Directory.Exists(loc))
+            {
+                var ver = refKey.DisplayVersion;
+                if (string.IsNullOrEmpty(ver))
+                {
+                    var rec = UninstallEngine.LoadRecord(loc);
+                    if (rec != null) ver = rec.ProductVersion;
+                }
+
+                return new InstalledAppInfo
+                {
+                    IsInstalled = true,
+                    Version = ver,
+                    InstallLocation = loc,
+                    DisplayName = refKey.DisplayName,
+                };
+            }
+
+            return null;
+        }
+
         private static InstalledAppInfo DetectExistingInstallation(InstallerManifest manifest, IPlatformServices platform, string defaultDir)
         {
             if (manifest == null) return null;
 
-            // 1. 尝试从注册表卸载键查找
+            // 1. 尝试从注册表按 ProductCode 精准查找
             if (!string.IsNullOrEmpty(manifest.ProductCode))
             {
                 var refKey = Installer.Core.Install.UninstallKeys.FindByProductCode(platform.Registry, manifest.ProductCode);
-                if (refKey != null)
+                var info = ExtractAppInfo(refKey);
+                if (info != null) return info;
+            }
+
+            // 2. 尝试从注册表按产品显示名称（ProductName）查找（覆盖用户重新打包换了 GUID 的情况）
+            string prodName = null;
+            if (manifest.Product != null && manifest.Product.Name != null)
+            {
+                try
                 {
-                    var loc = refKey.InstallLocation;
-                    if (string.IsNullOrEmpty(loc) && !string.IsNullOrEmpty(refKey.UninstallString))
+                    var text = new StringTable(manifest.Strings,
+                        StringTable.DetectRequestedCulture(), manifest.DefaultCulture);
+                    prodName = text.Resolve(manifest.Product.Name, manifest.ProductCode);
+                }
+                catch
+                {
+                    if (!manifest.Product.Name.TryGetValue("zh-Hans", out prodName))
                     {
-                        try
-                        {
-                            var raw = refKey.UninstallString.Trim().Trim('"');
-                            var firstExe = raw.IndexOf(".exe", StringComparison.OrdinalIgnoreCase);
-                            if (firstExe > 0)
-                            {
-                                var exe = raw.Substring(0, firstExe + 4).Trim('"');
-                                if (File.Exists(exe))
-                                {
-                                    loc = Path.GetDirectoryName(exe);
-                                }
-                            }
-                        }
-                        catch
-                        {
-                        }
-                    }
-
-                    if (!string.IsNullOrEmpty(loc) && Directory.Exists(loc))
-                    {
-                        var ver = refKey.DisplayVersion;
-                        if (string.IsNullOrEmpty(ver))
-                        {
-                            var rec = UninstallEngine.LoadRecord(loc);
-                            if (rec != null) ver = rec.ProductVersion;
-                        }
-
-                        return new InstalledAppInfo
-                        {
-                            IsInstalled = true,
-                            Version = ver,
-                            InstallLocation = loc,
-                            DisplayName = refKey.DisplayName,
-                        };
+                        manifest.Product.Name.TryGetValue("en", out prodName);
                     }
                 }
             }
 
-            // 2. 尝试从目标安装目录查找记录文件
+            if (!string.IsNullOrEmpty(prodName))
+            {
+                foreach (var k in Installer.Core.Install.UninstallKeys.ListAll(platform.Registry))
+                {
+                    if (string.Equals(k.DisplayName, prodName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        var info = ExtractAppInfo(k);
+                        if (info != null) return info;
+                    }
+                }
+            }
+
+            // 3. 尝试从目标安装目录查找记录文件或启动程序
             if (!string.IsNullOrEmpty(defaultDir) && Directory.Exists(defaultDir))
             {
                 var record = UninstallEngine.LoadRecord(defaultDir);
-                if (record != null && (string.IsNullOrEmpty(manifest.ProductCode) ||
-                                       string.Equals(record.ProductCode, manifest.ProductCode, StringComparison.OrdinalIgnoreCase)))
+                if (record != null)
                 {
                     return new InstalledAppInfo
                     {
                         IsInstalled = true,
                         Version = record.ProductVersion,
-                        InstallLocation = record.InstallDir,
-                        DisplayName = record.ProductName,
+                        InstallLocation = record.InstallDir ?? defaultDir,
+                        DisplayName = record.ProductName ?? prodName,
                     };
+                }
+
+                if (!string.IsNullOrEmpty(manifest.EntryPoint))
+                {
+                    var targetExe = Path.Combine(defaultDir, manifest.EntryPoint);
+                    if (File.Exists(targetExe))
+                    {
+                        string ver = null;
+                        try { ver = FileVersionInfo.GetVersionInfo(targetExe).FileVersion; } catch { }
+                        return new InstalledAppInfo
+                        {
+                            IsInstalled = true,
+                            Version = ver ?? "1.0.0",
+                            InstallLocation = defaultDir,
+                            DisplayName = prodName,
+                        };
+                    }
                 }
             }
 
@@ -1282,10 +1336,25 @@ namespace Installer.Runtime
                 dir = Path.Combine(options.SandboxRoot, "Programs", SafePathSanitize(productName));
             }
 
-            // 如果用户未显式指定目标路径，优先沿用已安装产品的实际路径
+            // 如果用户未显式指定目标路径，优先探测已安装产品的实际路径（含默认路径级联检测）
             if (string.IsNullOrWhiteSpace(dir))
             {
-                var existing = DetectExistingInstallation(manifest, platform, null);
+                string candidateDir = manifest.DefaultInstallDir;
+                if (string.IsNullOrWhiteSpace(candidateDir))
+                {
+                    candidateDir = Path.Combine(platform.Environment.GetFolder(SpecialFolderKind.LocalApplicationData),
+                        "Programs", SafePathSanitize(productName));
+                }
+                if (!string.IsNullOrWhiteSpace(candidateDir))
+                {
+                    try
+                    {
+                        candidateDir = Path.GetFullPath(platform.Environment.ExpandEnvironmentVariables(candidateDir));
+                    }
+                    catch { }
+                }
+
+                var existing = DetectExistingInstallation(manifest, platform, candidateDir);
                 if (existing != null && !string.IsNullOrWhiteSpace(existing.InstallLocation))
                 {
                     dir = existing.InstallLocation;

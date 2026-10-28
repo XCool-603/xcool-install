@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -488,10 +488,7 @@ namespace Installer.Core.Uninstall
                 result.PendingRebootPaths.Add(display);
                 result.RequiresRestart = true;
                 result.Messages.Add("已登记重启后删除：" + display);
-                return;
             }
-
-            result.UndeletedPaths.Add(display);
         }
 
         private const int MOVEFILE_DELAY_UNTIL_REBOOT = 0x4;

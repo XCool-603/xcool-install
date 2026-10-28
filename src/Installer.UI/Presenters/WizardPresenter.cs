@@ -30,6 +30,8 @@ namespace Installer.UI.Presenters
         /// <param name="manifest">清单。</param>
         /// <param name="text">文案表（应已合并内置文案）。</param>
         /// <param name="defaultInstallDir">已解析好的默认安装目录。</param>
+        /// <param name="workflowMode">流程模式（全新安装 / 原地更新 / 修复覆盖 / 降级拦截）。</param>
+        /// <param name="installedVersion">已检测到的旧版本号。</param>
         public WizardPresenter(InstallerManifest manifest, IStringTable text, string defaultInstallDir,
                                InstallWorkflowMode workflowMode = InstallWorkflowMode.FreshInstall,
                                string installedVersion = null)
@@ -49,6 +51,8 @@ namespace Installer.UI.Presenters
 
             Options = new WizardOptions
             {
+                WorkflowMode = workflowMode,
+                InstalledVersion = installedVersion,
                 InstallDir = defaultInstallDir,
                 AcceptLicense = !_licenseRequired,
                 DesktopShortcut = HasShortcutAt("Desktop"),
@@ -74,13 +78,16 @@ namespace Installer.UI.Presenters
         /// <summary>失败原因（仅在 <see cref="WizardPage.Failed"/> 有意义）。</summary>
         public string ErrorMessage { get; private set; }
 
-        /// <summary>是否显示"上一步"。</summary>
+        /// <summary>是否显示"上一步"或自定义次要按钮。</summary>
         public bool CanGoBack
         {
             get
             {
                 switch (Current)
                 {
+                    case WizardPage.Welcome:
+                        // 欢迎页在更新或修复模式下显示次要操作（更换目录 / 自定义设置）
+                        return Options.WorkflowMode == InstallWorkflowMode.Update || Options.WorkflowMode == InstallWorkflowMode.Repair;
                     case WizardPage.License:
                         return true;
                     case WizardPage.Path:
@@ -90,6 +97,23 @@ namespace Installer.UI.Presenters
                     default:
                         return false;
                 }
+            }
+        }
+
+        /// <summary>返回/次要操作按钮的文案 key。</summary>
+        public string BackKey
+        {
+            get
+            {
+                if (Current == WizardPage.Welcome)
+                {
+                    if (Options.WorkflowMode == InstallWorkflowMode.Update)
+                    {
+                        return "Wizard.ChangeDir";
+                    }
+                    return "Wizard.Customize";
+                }
+                return "Wizard.Back";
             }
         }
 

@@ -66,6 +66,8 @@ namespace Installer.UI.Forms
         /// <param name="defaultInstallDir">已解析的默认安装目录。</param>
         /// <param name="culture">界面语言；null 表示跟随系统。</param>
         /// <param name="uninstallMode">是否为卸载模式。</param>
+        /// <param name="workflowMode">流程模式（全新安装 / 原地更新 / 修复覆盖 / 降级拦截）。</param>
+        /// <param name="installedVersion">已检测到的旧版本号。</param>
         public WizardForm(InstallerManifest manifest, IWizardHost host, string defaultInstallDir,
                           string culture = null, bool uninstallMode = false,
                           InstallWorkflowMode workflowMode = InstallWorkflowMode.FreshInstall,

@@ -330,17 +330,9 @@ namespace Installer.Builder.Forms
         /// <summary>用户选了文件夹 → 产品名跟随**文件夹名**（与复选框文案一致）。</summary>
         private void AutoFillProductName(string folder)
         {
-            if (!string.IsNullOrWhiteSpace(folder))
+            if (string.IsNullOrWhiteSpace(_presenter.Document.Project.Manifest.ProductCode))
             {
-                var prevSource = _presenter.Document.Project.Build.SourceDir;
-                // 若未显式打开外部工程文件（属于自动记忆会话），且用户更换了全新的文件夹，
-                // 自动生成新的 productCode，避免不同软件打包时共用同一个 GUID。
-                if (string.IsNullOrEmpty(_presenter.Document.Path)
-                    && !string.IsNullOrWhiteSpace(prevSource)
-                    && !string.Equals(prevSource, folder, StringComparison.OrdinalIgnoreCase))
-                {
-                    _presenter.Document.Project.Manifest.ProductCode = Guid.NewGuid().ToString("B").ToUpperInvariant();
-                }
+                _presenter.Document.Project.Manifest.ProductCode = Guid.NewGuid().ToString("B").ToUpperInvariant();
             }
 
             ApplyAutoName(BuilderPresenter.SuggestProductName(folder));

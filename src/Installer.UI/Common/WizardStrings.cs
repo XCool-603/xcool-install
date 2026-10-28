@@ -49,8 +49,8 @@ namespace Installer.UI.Common
             Add(t, "Wizard.Retry", "重试", "Retry");
 
             Add(t, "Wizard.StepInfo", "第 {0} 步，共 {1} 步", "Step {0} of {1}");
-            Add(t, "Welcome.HintNoLicense", "确认安装位置与附加任务后，点击「下一步」开始安装。",
-                "Review the install location and tasks, then click Next to begin.");
+            Add(t, "Welcome.HintNoLicense", "点击「立即安装」极速安装；如需更改路径或选项，请点击「自定义安装」。",
+                "Click 'Install' for quick installation, or click 'Customize' to change options.");
             Add(t, "Finish.RunHint", "点击「完成」后将自动启动程序", "The app will start after you click Finish");
             // 完成页的勾选标签与「运行」那一行 —— 设计稿第 5 页的措辞和安装设置页不同，
             // 不能和 Options.* 共用（共用必然有一边写错，这正是之前"两边不一致"的根因）。

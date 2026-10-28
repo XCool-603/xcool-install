@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -282,7 +282,11 @@ namespace Installer.Core.Tests
             var engine = new InstallEngine(() => new List<IInstallStep> { new WriterStep(), new WriterStep() });
 
             engine.Run(ctx, new Progress<InstallProgress>(reports.Add));
-            Thread.Sleep(50);   // Progress<T> 是异步投递的
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            while (reports.Count < 2 && sw.ElapsedMilliseconds < 500)
+            {
+                Thread.Sleep(10);
+            }
 
             Assert.Contains(reports, r => r.StepIndex == 1);
             Assert.Contains(reports, r => r.Percent == 100);
