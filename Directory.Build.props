@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <!-- 若系统 Program Files 缺少 4.6.1/4.6.2 目标包，自动指向本地引用程序集目录 -->
+    <TargetFrameworkRootPath Condition="Exists('$(LocalAppData)\CustomRefAssemblies\.NETFramework\v4.6.1\mscorlib.dll')">$(LocalAppData)\CustomRefAssemblies</TargetFrameworkRootPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="All" />
+  </ItemGroup>
+</Project>
