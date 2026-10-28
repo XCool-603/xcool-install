@@ -322,6 +322,19 @@ namespace Installer.Builder.Forms
         /// <summary>用户选了文件夹 → 产品名跟随**文件夹名**（与复选框文案一致）。</summary>
         private void AutoFillProductName(string folder)
         {
+            if (!string.IsNullOrWhiteSpace(folder))
+            {
+                var prevSource = _presenter.Document.Project.Build.SourceDir;
+                // 若未显式打开外部工程文件（属于自动记忆会话），且用户更换了全新的文件夹，
+                // 自动生成新的 productCode，避免不同软件打包时共用同一个 GUID。
+                if (string.IsNullOrEmpty(_presenter.Document.Path)
+                    && !string.IsNullOrWhiteSpace(prevSource)
+                    && !string.Equals(prevSource, folder, StringComparison.OrdinalIgnoreCase))
+                {
+                    _presenter.Document.Project.Manifest.ProductCode = Guid.NewGuid().ToString("B").ToUpperInvariant();
+                }
+            }
+
             ApplyAutoName(BuilderPresenter.SuggestProductName(folder));
         }
 
@@ -347,29 +360,12 @@ namespace Installer.Builder.Forms
         /// <summary>用户自己敲了产品名 → 关掉"跟随"，让他的输入留得住。</summary>
         private void OnProductNameEdited()
         {
-<<<<<<< HEAD
-            if (!string.IsNullOrWhiteSpace(folder))
-            {
-                var prevSource = _presenter.Document.Project.Build.SourceDir;
-                // 若未显式打开外部工程文件（属于自动记忆会话），且用户更换了全新的文件夹，
-                // 自动生成新的 productCode，避免不同软件打包时共用同一个 GUID。
-                if (string.IsNullOrEmpty(_presenter.Document.Path)
-                    && !string.IsNullOrWhiteSpace(prevSource)
-                    && !string.Equals(prevSource, folder, StringComparison.OrdinalIgnoreCase))
-                {
-                    _presenter.Document.Project.Manifest.ProductCode = Guid.NewGuid().ToString("B").ToUpperInvariant();
-                }
-            }
-
-            ApplySuggestedName(BuilderPresenter.SuggestProductName(folder));
-=======
             if (_initializing)
             {
                 return;
             }
 
             folderStep.AutoNameFromFolder = false;
->>>>>>> 7bccd0e (修掉"产品名跟随启动程序"完全不生效)
         }
 
         /// <summary>当前最合适的产品名：启动程序更具体，优先用它；没有就退回文件夹名。</summary>

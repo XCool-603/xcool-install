@@ -56,20 +56,21 @@ namespace Installer.Core.Install
                 return;
             }
 
+            // 若安装目录尚不存在（首次全新安装），不需要杀任何进程，更避免误杀同名系统/其他目录程序
+            if (!Directory.Exists(ctx.InstallDir))
+            {
+                return;
+            }
+
             if (!ctx.Platform.Processes.GetRunningProcessNames()
                     .Any(n => string.Equals(n, name, StringComparison.OrdinalIgnoreCase)))
             {
                 return;
             }
 
-            ctx.Log.Info("检测到正在运行的进程：" + name + "，尝试结束。");
-            var killed = ctx.Platform.Processes.Kill(name);
-            ctx.Log.Info("已结束 " + killed + " 个进程。");
-
-            if (killed == 0)
-            {
-                throw new InstallException(Id, "无法结束正在运行的程序 \"" + name + "\"，请手动关闭后重试。");
-            }
+            ctx.Log.Info("检测到正在运行的进程：" + name + "，尝试结束安装目录内的实例。");
+            var killed = ctx.Platform.Processes.KillInDirectory(name, ctx.InstallDir);
+            ctx.Log.Info("已结束 " + killed + " 个安装目录内的进程。");
         }
     }
 

@@ -86,19 +86,27 @@ namespace Installer.Core.Install
 
         private static string ResolveFolder(InstallContext ctx, string location)
         {
+            var isMachine = string.Equals(ctx.Manifest.Scope, InstallScopes.PerMachine, StringComparison.OrdinalIgnoreCase);
+
             if (string.Equals(location, "Desktop", StringComparison.OrdinalIgnoreCase))
             {
-                return ctx.Platform.Environment.GetFolder(SpecialFolderKind.Desktop);
+                return ctx.Platform.Environment.GetFolder(isMachine
+                    ? SpecialFolderKind.CommonDesktop
+                    : SpecialFolderKind.Desktop);
             }
 
             if (string.Equals(location, "StartMenu", StringComparison.OrdinalIgnoreCase))
             {
-                return ctx.Platform.Environment.GetFolder(SpecialFolderKind.StartMenu);
+                return ctx.Platform.Environment.GetFolder(isMachine
+                    ? SpecialFolderKind.CommonStartMenu
+                    : SpecialFolderKind.StartMenu);
             }
 
             if (string.Equals(location, "Startup", StringComparison.OrdinalIgnoreCase))
             {
-                return ctx.Platform.Environment.GetFolder(SpecialFolderKind.Startup);
+                return ctx.Platform.Environment.GetFolder(isMachine
+                    ? SpecialFolderKind.CommonStartup
+                    : SpecialFolderKind.Startup);
             }
 
             return null;

@@ -123,6 +123,7 @@ namespace Installer.Core.Install
 
                     JournalWriter.WriteFile(ctx, Id, target, p =>
                     {
+                        StripReadOnly(p);
                         using (var src = entry.Open())
                         using (var dst = File.Create(p))
                         {
@@ -148,6 +149,24 @@ namespace Installer.Core.Install
             }
 
             ctx.Log.Info("已解压 " + extracted.Count + " 个条目。");
+        }
+
+        private static void StripReadOnly(string path)
+        {
+            try
+            {
+                if (File.Exists(path))
+                {
+                    var attrs = File.GetAttributes(path);
+                    if ((attrs & FileAttributes.ReadOnly) != 0)
+                    {
+                        File.SetAttributes(path, attrs & ~FileAttributes.ReadOnly);
+                    }
+                }
+            }
+            catch
+            {
+            }
         }
     }
 

@@ -142,6 +142,7 @@ namespace Installer.Core.Install
                         BackupPath = backup,
                     });
 
+                    StripReadOnly(full);
                     File.Delete(full);
                     removed++;
                     ctx.Log.Info("清理上一版残留文件：" + relative);
@@ -195,6 +196,24 @@ namespace Installer.Core.Install
             return string.IsNullOrEmpty(path)
                 ? path
                 : path.Replace('/', '\\').TrimStart('\\');
+        }
+
+        private static void StripReadOnly(string path)
+        {
+            try
+            {
+                if (File.Exists(path))
+                {
+                    var attrs = File.GetAttributes(path);
+                    if ((attrs & FileAttributes.ReadOnly) != 0)
+                    {
+                        File.SetAttributes(path, attrs & ~FileAttributes.ReadOnly);
+                    }
+                }
+            }
+            catch
+            {
+            }
         }
     }
 }
