@@ -214,12 +214,15 @@ namespace Installer.Core.Platform
             switch (kind)
             {
                 case SpecialFolderKind.Desktop:
+                case SpecialFolderKind.CommonDesktop:
                     sub = "Desktop";
                     break;
                 case SpecialFolderKind.StartMenu:
+                case SpecialFolderKind.CommonStartMenu:
                     sub = "StartMenu";
                     break;
                 case SpecialFolderKind.Startup:
+                case SpecialFolderKind.CommonStartup:
                     sub = "Startup";
                     break;
                 case SpecialFolderKind.LocalApplicationData:

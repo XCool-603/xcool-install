@@ -106,7 +106,7 @@ namespace Installer.Runtime
                         var context = new InstallContext
                         {
                             Manifest = _manifest,
-                            Mode = InstallMode.Install,
+                            Mode = (options != null && options.RepairMode) ? InstallMode.Repair : InstallMode.Install,
                             InstallDir = installDir,
                             Payload = ContainerFormat.OpenPayload(self, info),
                             StubLength = info.StubLength,

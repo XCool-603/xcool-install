@@ -138,6 +138,22 @@ namespace Installer.Core.Platform
     public sealed class WindowsShortcutService : IShortcutService
     {
         /// <inheritdoc />
+        [System.Runtime.InteropServices.DllImport("shell32.dll")]
+        private static extern void SHChangeNotify(uint wEventId, uint uFlags, IntPtr dwItem1, IntPtr dwItem2);
+
+        private static void NotifyShell()
+        {
+            try
+            {
+                // SHCNE_ASSOCCHANGED = 0x08000000, SHCNF_FLUSH = 0x1000
+                SHChangeNotify(0x08000000, 0x1000, IntPtr.Zero, IntPtr.Zero);
+            }
+            catch
+            {
+            }
+        }
+
+        /// <inheritdoc />
         public void Create(string linkPath, string targetPath, string arguments, string workingDirectory,
                            string description, string iconPath)
         {
@@ -148,6 +164,7 @@ namespace Installer.Core.Platform
             }
 
             ShellLink.Create(linkPath, targetPath, arguments, workingDirectory, description, iconPath);
+            NotifyShell();
         }
 
         /// <inheritdoc />
@@ -155,7 +172,19 @@ namespace Installer.Core.Platform
         {
             if (File.Exists(linkPath))
             {
+                try
+                {
+                    var attrs = File.GetAttributes(linkPath);
+                    if ((attrs & FileAttributes.ReadOnly) != 0)
+                    {
+                        File.SetAttributes(linkPath, attrs & ~FileAttributes.ReadOnly);
+                    }
+                }
+                catch
+                {
+                }
                 File.Delete(linkPath);
+                NotifyShell();
             }
         }
 
@@ -194,11 +223,36 @@ namespace Installer.Core.Platform
         /// <inheritdoc />
         public int Kill(string processName)
         {
+            return KillInDirectory(processName, null);
+        }
+
+        /// <inheritdoc />
+        public int KillInDirectory(string processName, string targetDirectory)
+        {
             var killed = 0;
             foreach (var p in Process.GetProcessesByName(processName))
             {
                 try
                 {
+                    if (!string.IsNullOrEmpty(targetDirectory))
+                    {
+                        string exePath = null;
+                        try
+                        {
+                            exePath = p.MainModule != null ? p.MainModule.FileName : null;
+                        }
+                        catch
+                        {
+                            // 无法访问主模块的进程（如受保护系统进程），跳过避免误杀
+                        }
+
+                        if (!string.IsNullOrEmpty(exePath) &&
+                            !Installer.Core.Security.SafePath.IsWithin(targetDirectory, exePath))
+                        {
+                            continue;
+                        }
+                    }
+
                     p.Kill();
                     p.WaitForExit(5000);
                     killed++;
@@ -256,10 +310,16 @@ namespace Installer.Core.Platform
             {
                 case SpecialFolderKind.Desktop:
                     return Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+                case SpecialFolderKind.CommonDesktop:
+                    return Environment.GetFolderPath(Environment.SpecialFolder.CommonDesktopDirectory);
                 case SpecialFolderKind.StartMenu:
                     return Environment.GetFolderPath(Environment.SpecialFolder.Programs);
+                case SpecialFolderKind.CommonStartMenu:
+                    return Environment.GetFolderPath(Environment.SpecialFolder.CommonPrograms);
                 case SpecialFolderKind.Startup:
                     return Environment.GetFolderPath(Environment.SpecialFolder.Startup);
+                case SpecialFolderKind.CommonStartup:
+                    return Environment.GetFolderPath(Environment.SpecialFolder.CommonStartup);
                 case SpecialFolderKind.LocalApplicationData:
                     return Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
                 case SpecialFolderKind.RoamingApplicationData:

@@ -30,7 +30,9 @@ namespace Installer.UI.Presenters
         /// <param name="manifest">清单。</param>
         /// <param name="text">文案表（应已合并内置文案）。</param>
         /// <param name="defaultInstallDir">已解析好的默认安装目录。</param>
-        public WizardPresenter(InstallerManifest manifest, IStringTable text, string defaultInstallDir)
+        public WizardPresenter(InstallerManifest manifest, IStringTable text, string defaultInstallDir,
+                               InstallWorkflowMode workflowMode = InstallWorkflowMode.FreshInstall,
+                               string installedVersion = null)
         {
             if (manifest == null)
             {
@@ -53,6 +55,9 @@ namespace Installer.UI.Presenters
                 StartMenuShortcut = HasShortcutAt("StartMenu"),
                 Autostart = manifest.Autostart,
                 RunAfterInstall = manifest.RunAfterInstall,
+                WorkflowMode = workflowMode,
+                InstalledVersion = installedVersion,
+                RepairMode = (workflowMode == InstallWorkflowMode.Repair),
             };
 
             Current = WizardPage.Welcome;
@@ -94,6 +99,17 @@ namespace Installer.UI.Presenters
             {
                 switch (Current)
                 {
+                    case WizardPage.Welcome:
+                        if (Options.WorkflowMode == InstallWorkflowMode.Update)
+                        {
+                            return "Wizard.Update";
+                        }
+                        if (Options.WorkflowMode == InstallWorkflowMode.Repair)
+                        {
+                            return "Wizard.Repair";
+                        }
+                        return "Wizard.Next";
+
                     case WizardPage.Path:
                     case WizardPage.Options:
                         // 设计稿把「安装位置」与「附加任务」合成一页，所以这一页的主按钮直接是「安装」
@@ -119,6 +135,11 @@ namespace Installer.UI.Presenters
         {
             get
             {
+                if (Current == WizardPage.Welcome && Options.WorkflowMode == InstallWorkflowMode.Downgrade)
+                {
+                    return false;
+                }
+
                 if (Current == WizardPage.License)
                 {
                     return Options.AcceptLicense;
@@ -200,6 +221,21 @@ namespace Installer.UI.Presenters
         {
             get
             {
+                if (Options.WorkflowMode == InstallWorkflowMode.Update || Options.WorkflowMode == InstallWorkflowMode.Repair)
+                {
+                    switch (Current)
+                    {
+                        case WizardPage.Welcome:
+                            return 0;
+                        case WizardPage.Installing:
+                            return 1;
+                        case WizardPage.Finish:
+                            return 2;
+                        default:
+                            return -1;
+                    }
+                }
+
                 switch (Current)
                 {
                     case WizardPage.Welcome:
@@ -260,6 +296,16 @@ namespace Installer.UI.Presenters
                     return new[] { "Step.UninstallConfirm", "Step.Uninstalling", "Wizard.Finish" };
                 }
 
+                // 升级/修复流程：极简 3 步（确认更新/修复 -> 正在安装 -> 完成）
+                if (Options.WorkflowMode == InstallWorkflowMode.Update)
+                {
+                    return new[] { "Step.UpdateConfirm", "Step.Install", "Wizard.Finish" };
+                }
+                if (Options.WorkflowMode == InstallWorkflowMode.Repair)
+                {
+                    return new[] { "Step.RepairConfirm", "Step.Install", "Wizard.Finish" };
+                }
+
                 // 安装流程：没勾「必须接受许可」时许可页会被跳过，步骤条就是 4 步而不是 5 步
                 return _licenseRequired
                     ? new[] { "Wizard.StepWelcome", "Step.License", "Wizard.StepSettings", "Step.Install", "Wizard.Finish" }
@@ -283,6 +329,21 @@ namespace Installer.UI.Presenters
             switch (Current)
             {
                 case WizardPage.Welcome:
+                    if (Options.WorkflowMode == InstallWorkflowMode.Update)
+                    {
+                        Current = WizardPage.Installing;
+                        return true;
+                    }
+                    if (Options.WorkflowMode == InstallWorkflowMode.Repair)
+                    {
+                        Options.RepairMode = true;
+                        Current = WizardPage.Installing;
+                        return true;
+                    }
+                    if (Options.WorkflowMode == InstallWorkflowMode.Downgrade)
+                    {
+                        return false;
+                    }
                     Current = _licenseRequired ? WizardPage.License : WizardPage.Path;
                     return true;
 

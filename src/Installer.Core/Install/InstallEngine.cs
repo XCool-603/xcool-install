@@ -177,7 +177,35 @@ namespace Installer.Core.Install
                 }
             }
 
+            // 回滚撤销完毕后，清理安装目录下的 .install-journal.jsonl 与 .rollback 目录
+            try
+            {
+                context.Journal.Commit();
+            }
+            catch (Exception ex)
+            {
+                context.Log.Warn("清理回滚日志文件失败：" + ex.Message);
+            }
+
             context.Log.Warn("回滚结束，问题 " + result.RollbackIssues.Count + " 条。");
+        }
+
+        private static void StripReadOnly(string path)
+        {
+            try
+            {
+                if (File.Exists(path))
+                {
+                    var attrs = File.GetAttributes(path);
+                    if ((attrs & FileAttributes.ReadOnly) != 0)
+                    {
+                        File.SetAttributes(path, attrs & ~FileAttributes.ReadOnly);
+                    }
+                }
+            }
+            catch
+            {
+            }
         }
 
         /// <summary>撤销一条记录。</summary>
@@ -204,11 +232,16 @@ namespace Installer.Core.Install
                     {
                         if (File.Exists(e.Target))
                         {
+                            StripReadOnly(e.Target);
                             File.Delete(e.Target);
                         }
                     }
                     else if (!string.IsNullOrEmpty(e.BackupPath) && File.Exists(e.BackupPath))
                     {
+                        if (File.Exists(e.Target))
+                        {
+                            StripReadOnly(e.Target);
+                        }
                         File.Copy(e.BackupPath, e.Target, true);
                     }
 

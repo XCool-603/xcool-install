@@ -182,18 +182,25 @@ namespace Installer.Core.Platform
 
             if (is32 == true)
             {
-                // 目标组件是 32 位 → 必须用 SysWOW64 里那个
+                // 目标组件是 32 位 → 必须用 SysWOW64 里那个（如果在 64 位系统上）
                 candidates.Add(Path.Combine(windows, "SysWOW64", "regsvr32.exe"));
                 candidates.Add(Path.Combine(windows, "System32", "regsvr32.exe"));
             }
             else if (is32 == false)
             {
+                // 目标组件是 64 位
+                // 若本进程是 32 位且操作系统是 64 位，Windows 会把 System32 重定向到 SysWOW64
+                // 必须使用虚拟目录 Sysnative 来调用真正的 64 位 regsvr32
+                if (Environment.Is64BitOperatingSystem && !Environment.Is64BitProcess)
+                {
+                    candidates.Add(Path.Combine(windows, "Sysnative", "regsvr32.exe"));
+                }
                 candidates.Add(Path.Combine(windows, "System32", "regsvr32.exe"));
             }
             else
             {
                 // 位数读不出来：优先用本进程所在位数对应的那个
-                if (IntPtr.Size == 8)
+                if (Environment.Is64BitProcess)
                 {
                     candidates.Add(Path.Combine(windows, "System32", "regsvr32.exe"));
                 }

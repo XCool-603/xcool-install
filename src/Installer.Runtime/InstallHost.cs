@@ -56,6 +56,41 @@ namespace Installer.Runtime
 
             var options = ParseOptions(args);
 
+            // 自动检测卸载模式：
+            // 如果用户直接双击 Uninstall.exe（未带 --uninstall 参数），或者当前可执行文件没有容器且同目录存在安装记录，
+            // 自动推断为卸载模式，避免用户双击卸载时抛出"未包含安装包容器"异常。
+            if (!options.Uninstall && options.RenderUiDir == null && options.CleanupDir == null && !options.VerifyOnly && !options.Repair)
+            {
+                var selfPath = GetSelfPath();
+                var selfName = Path.GetFileName(selfPath);
+                var isUninstallNamed = !string.IsNullOrEmpty(selfName) &&
+                    (selfName.IndexOf("uninstall", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                     selfName.IndexOf("卸载", StringComparison.OrdinalIgnoreCase) >= 0);
+
+                var installDir = Path.GetDirectoryName(selfPath);
+                var hasRecord = !string.IsNullOrEmpty(installDir) && File.Exists(InstallRecord.GetPath(installDir));
+
+                if (isUninstallNamed || hasRecord)
+                {
+                    var hasContainer = false;
+                    try
+                    {
+                        using (var fs = new FileStream(selfPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                        {
+                            hasContainer = ContainerFormat.TryRead(fs) != null;
+                        }
+                    }
+                    catch
+                    {
+                    }
+
+                    if (isUninstallNamed || (!hasContainer && hasRecord))
+                    {
+                        options.Uninstall = true;
+                    }
+                }
+            }
+
             try
             {
                 if (options.RenderUiDir != null)
@@ -592,9 +627,42 @@ namespace Installer.Runtime
                 }
             }
 
-            // 副本自己删不掉自己 → 安排重启后删除（唯一可靠的托管自删除方式）
+            // 副本自己删不掉自己：
+            // 1. 尝试 MoveFileEx（若以管理员运行，重启时自动清理）
             var self = GetSelfPath();
-            MoveFileEx(self, null, MOVEFILE_DELAY_UNTIL_REBOOT);
+            var tempDir = Path.GetDirectoryName(self);
+            try
+            {
+                MoveFileEx(self, null, MOVEFILE_DELAY_UNTIL_REBOOT);
+            }
+            catch
+            {
+            }
+
+            // 2. 无论是否为管理员，派生后台异步命令等待本进程退出后彻底删除整个临时目录
+            try
+            {
+                if (!string.IsNullOrEmpty(tempDir) &&
+                    tempDir.IndexOf("installer-cleanup-", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    var cleanupScript = string.Format(
+                        CultureInfo.InvariantCulture,
+                        "/c ping 127.0.0.1 -n 2 > nul & rd /s /q \"{0}\"",
+                        tempDir);
+
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "cmd.exe",
+                        Arguments = cleanupScript,
+                        CreateNoWindow = true,
+                        UseShellExecute = false,
+                        WindowStyle = ProcessWindowStyle.Hidden,
+                    });
+                }
+            }
+            catch
+            {
+            }
 
             return 0;
         }
@@ -635,16 +703,92 @@ namespace Installer.Runtime
         // ─────────────────────────────────────────────────────────────
 
         /// <summary>走安装向导。</summary>
+        private sealed class InstalledAppInfo
+        {
+            public bool IsInstalled;
+            public string Version;
+            public string InstallLocation;
+            public string DisplayName;
+        }
+
+        private static InstalledAppInfo DetectExistingInstallation(InstallerManifest manifest, IPlatformServices platform, string defaultDir)
+        {
+            if (manifest == null) return null;
+
+            // 1. 尝试从注册表卸载键查找
+            if (!string.IsNullOrEmpty(manifest.ProductCode))
+            {
+                var refKey = Installer.Core.Install.UninstallKeys.FindByProductCode(platform.Registry, manifest.ProductCode);
+                if (refKey != null && !string.IsNullOrEmpty(refKey.InstallLocation) && Directory.Exists(refKey.InstallLocation))
+                {
+                    return new InstalledAppInfo
+                    {
+                        IsInstalled = true,
+                        Version = refKey.DisplayVersion,
+                        InstallLocation = refKey.InstallLocation,
+                        DisplayName = refKey.DisplayName,
+                    };
+                }
+            }
+
+            // 2. 尝试从目标安装目录查找记录文件
+            if (!string.IsNullOrEmpty(defaultDir) && Directory.Exists(defaultDir))
+            {
+                var record = UninstallEngine.LoadRecord(defaultDir);
+                if (record != null && (string.IsNullOrEmpty(manifest.ProductCode) ||
+                                       string.Equals(record.ProductCode, manifest.ProductCode, StringComparison.OrdinalIgnoreCase)))
+                {
+                    return new InstalledAppInfo
+                    {
+                        IsInstalled = true,
+                        Version = record.ProductVersion,
+                        InstallLocation = record.InstallDir,
+                        DisplayName = record.ProductName,
+                    };
+                }
+            }
+
+            return null;
+        }
+
         private static int RunWizard(RuntimeOptions options, string selfPath,
                                      InstallerManifest manifest, string installDir)
         {
+            var platform = CreatePlatform(options);
+            var existing = DetectExistingInstallation(manifest, platform, installDir);
+            var workflowMode = Installer.UI.Models.InstallWorkflowMode.FreshInstall;
+            string installedVersion = null;
+
+            if (existing != null && existing.IsInstalled)
+            {
+                installedVersion = existing.Version;
+                if (!string.IsNullOrEmpty(existing.InstallLocation))
+                {
+                    installDir = existing.InstallLocation; // 原地更新/修复，自动锁定原路径
+                }
+
+                var cmp = StandardSteps.CompareVersions(existing.Version, manifest.Product.Version);
+                if (cmp < 0)
+                {
+                    workflowMode = Installer.UI.Models.InstallWorkflowMode.Update;
+                }
+                else if (cmp == 0)
+                {
+                    workflowMode = Installer.UI.Models.InstallWorkflowMode.Repair;
+                }
+                else
+                {
+                    workflowMode = Installer.UI.Models.InstallWorkflowMode.Downgrade;
+                }
+            }
+
             System.Windows.Forms.Application.EnableVisualStyles();
             System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
 
             var host = new WizardHostImpl(selfPath, options.SandboxRoot, options.LogPath, options.Culture,
                 manifest, installDir, false);
 
-            using (var form = new Installer.UI.Forms.WizardForm(manifest, host, installDir, options.Culture))
+            using (var form = new Installer.UI.Forms.WizardForm(manifest, host, installDir, options.Culture, false, workflowMode, installedVersion))
             {
                 System.Windows.Forms.Application.Run(form);
             }
@@ -799,6 +943,16 @@ namespace Installer.Runtime
             if (string.IsNullOrWhiteSpace(dir) && !string.IsNullOrEmpty(options.SandboxRoot))
             {
                 dir = Path.Combine(options.SandboxRoot, "Programs", SafePathSanitize(productName));
+            }
+
+            // 如果用户未显式指定目标路径，优先沿用已安装产品的实际路径
+            if (string.IsNullOrWhiteSpace(dir))
+            {
+                var existing = DetectExistingInstallation(manifest, platform, null);
+                if (existing != null && !string.IsNullOrWhiteSpace(existing.InstallLocation))
+                {
+                    dir = existing.InstallLocation;
+                }
             }
 
             if (string.IsNullOrWhiteSpace(dir))

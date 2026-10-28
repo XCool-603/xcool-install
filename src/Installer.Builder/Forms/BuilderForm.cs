@@ -334,6 +334,19 @@ namespace Installer.Builder.Forms
 
         private void AutoFillProductName(string folder)
         {
+            if (!string.IsNullOrWhiteSpace(folder))
+            {
+                var prevSource = _presenter.Document.Project.Build.SourceDir;
+                // 若未显式打开外部工程文件（属于自动记忆会话），且用户更换了全新的文件夹，
+                // 自动生成新的 productCode，避免不同软件打包时共用同一个 GUID。
+                if (string.IsNullOrEmpty(_presenter.Document.Path)
+                    && !string.IsNullOrWhiteSpace(prevSource)
+                    && !string.Equals(prevSource, folder, StringComparison.OrdinalIgnoreCase))
+                {
+                    _presenter.Document.Project.Manifest.ProductCode = Guid.NewGuid().ToString("B").ToUpperInvariant();
+                }
+            }
+
             ApplySuggestedName(BuilderPresenter.SuggestProductName(folder));
         }
 

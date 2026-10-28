@@ -259,14 +259,15 @@ namespace Installer.Core.Install
                 return;
             }
 
-            ctx.Log.Info("检测到正在运行的进程：" + name + "，尝试结束。");
-            var killed = ctx.Platform.Processes.Kill(name);
-            ctx.Log.Info("已结束 " + killed + " 个进程。");
-
-            if (killed == 0)
+            // 如果安装目录尚不存在，说明是全新安装，磁盘上根本没有当前软件的旧实例在运行，无需杀任何进程
+            if (!Directory.Exists(ctx.InstallDir))
             {
-                throw new InstallException(Id, "无法结束正在运行的程序 \"" + name + "\"，请手动关闭后重试。");
+                return;
             }
+
+            ctx.Log.Info("检测到同名进程正在运行：" + name + "，尝试在安装目录下匹配并结束：" + ctx.InstallDir);
+            var killed = ctx.Platform.Processes.KillInDirectory(name, ctx.InstallDir);
+            ctx.Log.Info("已结束 " + killed + " 个属于本安装目录的进程。");
         }
     }
 
@@ -377,6 +378,21 @@ namespace Installer.Core.Install
 
                     JournalWriter.WriteFile(ctx, Id, target, p =>
                     {
+                        if (File.Exists(p))
+                        {
+                            try
+                            {
+                                var attrs = File.GetAttributes(p);
+                                if ((attrs & FileAttributes.ReadOnly) != 0)
+                                {
+                                    File.SetAttributes(p, attrs & ~FileAttributes.ReadOnly);
+                                }
+                            }
+                            catch
+                            {
+                            }
+                        }
+
                         using (var src = entry.Open())
                         using (var dst = File.Create(p))
                         {
@@ -545,19 +561,24 @@ namespace Installer.Core.Install
 
         private static string ResolveFolder(InstallContext ctx, string location)
         {
+            var isPerMachine = string.Equals(ctx.Manifest.Scope, InstallScopes.PerMachine, StringComparison.OrdinalIgnoreCase);
+
             if (string.Equals(location, "Desktop", StringComparison.OrdinalIgnoreCase))
             {
-                return ctx.Platform.Environment.GetFolder(SpecialFolderKind.Desktop);
+                return ctx.Platform.Environment.GetFolder(
+                    isPerMachine ? SpecialFolderKind.CommonDesktop : SpecialFolderKind.Desktop);
             }
 
             if (string.Equals(location, "StartMenu", StringComparison.OrdinalIgnoreCase))
             {
-                return ctx.Platform.Environment.GetFolder(SpecialFolderKind.StartMenu);
+                return ctx.Platform.Environment.GetFolder(
+                    isPerMachine ? SpecialFolderKind.CommonStartMenu : SpecialFolderKind.StartMenu);
             }
 
             if (string.Equals(location, "Startup", StringComparison.OrdinalIgnoreCase))
             {
-                return ctx.Platform.Environment.GetFolder(SpecialFolderKind.Startup);
+                return ctx.Platform.Environment.GetFolder(
+                    isPerMachine ? SpecialFolderKind.CommonStartup : SpecialFolderKind.Startup);
             }
 
             return null;

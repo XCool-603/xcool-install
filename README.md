@@ -23,7 +23,7 @@
 | 制作机路径被打进发布包 | 实测真实包里的 `InstallSetupPath` / `InstallationExePath` |
 | zip 条目名按当时区域 ANSI 代码页编码，跨语言乱码 | `CsharpZipLib\Zip\ZipConstants.cs:434` |
 
-这些都在 [`项目分析报告.md`](项目分析报告.md) 里逐条列出了证据。
+这些都在 [`项目分析报告.md`](docs/项目分析报告.md) 里逐条列出了证据。
 
 ---
 
@@ -168,14 +168,14 @@ footer 放在**文件末尾**，PE 加载器会忽略尾部多余数据 —— �
 
 ## 遗留项目
 
-`Installation/` `UnInstall/` `InstalltionEdit/` `CsharpZipLib/` `CheckDotNet/` `DoNetFramework/`
+`legacy/Installation/` `legacy/UnInstall/` `legacy/InstalltionEdit/` `legacy/CsharpZipLib/` `legacy/CheckDotNet/` `legacy/DoNetFramework/`
 是**旧项目原样保留**，只作对照，不参与构建。分析见：
 
-- [`项目分析报告.md`](项目分析报告.md) —— 逐条列出旧代码的问题与证据
-- [`打包逻辑对照.md`](打包逻辑对照.md) —— 新旧打包流程逐步对照
-- [`重构方案.md`](重构方案.md) —— 重构设计
-- [`重构说明.md`](重构说明.md) —— 已落地的实现与踩过的坑
-- [`设计文档.md`](设计文档.md) —— **当前设计的完整说明（改设计看这份）**
+- [`项目分析报告.md`](docs/项目分析报告.md) —— 逐条列出旧代码的问题与证据
+- [`打包逻辑对照.md`](docs/打包逻辑对照.md) —— 新旧打包流程逐步对照
+- [`重构方案.md`](docs/重构方案.md) —— 重构设计
+- [`重构说明.md`](docs/重构说明.md) —— 已落地的实现与踩过的坑
+- [`设计文档.md`](docs/设计文档.md) —— **当前设计的完整说明（改设计看这份）**
 
 ---
 

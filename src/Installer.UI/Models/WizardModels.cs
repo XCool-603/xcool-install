@@ -37,6 +37,22 @@ namespace Installer.UI.Models
         Uninstalled = 9,
     }
 
+    /// <summary>安装向导的工作流模式。</summary>
+    public enum InstallWorkflowMode
+    {
+        /// <summary>全新安装（默认完整向导）。</summary>
+        FreshInstall = 0,
+
+        /// <summary>升级更新（检测到已安装低版本，一键原地升级）。</summary>
+        Update = 1,
+
+        /// <summary>维护/修复（检测到已安装同版本，一键覆盖修复）。</summary>
+        Repair = 2,
+
+        /// <summary>降级警告（检测到已安装更高版本）。</summary>
+        Downgrade = 3,
+    }
+
     /// <summary>用户在向导里做的选择。</summary>
     public sealed class WizardOptions
     {
@@ -60,6 +76,18 @@ namespace Installer.UI.Models
 
         /// <summary>是否为所有用户安装（对应 perMachine）。</summary>
         public bool AllUsers { get; set; }
+
+        /// <summary>工作流模式。</summary>
+        public InstallWorkflowMode WorkflowMode { get; set; } = InstallWorkflowMode.FreshInstall;
+
+        /// <summary>检测到的已安装版本。</summary>
+        public string InstalledVersion { get; set; }
+
+        /// <summary>检测到的已安装位置。</summary>
+        public string InstalledLocation { get; set; }
+
+        /// <summary>是否按修复模式执行（覆盖只补坏的）。</summary>
+        public bool RepairMode { get; set; }
     }
 
     /// <summary>

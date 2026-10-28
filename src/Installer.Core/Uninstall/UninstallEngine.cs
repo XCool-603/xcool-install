@@ -138,8 +138,8 @@ namespace Installer.Core.Uninstall
                 if (platform.Processes.GetRunningProcessNames()
                         .Any(n => string.Equals(n, name, StringComparison.OrdinalIgnoreCase)))
                 {
-                    var killed = platform.Processes.Kill(name);
-                    result.Messages.Add("已结束 " + killed + " 个进程：" + name);
+                    var killed = platform.Processes.KillInDirectory(name, record.InstallDir);
+                    result.Messages.Add("已结束 " + killed + " 个属于本安装目录的进程：" + name);
                 }
             }
             catch (Exception ex)

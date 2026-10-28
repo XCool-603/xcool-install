@@ -65,8 +65,8 @@ function Write-Le([byte[]]$buf, [int]$offset, [long]$value, [int]$size) {
 function Get-Crc32([byte[]]$data, [int]$offset, [int]$count) {
     # 纯 PowerShell 实现（标准 CRC-32/ISO-HDLC，多项式 0xEDB88320，初值/异或尾 0xFFFFFFFF）。
     #
-    # 为什么不再调用 Installer.Core.Common.Crc32：Core 迁到 net10.0 之后
-    # PowerShell 5.1（NET Framework 宿主）加载不了那个 DLL。
+    # 为什么不再调用 Installer.Core.Common.Crc32：避免依赖编译产物 DLL，
+    # 纯脚本实现让测试环境与目标框架解耦，运行更轻量稳定。
     # 全程用 [uint32] 运算，避免 PS 把 int64 当有符号数处理导致结果出错。
     $crc = [uint32]::MaxValue
     $end = $offset + $count

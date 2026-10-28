@@ -61,7 +61,9 @@ namespace Installer.UI.Forms
         /// <param name="culture">界面语言；null 表示跟随系统。</param>
         /// <param name="uninstallMode">是否为卸载模式。</param>
         public WizardForm(InstallerManifest manifest, IWizardHost host, string defaultInstallDir,
-                          string culture = null, bool uninstallMode = false)
+                          string culture = null, bool uninstallMode = false,
+                          InstallWorkflowMode workflowMode = InstallWorkflowMode.FreshInstall,
+                          string installedVersion = null)
         {            if (manifest == null)
             {
                 throw new ArgumentNullException("manifest");
@@ -80,7 +82,7 @@ namespace Installer.UI.Forms
             var strings = WizardStrings.Merge(manifest.Strings);
             var table = new StringTable(strings, culture ?? StringTable.DetectRequestedCulture(), manifest.DefaultCulture);
 
-            _presenter = new WizardPresenter(manifest, table, defaultInstallDir);
+            _presenter = new WizardPresenter(manifest, table, defaultInstallDir, workflowMode, installedVersion);
 
             InitializeComponent();
             ApplyCardRegion();
@@ -394,20 +396,52 @@ namespace Installer.UI.Forms
             {
                 case WizardPage.Welcome:
                     ShowView(_welcomeView);
-                    _welcomeView.Title = string.Format(CultureInfo.CurrentCulture,
-                        _presenter.Text("Welcome.Title"), _presenter.ProductName);
-                    _welcomeView.Body = string.Format(CultureInfo.CurrentCulture,
-                        _presenter.Text("Welcome.Body"), _presenter.ProductName, _presenter.ProductVersion)
-;
-                    _welcomeView.Body2 = _presenter.Text("Welcome.Body2");
                     _welcomeView.ApplyCaptions(_presenter.Text);
                     _welcomeView.DirValue = _presenter.Options.InstallDir;
                     _welcomeView.SpaceValue = BuildSpaceText();
                     _welcomeView.VersionValue = _presenter.ProductVersion + " · " + _presenter.Publisher;
-                    // 没有许可协议时别提示「下一步要先同意许可协议」
-                    _welcomeView.Hint = _presenter.LicenseRequired
-                        ? _presenter.Text("Welcome.Hint")
-                        : _presenter.Text("Welcome.HintNoLicense");
+
+                    if (_presenter.Options.WorkflowMode == InstallWorkflowMode.Update)
+                    {
+                        _welcomeView.Title = string.Format(CultureInfo.CurrentCulture,
+                            _presenter.Text("Update.Title"), _presenter.ProductName);
+                        _welcomeView.Body = string.Format(CultureInfo.CurrentCulture,
+                            _presenter.Text("Update.Body"),
+                            _presenter.Options.InstalledVersion ?? "旧版本",
+                            _presenter.ProductVersion);
+                        _welcomeView.Body2 = _presenter.Text("Update.Body2");
+                        _welcomeView.Hint = _presenter.Text("Update.Hint");
+                    }
+                    else if (_presenter.Options.WorkflowMode == InstallWorkflowMode.Repair)
+                    {
+                        _welcomeView.Title = string.Format(CultureInfo.CurrentCulture,
+                            _presenter.Text("Repair.Title"), _presenter.ProductName);
+                        _welcomeView.Body = string.Format(CultureInfo.CurrentCulture,
+                            _presenter.Text("Repair.Body"), _presenter.ProductVersion);
+                        _welcomeView.Body2 = _presenter.Text("Repair.Body2");
+                        _welcomeView.Hint = _presenter.Text("Repair.Hint");
+                    }
+                    else if (_presenter.Options.WorkflowMode == InstallWorkflowMode.Downgrade)
+                    {
+                        _welcomeView.Title = _presenter.Text("Downgrade.Title");
+                        _welcomeView.Body = string.Format(CultureInfo.CurrentCulture,
+                            _presenter.Text("Downgrade.Body"),
+                            _presenter.Options.InstalledVersion, _presenter.ProductVersion);
+                        _welcomeView.Body2 = string.Empty;
+                        _welcomeView.Hint = _presenter.Text("Downgrade.Hint");
+                    }
+                    else
+                    {
+                        _welcomeView.Title = string.Format(CultureInfo.CurrentCulture,
+                            _presenter.Text("Welcome.Title"), _presenter.ProductName);
+                        _welcomeView.Body = string.Format(CultureInfo.CurrentCulture,
+                            _presenter.Text("Welcome.Body"), _presenter.ProductName, _presenter.ProductVersion);
+                        _welcomeView.Body2 = _presenter.Text("Welcome.Body2");
+                        // 没有许可协议时别提示「下一步要先同意许可协议」
+                        _welcomeView.Hint = _presenter.LicenseRequired
+                            ? _presenter.Text("Welcome.Hint")
+                            : _presenter.Text("Welcome.HintNoLicense");
+                    }
                     break;
 
                 case WizardPage.License:

@@ -30,6 +30,15 @@ namespace Installer.Abstractions.Platform
 
         /// <summary>%TEMP%。</summary>
         Temp = 7,
+
+        /// <summary>公共桌面（所有用户）。</summary>
+        CommonDesktop = 8,
+
+        /// <summary>公共开始菜单（所有用户）。</summary>
+        CommonStartMenu = 9,
+
+        /// <summary>公共「启动」文件夹（所有用户）。</summary>
+        CommonStartup = 10,
     }
 
     /// <summary>注册表配置单元。</summary>
@@ -132,6 +141,9 @@ namespace Installer.Abstractions.Platform
 
         /// <summary>结束指定进程名的全部进程；返回结束的数量。</summary>
         int Kill(string processName);
+
+        /// <summary>仅结束可执行文件位于指定目录内部的指定进程；返回结束的数量。</summary>
+        int KillInDirectory(string processName, string targetDirectory);
 
         /// <summary>启动进程并等待；返回退出码。stdout/stderr 会被读掉，避免管道死锁。</summary>
         int Run(string fileName, string arguments, bool waitForExit, out string output);

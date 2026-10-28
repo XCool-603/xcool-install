@@ -308,6 +308,10 @@ namespace Installer.Builder.Presenters
             {
                 problems.Add("输出路径为空。");
             }
+            else if (!string.IsNullOrWhiteSpace(b.SourceDir) && SafePath.IsWithin(b.SourceDir, output))
+            {
+                problems.Add("输出安装包不能存放在要打包的文件夹内部，请更改输出路径。");
+            }
 
             if (!string.IsNullOrWhiteSpace(b.IconPath) && !File.Exists(b.IconPath))
             {
