@@ -65,7 +65,7 @@ param(
     [int]$E2eMinChecks = 212,
     # 62 = 本机实测总数（含第 8 节"产品名跟随"7 项 + 第 9 节"两端用词一致"5 项）
     [int]$UiMinChecks = 62,
-    [int]$TestMinCount = 245,
+    [int]$TestMinCount = 247,
 
     # 单个外部程序（dotnet / powershell）的硬超时。默认 15 分钟 ——
     # e2e 在本机约 66 秒，留足慢机器和冷缓存余量。
