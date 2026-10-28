@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -278,18 +278,30 @@ namespace Installer.Core.Tests
         public void 进度应报告每一步()
         {
             var ctx = NewContext();
-            var reports = new List<InstallProgress>();
+
+            // ⚠ 必须用线程安全的集合。
+            // Progress<T> 是在**线程池**上投递的，也就是"边跑边往集合里 add"；
+            // 主线程这边如果同时枚举 List<T>，会抛
+            // "集合已修改；可能无法执行枚举操作"（InvalidOperationException）。
+            // 这条测试以前是固定 Sleep(50) 躲过去的，改成轮询后就必须换成并发集合。
+            var reports = new System.Collections.Concurrent.ConcurrentQueue<InstallProgress>();
             var engine = new InstallEngine(() => new List<IInstallStep> { new WriterStep(), new WriterStep() });
 
-            engine.Run(ctx, new Progress<InstallProgress>(reports.Add));
+            engine.Run(ctx, new Progress<InstallProgress>(reports.Enqueue));
+
+            // 等的是"最后那条 100% 到了"，不是"凑够 N 条" ——
+            // 两个步骤会发 0% / 50% / 100% 三条，只等 2 条会在 50% 处提前返回。
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            while (reports.Count < 2 && sw.ElapsedMilliseconds < 500)
+            while (!reports.Any(r => r.Percent == 100) && sw.ElapsedMilliseconds < 2000)
             {
                 Thread.Sleep(10);
             }
 
-            Assert.Contains(reports, r => r.StepIndex == 1);
-            Assert.Contains(reports, r => r.Percent == 100);
+            // 断言用快照，避免断言过程中又有新报告进来
+            var snapshot = reports.ToArray();
+
+            Assert.Contains(snapshot, r => r.StepIndex == 1);
+            Assert.Contains(snapshot, r => r.Percent == 100);
         }
 
         [Fact]
