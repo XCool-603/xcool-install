@@ -418,6 +418,11 @@ namespace Installer.UI.Forms
                 UpdateButtons();
             };
 
+            _uninstallConfirmView.DeleteUserDataChanged += (s, e) =>
+            {
+                _presenter.Options.DeleteUserData = _uninstallConfirmView.DeleteUserData;
+            };
+
             _pathView.AllUsersChanged += () =>
             {
                 var allUsers = _pathView.AllUsers;
@@ -761,7 +766,7 @@ namespace Installer.UI.Forms
                 return string.Format(CultureInfo.CurrentCulture, _presenter.Text("Welcome.SpaceValue"),
                     FormatSize(need), FormatSize(free));
             }
-            catch (IOException)
+            catch (Exception)
             {
                 return string.Empty;
             }
@@ -872,6 +877,20 @@ namespace Installer.UI.Forms
         {
             if (_presenter.IsCancelling)
             {
+                var msg = _uninstallMode
+                    ? _presenter.Text("Wizard.ConfirmCancelUninstall")
+                    : _presenter.Text("Wizard.ConfirmCancelInstall");
+                var confirm = AntdUI.Modal.open(new AntdUI.Modal.Config(this,
+                    _uninstallMode ? _presenter.Text("Uninstall.Title") : _presenter.ProductName,
+                    msg)
+                {
+                    Keyboard = true,
+                    MaskClosable = false,
+                });
+                if (confirm != DialogResult.OK)
+                {
+                    return;
+                }
                 _host.RequestCancel();
                 btnPrimary.Enabled = false;
                 btnPrimary.Text = _presenter.Text("Wizard.Cancel");
@@ -898,6 +917,16 @@ namespace Installer.UI.Forms
 
             if (after == WizardPage.Installing && before != WizardPage.Installing)
             {
+                if (!CheckDiskSpaceSufficient())
+                {
+                    if (before == WizardPage.Welcome)
+                    {
+                        _presenter.Customize();
+                        Render();
+                    }
+                    return;
+                }
+
                 // 提权必须发生在**进度条开始之前**。
                 //
                 // 以前这里完全不判：用户在「安装位置」页勾了「为所有用户安装」、
@@ -965,7 +994,20 @@ namespace Installer.UI.Forms
 
             if (!_presenter.CanClose)
             {
-                _host.RequestCancel();
+                var msg = _uninstallMode
+                    ? _presenter.Text("Wizard.ConfirmCancelUninstall")
+                    : _presenter.Text("Wizard.ConfirmCancelInstall");
+                var confirm = AntdUI.Modal.open(new AntdUI.Modal.Config(this,
+                    _uninstallMode ? _presenter.Text("Uninstall.Title") : _presenter.ProductName,
+                    msg)
+                {
+                    Keyboard = true,
+                    MaskClosable = false,
+                });
+                if (confirm == DialogResult.OK)
+                {
+                    _host.RequestCancel();
+                }
                 return;
             }
 
@@ -984,7 +1026,48 @@ namespace Installer.UI.Forms
             }
         }
 
-        private void StartInstall()
+        private bool CheckDiskSpaceSufficient()
+        {
+            try
+            {
+                var root = Path.GetPathRoot(_presenter.Options.InstallDir);
+                if (string.IsNullOrEmpty(root))
+                {
+                    return true;
+                }
+
+                long free = -1;
+                foreach (var d in DriveInfo.GetDrives())
+                {
+                    if (d.IsReady && string.Equals(d.Name.TrimEnd('\\'), root.TrimEnd('\\'),
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        free = d.AvailableFreeSpace;
+                        break;
+                    }
+                }
+
+                long need = 0;
+                foreach (var f in _manifest.Files)
+                {
+                    need += f.Size;
+                }
+
+                if (free >= 0 && need > 0 && free < need)
+                {
+                    AntdUI.Message.error(this, string.Format(CultureInfo.CurrentCulture,
+                        _presenter.Text("Path.DiskSpaceNotEnough"),
+                        FormatSize(need), FormatSize(free)));
+                    return false;
+                }
+            }
+            catch (Exception)
+            {
+            }
+            return true;
+        }
+
+                private void StartInstall()
         {
             Render();
 
@@ -1002,8 +1085,11 @@ namespace Installer.UI.Forms
             _progressView.SetIndeterminate(true);
 
             IProgress<InstallProgress> progress = new Progress<InstallProgress>(OnProgress);
-            _host.StartUninstall(p => progress.Report(p), OnDone);
+            _host.StartUninstall(_presenter.Options, p => progress.Report(p), OnDone);
         }
+
+        private int _lastProgressTick = 0;
+        private int _lastProgressPercent = -1;
 
         /// <summary>进度回调（可能在后台线程）。</summary>
         private void OnProgress(InstallProgress p)
@@ -1012,6 +1098,15 @@ namespace Installer.UI.Forms
             {
                 return;
             }
+
+            // 节流：百分比未变且距上次更新小于 35ms 时跳过高频文件名重绘，防止主线程消息风暴卡顿
+            var now = Environment.TickCount;
+            if (p.Percent == _lastProgressPercent && (now - _lastProgressTick) < 35 && !p.IsRollingBack && p.Percent < 100)
+            {
+                return;
+            }
+            _lastProgressTick = now;
+            _lastProgressPercent = p.Percent;
 
             if (InvokeRequired)
             {
@@ -1074,7 +1169,6 @@ namespace Installer.UI.Forms
                 }
 
                 Render();
-                _closeTimer.Start();
             }
             else
             {
@@ -1134,7 +1228,17 @@ namespace Installer.UI.Forms
             MakeLabelsTransparent(this);
         }
 
-        protected override void OnFormClosing(FormClosingEventArgs e)
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == Keys.Escape)
+            {
+                BtnCancelClick(this, EventArgs.Empty);
+                return true;
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+                protected override void OnFormClosing(FormClosingEventArgs e)
         {
             if (!_presenter.CanClose && !_finished)
             {

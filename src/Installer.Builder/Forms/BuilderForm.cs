@@ -671,6 +671,11 @@ namespace Installer.Builder.Forms
                 onDone(false, "这是预览，不会真的卸载。");
             }
 
+            public void StartUninstall(WizardOptions options, Action<InstallProgress> onProgress, Action<bool, string> onDone)
+            {
+                onDone(false, "这是预览，不会真的卸载。");
+            }
+
             /// <summary>
             /// 预览模式永远不提权。
             /// 制作人员点「预览向导」只是想看界面长什么样，不该被弹一个 UAC 框。

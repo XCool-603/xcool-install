@@ -70,9 +70,11 @@ namespace Installer.Core.Uninstall
         /// <param name="platform">平台服务。</param>
         /// <param name="progress">进度回调。</param>
         /// <param name="deleteInstallDir">是否尝试删除安装目录本身。</param>
+        /// <param name="deleteUserData">是否删除用户个人数据与配置文件。</param>
         public UninstallRunResult Run(InstallRecord record, IPlatformServices platform,
                                       IProgress<InstallProgress> progress = null,
-                                      bool deleteInstallDir = true)
+                                      bool deleteInstallDir = true,
+                                      bool deleteUserData = false)
         {
             if (record == null)
             {
@@ -133,6 +135,11 @@ namespace Installer.Core.Uninstall
             // 删 "Log" 目录的唯一代码就在 DeleteLeftovers 里 —— 所以走正常卸载时
             // Log 目录**永远不会**被删。用户反馈「卸载成功后 Log 目录还在」就是这里漏的。
             DeleteLeftovers(record.InstallDir, result);
+
+            if (deleteUserData)
+            {
+                TryDeleteUserData(record, platform, result);
+            }
 
             if (deleteInstallDir)
             {
@@ -831,6 +838,43 @@ namespace Installer.Core.Uninstall
         }
 
         /// <summary>自底向上删空目录（只删空的）。</summary>
+        private static void TryDeleteUserData(InstallRecord record, IPlatformServices platform, UninstallRunResult result)
+        {
+            if (record == null || string.IsNullOrWhiteSpace(record.ProductName))
+            {
+                return;
+            }
+            try
+            {
+                var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                foreach (var baseDir in new[] { appData, localAppData })
+                {
+                    if (string.IsNullOrEmpty(baseDir))
+                    {
+                        continue;
+                    }
+                    var userDir = Path.Combine(baseDir, record.ProductName);
+                    if (Directory.Exists(userDir))
+                    {
+                        try
+                        {
+                            Directory.Delete(userDir, true);
+                            result.Messages.Add("已删除用户数据目录：" + userDir);
+                        }
+                        catch (Exception ex)
+                        {
+                            result.Issues.Add("删除用户数据目录失败：" + ex.Message);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                platform.Log.Warn("清理用户数据异常：" + ex.Message);
+            }
+        }
+
         private static void DeleteEmptyDirectories(string dir)
         {
             if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir))

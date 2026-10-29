@@ -14,11 +14,45 @@ namespace Installer.UI.Views
     /// </summary>
     public partial class WizardHeaderView : UserControl
     {
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern bool ReleaseCapture();
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
+
+        private const int WM_NCLBUTTONDOWN = 0xA1;
+        private const int HTCAPTION = 0x2;
+
         /// <summary>构造。</summary>
         public WizardHeaderView()
         {
             InitializeComponent();
             ApplyAccent(WizardTheme.Primary);
+            HookDrag(this);
+        }
+
+        private void HookDrag(Control control)
+        {
+            if (control == null)
+            {
+                return;
+            }
+            control.MouseDown += (s, e) =>
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    var form = FindForm();
+                    if (form != null && form.WindowState == FormWindowState.Normal)
+                    {
+                        ReleaseCapture();
+                        SendMessage(form.Handle, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+                    }
+                }
+            };
+            foreach (Control child in control.Controls)
+            {
+                HookDrag(child);
+            }
         }
 
         /// <summary>设置主色（安装 = 蓝，卸载 = 红）。</summary>

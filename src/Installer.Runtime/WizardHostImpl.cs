@@ -169,6 +169,12 @@ namespace Installer.Runtime
         /// <inheritdoc />
         public void StartUninstall(Action<InstallProgress> onProgress, Action<bool, string> onDone)
         {
+            StartUninstall(null, onProgress, onDone);
+        }
+
+        /// <inheritdoc />
+        public void StartUninstall(WizardOptions options, Action<InstallProgress> onProgress, Action<bool, string> onDone)
+        {
             _cts = new CancellationTokenSource();
 
             Task.Run(() =>
@@ -181,6 +187,7 @@ namespace Installer.Runtime
                     var record = UninstallEngine.LoadRecord(_installDir);
 
                     UninstallRunResult result;
+                    var deleteUserData = options != null && options.DeleteUserData;
 
                     if (record == null)
                     {
@@ -191,7 +198,8 @@ namespace Installer.Runtime
                     }
                     else
                     {
-                        result = new UninstallEngine().Run(record, platform, new ActionProgress(onProgress));
+                        result = new UninstallEngine().Run(record, platform, new ActionProgress(onProgress),
+                            deleteInstallDir: true, deleteUserData: deleteUserData);
                     }
 
                     BlockedPaths = new List<string>(result.BlockedPaths);

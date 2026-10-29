@@ -120,6 +120,14 @@ namespace Installer.UI.Common
             Add(t, "Path.Space", "可用空间：{0}，需要约：{1}",
                 "Free space: {0}, required: {1}");
             Add(t, "Path.Empty", "安装路径不能为空。", "Install path cannot be empty.");
+            Add(t, "Path.InvalidPath", "安装路径格式不正确或包含非法字符，请输入有效的完整路径。",
+                "The install path is invalid or contains illegal characters.");
+            Add(t, "Path.DiskSpaceNotEnough", "所选磁盘可用空间不足（需要约 {0}，仅剩 {1}）。请选择其他磁盘或清理空间。",
+                "Not enough disk space (required: {0}, available: {1}). Please choose another drive or free up space.");
+            Add(t, "Wizard.ConfirmCancelInstall", "安装正在进行中，取消将撤销并回滚所有已变更的内容。确定要取消吗？",
+                "Installation is in progress. Cancelling will roll back all changes. Are you sure you want to cancel?");
+            Add(t, "Wizard.ConfirmCancelUninstall", "卸载正在进行中，确定要取消吗？",
+                "Uninstall is in progress. Are you sure you want to cancel?");
             Add(t, "Path.NeedsAdmin",
                 "这个安装位置需要管理员权限，但 UAC 授权被取消了。\r\n" +
                 "可以换一个自己能写的目录（例如「文档」下面），或者再点一次「下一步」重新授权。",

@@ -88,6 +88,9 @@ namespace Installer.UI.Models
 
         /// <summary>是否按修复模式执行（覆盖只补坏的）。</summary>
         public bool RepairMode { get; set; }
+
+        /// <summary>卸载时是否删除用户个人数据与配置文件。</summary>
+        public bool DeleteUserData { get; set; }
     }
 
     /// <summary>
@@ -109,6 +112,9 @@ namespace Installer.UI.Models
 
         /// <summary>开始卸载。</summary>
         void StartUninstall(Action<InstallProgress> onProgress, Action<bool, string> onDone);
+
+        /// <summary>开始卸载（带用户选择，如是否删除数据）。</summary>
+        void StartUninstall(WizardOptions options, Action<InstallProgress> onProgress, Action<bool, string> onDone);
 
         /// <summary>
         /// 按用户当前的选择，安装**开始之前**是否必须先提权。

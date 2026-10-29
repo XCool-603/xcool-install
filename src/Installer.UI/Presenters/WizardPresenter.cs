@@ -179,7 +179,7 @@ namespace Installer.UI.Presenters
 
                 if (Current == WizardPage.Path)
                 {
-                    return !string.IsNullOrWhiteSpace(Options.InstallDir);
+                    return !string.IsNullOrWhiteSpace(Options.InstallDir) && IsValidPath(Options.InstallDir);
                 }
 
                 return true;
@@ -391,7 +391,7 @@ namespace Installer.UI.Presenters
                     return true;
 
                 case WizardPage.Path:
-                    if (string.IsNullOrWhiteSpace(Options.InstallDir))
+                    if (string.IsNullOrWhiteSpace(Options.InstallDir) || !IsValidPath(Options.InstallDir))
                     {
                         return false;
                     }
@@ -660,6 +660,41 @@ namespace Installer.UI.Presenters
                 Location = location,
                 Name = _manifest.Product.Name,
             };
+        }
+
+        /// <summary>校验安装路径是否合法。</summary>
+        public static bool IsValidPath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return false;
+            }
+            try
+            {
+                var trimmed = path.Trim();
+                if (trimmed.IndexOfAny(System.IO.Path.GetInvalidPathChars()) >= 0)
+                {
+                    return false;
+                }
+                if (!System.IO.Path.IsPathRooted(trimmed))
+                {
+                    return false;
+                }
+                var root = System.IO.Path.GetPathRoot(trimmed);
+                if (string.IsNullOrEmpty(root))
+                {
+                    return false;
+                }
+                if (string.Equals(trimmed.TrimEnd('\\', '/'), root.TrimEnd('\\', '/'), StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

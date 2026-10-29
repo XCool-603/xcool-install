@@ -15,6 +15,7 @@ using Installer.Core.Common;
 using Installer.Core.Install;
 using Installer.Core.Packaging;
 using Installer.Core.Platform;
+using Installer.Core.Security;
 using Installer.Core.Uninstall;
 using Installer.UI.Models;
 using Newtonsoft.Json;
@@ -92,6 +93,28 @@ namespace Installer.Runtime
                 }
             }
 
+            IDisposable singleInstanceLock = null;
+            if (!options.Silent && options.RenderUiDir == null && options.CleanupDir == null &&
+                !options.VerifyOnly && !options.DryRun && string.IsNullOrEmpty(options.ResumePath) &&
+                !options.AlreadyElevated && string.IsNullOrEmpty(options.SandboxRoot))
+            {
+                try
+                {
+                    var mutexName = "Local\\XCool_Installer_" + SafePath.SanitizeFileName(Path.GetFileNameWithoutExtension(GetSelfPath()) ?? "Setup");
+                    bool createdNew = false;
+                    var mutex = new System.Threading.Mutex(true, mutexName, out createdNew);
+                    if (!createdNew)
+                    {
+                        ActivateExistingInstance();
+                        return 0;
+                    }
+                    singleInstanceLock = mutex;
+                }
+                catch
+                {
+                }
+            }
+
             try
             {
                 if (options.RenderUiDir != null)
@@ -115,6 +138,13 @@ namespace Installer.Runtime
             {
                 WriteResult(options.ResultPath, new { ok = false, error = ex.Message, type = ex.GetType().Name });
                 return Report(options, false, ex.Message);
+            }
+            finally
+            {
+                if (singleInstanceLock != null)
+                {
+                    singleInstanceLock.Dispose();
+                }
             }
         }
 
@@ -1474,7 +1504,41 @@ namespace Installer.Runtime
             for (var i = 0; i < args.Length; i++)
             {
                 var a = args[i];
-                switch (a.ToLowerInvariant())
+                if (string.IsNullOrEmpty(a))
+                {
+                    continue;
+                }
+                var lower = a.ToLowerInvariant();
+
+                if (lower == "--silent" || lower == "/s" || lower == "-s" || lower == "/silent" ||
+                    lower == "-silent" || lower == "/quiet" || lower == "/qn")
+                {
+                    o.Silent = true;
+                    continue;
+                }
+                if (lower.StartsWith("/d=", StringComparison.OrdinalIgnoreCase) ||
+                    lower.StartsWith("-d=", StringComparison.OrdinalIgnoreCase))
+                {
+                    o.Target = a.Substring(3).Trim('"');
+                    continue;
+                }
+                if (lower.StartsWith("--dir=", StringComparison.OrdinalIgnoreCase))
+                {
+                    o.Target = a.Substring(6).Trim('"');
+                    continue;
+                }
+                if (lower == "--dir" || lower == "-d")
+                {
+                    o.Target = Next(args, ref i);
+                    continue;
+                }
+                if (lower == "--uninstall" || lower == "/uninstall" || lower == "-uninstall" || lower == "/u")
+                {
+                    o.Uninstall = true;
+                    continue;
+                }
+
+                switch (lower)
                 {
                     case "--silent":
                         o.Silent = true;
@@ -1539,6 +1603,32 @@ namespace Installer.Runtime
         private static string Next(string[] args, ref int i)
         {
             return i + 1 < args.Length ? args[++i] : null;
+        }
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        private static void ActivateExistingInstance()
+        {
+            try
+            {
+                var current = Process.GetCurrentProcess();
+                foreach (var p in Process.GetProcessesByName(current.ProcessName))
+                {
+                    if (p.Id != current.Id && p.MainWindowHandle != IntPtr.Zero)
+                    {
+                        ShowWindow(p.MainWindowHandle, 9 /* SW_RESTORE */);
+                        SetForegroundWindow(p.MainWindowHandle);
+                        break;
+                    }
+                }
+            }
+            catch
+            {
+            }
         }
     }
 }
