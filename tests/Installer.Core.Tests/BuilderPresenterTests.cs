@@ -627,7 +627,7 @@ namespace Installer.Core.Tests
         }
 
         [Fact]
-        public void 打包时应按_根目录_厂商_产品名_生成安装目录()
+        public void 打包时应按_根目录_厂商_启动程序名_生成安装目录()
         {
             // 用户把"安装根目录"填成 D:\Program Files (x86) —— 以前会把几百个文件
             // 直接平铺进去（跟别人的软件混在一起），卸载都不敢删。
@@ -643,10 +643,29 @@ namespace Installer.Core.Tests
 
             p.Build();
 
-            Assert.Equal(@"D:\Program Files (x86)\唯非工作室\空中小火车",
+            Assert.Equal(@"D:\Program Files (x86)\唯非工作室\App0",
                 p.Document.Project.Manifest.DefaultInstallDir);
         }
 
+        [Fact]
+        public void 目录名用启动程序名而不是产品名()
+        {
+            // 用户要求：D:\Program Files (x86)\{厂商}\{启动程序名}
+            // 产品名可能是中文/英文两套，启动程序只有一个 —— 目录唯一、可预期。
+            var p = NewPresenter();
+            var m = p.Document.Project.Manifest;
+            m.DefaultInstallDir = @"D:\Program Files (x86)";
+            m.Scope = InstallScopes.PerMachine;
+            m.Product.Name = new LocalizedText { { "zh-Hans", "接蛋大比拼CSVS程序" }, { "en", "Egg Catching Challenge" } };
+            m.Product.Publisher = new LocalizedText { { "zh-Hans", "chuangqi" } };
+            m.EntryPoint = @"bin\Egg Catching Challenge.exe";
+            p.Document.Project.Build.SourceDir = NewSource();
+
+            p.Build();
+
+            Assert.Equal(@"D:\Program Files (x86)\chuangqi\Egg Catching Challenge",
+                p.Document.Project.Manifest.DefaultInstallDir);
+        }
         [Fact]
         public void 没填厂商时打包不应多出厂商层级()
         {
@@ -661,7 +680,7 @@ namespace Installer.Core.Tests
 
             p.Build();
 
-            Assert.Equal(@"D:\Apps\空中小火车", p.Document.Project.Manifest.DefaultInstallDir);
+            Assert.Equal(@"D:\Apps\App0", p.Document.Project.Manifest.DefaultInstallDir);
         }
 
         [Fact]
@@ -681,7 +700,7 @@ namespace Installer.Core.Tests
             p.Build();
 
             Assert.Equal(first, p.Document.Project.Manifest.DefaultInstallDir);
-            Assert.Equal(@"D:\Apps\唯非工作室\空中小火车", first);
+            Assert.Equal(@"D:\Apps\唯非工作室\App0", first);
         }
 
         [Fact]

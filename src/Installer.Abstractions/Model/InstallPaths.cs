@@ -105,6 +105,27 @@ namespace Installer.Abstractions.Model
                 return root;
             }
 
+            // 路径里**已经有厂商层**、后面还跟着别的东西 → 那是上一版拼好的旧目录
+            // （厂商没改、产品名改过）。从厂商层开始整段替换，否则会拼成
+            //   ...\厂商\旧产品名\厂商\新产品名
+            // 用户实测就是这个：D:\Program Files (x86)\chuangqi\空中飞翔CSVS\
+            //   chuangqi\接蛋大比拼CSVS程序
+            if (vendor.Length > 0)
+            {
+                for (var i = segments.Count - 1; i >= 1; i--)
+                {
+                    if (!string.Equals(segments[i], vendor, StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    var head = segments.Take(i).ToList();   // 厂商层之前的都保留
+                    head.Add(vendor);
+                    head.Add(product);
+                    return JoinSegments(head, root);
+                }
+            }
+
             var result = root.TrimEnd('\\', '/');
             if (vendor.Length > 0)
             {
@@ -160,6 +181,46 @@ namespace Installer.Abstractions.Model
             }
 
             return JoinSegments(segments.Take(segments.Count - drop).ToList(), dir);
+        }
+
+        /// <summary>
+        /// 从"可能已经带着厂商/产品层的路径"里取出**根目录**。
+        ///
+        /// 判据只有一条：路径里出现「厂商」这一层，它前面的就是根。
+        /// 用于修正"上一版拼好的旧目录"（<c>…\厂商\旧产品名</c>）——
+        /// 直接把它当根再拼一次就会变成 <c>…\厂商\旧产品\厂商\新产品</c>。
+        /// 找不到厂商层就原样返回。
+        /// </summary>
+        /// <param name="dir">可能是根、也可能是已经拼好的完整目录。</param>
+        /// <param name="vendorName">厂商名；为空时直接返回 <paramref name="dir"/>。</param>
+        public static string RootOf(string dir, string vendorName)
+        {
+            if (string.IsNullOrWhiteSpace(dir))
+            {
+                return dir;
+            }
+
+            var vendor = SanitizeOrEmpty(vendorName);
+            if (vendor.Length == 0)
+            {
+                return dir;
+            }
+
+            var segments = SplitSegments(dir);
+
+            // 从**第一个**厂商层切：套娃路径（…\厂商\旧产品\厂商\新产品）要一次剥干净。
+            // 只剥最后一层的话，每打一次包只少一层 —— 用户会一直看到旧目录。
+            for (var i = 1; i < segments.Count; i++)
+            {
+                if (!string.Equals(segments[i], vendor, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                return JoinSegments(segments.Take(i).ToList(), dir);
+            }
+
+            return dir;
         }
 
         /// <summary>

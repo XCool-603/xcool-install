@@ -1267,6 +1267,8 @@ namespace Installer.Runtime
 
             if (string.IsNullOrWhiteSpace(dir))
             {
+                // 清单里的目录就是最终目录（打包时按「根\厂商\启动程序名」算好）。
+                // 运行时**不再重拼** —— 目录在打包时就定死了，跟界面语言没关系。
                 dir = manifest.DefaultInstallDir;
             }
 

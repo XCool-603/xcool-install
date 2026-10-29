@@ -178,7 +178,13 @@ namespace Installer.UI.Presenters
         /// <summary>产品显示名。</summary>
         public string ProductName
         {
-            get { return _text.Resolve(_manifest.Product.Name, _manifest.ProductCode); }
+            get
+            {
+                // 用"请求语言 → 默认语言 → 第一个"解析，而不是跟着界面文案表的语言走：
+                // 文案表可能只做了中文，但产品名有英文 —— 那样界面上是英文、目录里却是中文。
+                var name = InstallPaths.PickText(_manifest.Product.Name, _text.Culture, _manifest.DefaultCulture);
+                return string.IsNullOrWhiteSpace(name) ? _manifest.ProductCode : name;
+            }
         }
 
         /// <summary>产品版本。</summary>

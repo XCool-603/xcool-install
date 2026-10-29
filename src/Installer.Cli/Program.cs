@@ -173,6 +173,10 @@ namespace Installer.Cli
                     DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
             }
 
+            // 安装目录收敛成 <根>\<厂商>\<产品>。
+            // 产品名改过时，路径里残留的旧产品目录会被替换掉（否则会拼出
+            // …\厂商\旧产品\厂商\新产品 这种目录）。
+            InstallDirNormalizer.Normalize(manifest);
             var options = new PackageBuildOptions
             {
                 Manifest = manifest,

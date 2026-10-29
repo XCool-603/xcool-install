@@ -64,6 +64,42 @@ namespace Installer.Core.Tests
         }
 
         [Fact]
+        public void 多层套娃的旧目录要一次剥到根()
+        {
+            // 用户实测：连着打包几次之后目录变成
+            // D:\Program Files (x86)\chuangqi\空中飞翔CSVS\chuangqi\Egg Catching
+            // 取根目录时必须从**第一个厂商层**切，否则每次只剥一层，永远清不干净。
+            Assert.Equal(@"D:\Program Files (x86)",
+                InstallPaths.RootOf(@"D:\Program Files (x86)\chuangqi\空中飞翔CSVS\chuangqi\Egg Catching", "chuangqi"));
+
+            Assert.Equal(@"D:\Program Files (x86)",
+                InstallPaths.RootOf(@"D:\Program Files (x86)\chuangqi\Egg Catching", "chuangqi"));
+
+            // 没有厂商层 → 原样（用户自己填的根）
+            Assert.Equal(@"D:\Apps", InstallPaths.RootOf(@"D:\Apps", "chuangqi"));
+        }
+        [Fact]
+        public void 产品名改过时不应把旧产品目录留在路径里()
+        {
+            // 用户实测：产品名从「空中飞翔CSVS」改成「接蛋大比拼CSVS程序」后，
+            // 拼出来的目录变成 ...\chuangqi\空中飞翔CSVS\chuangqi\接蛋大比拼CSVS程序
+            // —— 旧产品目录没被替换掉，厂商层还出现了两次。
+            var result = InstallPaths.Compose(
+                @"D:\Program Files (x86)\chuangqi\空中飞翔CSVS",
+                "chuangqi",
+                "接蛋大比拼CSVS程序");
+
+            Assert.Equal(@"D:\Program Files (x86)\chuangqi\接蛋大比拼CSVS程序", result);
+        }
+
+        [Fact]
+        public void 厂商层后面跟着别的东西时应整段替换()
+        {
+            var result = InstallPaths.Compose(@"%LOCALAPPDATA%\Programs\chuangqi\旧产品", "chuangqi", "新产品");
+
+            Assert.Equal(@"%LOCALAPPDATA%\Programs\chuangqi\新产品", result);
+        }
+        [Fact]
         public void 已经是完整目录时不应再加一层产品名()
         {
             Assert.Equal(@"C:\MyApp", InstallPaths.Compose(@"C:\MyApp", null, "MyApp"));

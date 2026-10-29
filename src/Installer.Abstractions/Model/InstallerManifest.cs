@@ -73,6 +73,18 @@ namespace Installer.Abstractions.Model
         [JsonProperty("defaultInstallDir", Order = 7)]
         public string DefaultInstallDir { get; set; }
 
+        /// <summary>
+        /// 安装**根目录**（不含厂商/产品层），支持 %ENV% 环境变量展开。
+        ///
+        /// 为什么要单独存一份：多语言产品的产品名有两套（中文名 / 英文名），
+        /// 安装目录里该用哪一套，取决于**用户安装时的界面语言** —— 否则会出现
+        /// "界面写着 Egg Catching Challenge、目录却是旧中文名"的怪事（用户实测）。
+        /// 打包时把根目录记下来，安装时按当前语言拼 <c>根\厂商\产品</c>。
+        /// 老包没有这个字段，就继续用 <see cref="DefaultInstallDir"/>。
+        /// </summary>
+        [JsonProperty("installRoot", NullValueHandling = NullValueHandling.Ignore, Order = 71)]
+        public string InstallRoot { get; set; }
+
         /// <summary>安装完成后要启动的可执行文件（相对安装目录）。</summary>
         [JsonProperty("entryPoint", Order = 8)]
         public string EntryPoint { get; set; }

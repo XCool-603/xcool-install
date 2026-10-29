@@ -252,6 +252,10 @@ namespace Installer.Core.Packaging
                         PayloadBytes = payloadLength,
                     };
 
+                    // 安装目录由调用方先规范化（见 InstallDirNormalizer）：
+                    // 这里**不改** manifest —— 打包层改动调用方的对象会让人意外，
+                    // 而且会破坏"清单里的路径就是最终路径"这条既有约定。
+
                     ManifestSerializer.Validate(manifest);
                     manifestBytes = ManifestSerializer.SerializeToUtf8Bytes(manifest);
 

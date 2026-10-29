@@ -69,10 +69,19 @@ namespace Installer.Builder.Models
         /// 根据源目录和产品信息推导输出路径。
         /// 用户不需要选 —— 默认放在源目录的**同级**目录里。
         /// </summary>
-        public static string SuggestOutputPath(string productName, string version, string sourceDir)
+        /// <param name="preferredDir">
+        /// 用户上次选过的生成目录（来自 <see cref="BuilderSettings.OutputDir"/>）。
+        /// 给了就用它 —— 用户明确选过的目录不能被"源目录同级"覆盖掉。
+        /// </param>
+        public static string SuggestOutputPath(string productName, string version, string sourceDir,
+                                               string preferredDir = null)
         {
             string dir;
-            if (string.IsNullOrWhiteSpace(sourceDir))
+            if (!string.IsNullOrWhiteSpace(preferredDir) && System.IO.Directory.Exists(preferredDir))
+            {
+                dir = preferredDir;
+            }
+            else if (string.IsNullOrWhiteSpace(sourceDir))
             {
                 dir = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
             }

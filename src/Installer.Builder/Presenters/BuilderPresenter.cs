@@ -221,6 +221,13 @@ namespace Installer.Builder.Presenters
         // 输出路径：自动推导
         // ─────────────────────────────────────────────────────────────
 
+        /// <summary>
+        /// 用户上次选过的生成目录（来自 settings.json，跨工程、跨重启记住）。
+        ///
+        /// 为空表示没选过 —— 这时才用"源目录同级 / 桌面"的默认推导。
+        /// </summary>
+        public string PreferredOutputDir { get; set; }
+
         /// <summary>当前应当使用的输出路径（用户没固定就用自动推导的）。</summary>
         public string ResolveOutputPath()
         {
@@ -235,7 +242,8 @@ namespace Installer.Builder.Presenters
             return BuilderDocument.SuggestOutputPath(
                 PickProductName(m),
                 m.Product.Version,
-                build.SourceDir);
+                build.SourceDir,
+                PreferredOutputDir);
         }
 
         /// <summary>
@@ -244,13 +252,35 @@ namespace Installer.Builder.Presenters
         /// </summary>
         public static string PickProductName(InstallerManifest m)
         {
+            return PickProductName(m, null);
+        }
+
+        /// <summary>
+        /// 取产品名；给了 <paramref name="preferredCulture"/> 就优先用它（= 界面当前语言）。
+        ///
+        /// 为什么需要：清单里通常有中文名 + 英文名两套。用户把界面切成英文、只改了英文名，
+        /// 中文名还是旧的 —— 安装目录以前取"默认语言（中文）"，于是目录里出现旧中文名
+        /// （用户实测：产品名是 Egg Catching Challenge，目录却是 接蛋大比拼CSVS程序）。
+        /// 生成目录应该用**用户看到的那个名字**。
+        /// </summary>
+        public static string PickProductName(InstallerManifest m, string preferredCulture)
+        {
             var name = m == null || m.Product == null ? null : m.Product.Name;
             if (name == null || name.Count == 0)
             {
                 return null;
             }
 
-            // 优先默认语言
+            // 先按界面当前语言取
+            string current;
+            if (!string.IsNullOrWhiteSpace(preferredCulture)
+                && name.TryGetValue(preferredCulture, out current)
+                && !string.IsNullOrWhiteSpace(current))
+            {
+                return current.Trim();
+            }
+
+            // 再按默认语言
             string preferred;
             if (!string.IsNullOrWhiteSpace(m.DefaultCulture)
                 && name.TryGetValue(m.DefaultCulture, out preferred)
@@ -276,6 +306,20 @@ namespace Installer.Builder.Presenters
 
             return InstallPaths.SanitizeOrEmpty(InstallPaths.PickText(
                 m.Product.Publisher, m.DefaultCulture, m.DefaultCulture));
+        }
+
+        /// <summary>取厂商名（优先界面当前语言）。</summary>
+        public static string PickVendorName(InstallerManifest m, string preferredCulture)
+        {
+            if (m == null || m.Product == null || m.Product.Publisher == null)
+            {
+                return string.Empty;
+            }
+
+            return InstallPaths.SanitizeOrEmpty(InstallPaths.PickText(
+                m.Product.Publisher,
+                string.IsNullOrWhiteSpace(preferredCulture) ? m.DefaultCulture : preferredCulture,
+                m.DefaultCulture));
         }
 
         /// <summary>
@@ -485,16 +529,62 @@ namespace Installer.Builder.Presenters
                 return;
             }
 
-            var rootDir = m.DefaultInstallDir;
+            var vendor = PickVendorName(m);
+
+            // 目录里的"产品名"用**启动程序名**（去扩展名），不用清单里的多语言产品名 ——
+            // 产品名可能是中文/英文两套，而启动程序只有一个，拼出来的目录唯一且可预期。
+            // 用户要求：D:\Program Files (x86)\{厂商}\{启动程序名}
+            var name = EntryPointStem(m);
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                name = PickProductName(m);
+            }
+
+            // 根目录：优先用清单里的 InstallRoot（用户自己填的纯根），
+            // 但**有值也要过一遍 RootOf** —— 老版本可能把"整个安装目录"写进了 InstallRoot
+            // （用户实测：D:\Program Files (x86)\chuangqi\空中飞翔CSVS\chuangqi\接蛋大比拼CSVS程序），
+            // 直接当根用就会继续套娃。RootOf 对"纯根"是幂等的，剥不出厂商层就原样返回。
+            var rootDir = InstallPaths.RootOf(
+                string.IsNullOrWhiteSpace(m.InstallRoot) ? m.DefaultInstallDir : m.InstallRoot,
+                vendor);
+
             if (string.IsNullOrWhiteSpace(rootDir) || IsDefaultDirPlaceholder(rootDir))
             {
                 rootDir = InstallPaths.Root(string.Equals(m.Scope, InstallScopes.PerMachine,
                     StringComparison.OrdinalIgnoreCase));
             }
 
-            m.DefaultInstallDir = InstallPaths.Compose(rootDir, PickVendorName(m), PickProductName(m));
+            m.InstallRoot = rootDir;
+            m.DefaultInstallDir = InstallPaths.Compose(rootDir, vendor, name);
         }
 
+        /// <summary>
+        /// 启动程序的文件名（去掉扩展名），用作安装目录里的"产品名"。
+        /// 例如 <c>bin\Egg Catching Challenge.exe</c> → <c>Egg Catching Challenge</c>。
+        /// </summary>
+        public static string EntryPointStem(InstallerManifest m)
+        {
+            var entry = m == null ? null : m.EntryPoint;
+            if (string.IsNullOrWhiteSpace(entry))
+            {
+                return null;
+            }
+
+            var file = entry.Replace('/', '\\');
+            var slash = file.LastIndexOf('\\');
+            if (slash >= 0)
+            {
+                file = file.Substring(slash + 1);
+            }
+
+            var dot = file.LastIndexOf('.');
+            if (dot > 0)
+            {
+                file = file.Substring(0, dot);
+            }
+
+            return string.IsNullOrWhiteSpace(file) ? null : file.Trim();
+        }
         /// <summary>
         /// 从文件夹名猜一个产品名。
         ///

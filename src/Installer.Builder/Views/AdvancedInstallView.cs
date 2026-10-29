@@ -40,8 +40,12 @@ namespace Installer.Builder.Views
                 // 这里显示的是**根目录**，不是最终目录：
                 // 最终目录是「根\厂商\产品」，拼装发生在打包时（Build → InstallPaths.Compose）。
                 // 直接回显最终目录的后果：用户再点一次打包就会变成「...\产品\厂商\产品」。
-                txtDir.Text = InstallPaths.SplitBase(m.DefaultInstallDir,
-                    BuilderPresenter.PickVendorName(m), BuilderPresenter.PickProductName(m)) ?? string.Empty;
+                // 显示**用户自己填的根目录**（InstallRoot）。老工程没这个字段时，
+                // 才从 DefaultInstallDir 里剥一次（SplitBase）做迁移。
+                txtDir.Text = string.IsNullOrWhiteSpace(m.InstallRoot)
+                    ? (InstallPaths.SplitBase(m.DefaultInstallDir,
+                        BuilderPresenter.PickVendorName(m), BuilderPresenter.PickProductName(m)) ?? string.Empty)
+                    : m.InstallRoot;
 
                 chkAlwaysElevate.Checked = m.AlwaysElevate;
             }
@@ -62,9 +66,11 @@ namespace Installer.Builder.Views
         {
             m.Scope = cboScope.SelectedIndex == 1 ? InstallScopes.PerMachine : InstallScopes.PerUser;
 
-            // 注意：存进清单的是**根目录**。最终目录（根\厂商\产品）在打包时算，
-            // 这样改了产品名/厂商名之后目录会自动跟着变，不会留一个旧名字的死路径。
-            m.DefaultInstallDir = txtDir.Text.Trim();
+            // 存**纯根目录**：最终目录（根\厂商\启动程序名）在打包时算。
+            // 这样改了厂商/启动程序之后目录自动跟着变，也不会残留上一次的目录层级
+            // （用户实测：一直残留 空中飞翔CSVS 那一层）。
+            m.InstallRoot = txtDir.Text.Trim();
+            m.DefaultInstallDir = m.InstallRoot;
             m.AlwaysElevate = chkAlwaysElevate.Checked;
 
             if (build != null)

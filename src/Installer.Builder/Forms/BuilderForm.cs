@@ -11,6 +11,7 @@ using Installer.Abstractions.Install;
 using Installer.Abstractions.Model;
 using Installer.Abstractions.Packaging;
 using Installer.Builder.Common;
+using Installer.Builder.Models;
 using Installer.Builder.Presenters;
 using Installer.UI.Forms;
 using Installer.UI.Models;
@@ -53,6 +54,9 @@ namespace Installer.Builder.Forms
             // 恢复上次的工程：**productCode 必须跨会话保持**，否则同一个产品装几次
             // 就会在「程序和功能」里留下几条记录（见 BuilderPresenter.AutoSavePath 的说明）
             _presenter.TryLoadAutoSaved();
+
+            // 上次选过的生成目录（跨工程记住；没选过就是 null → 默认桌面）
+            _presenter.PreferredOutputDir = _settings.OutputDir;
 
             ApplyText();
             WriteToViews();
@@ -120,6 +124,13 @@ namespace Installer.Builder.Forms
             outputBar.OutputChanged += () =>
             {
                 _presenter.Document.Project.Build.OutputPath = outputBar.OutputPath;
+                _outputPinned = true;
+
+                // 记住这个目录（跨重启、跨工程）—— 用户反馈"选了目录，重启又回桌面"
+                _settings.RememberOutputDir(outputBar.OutputPath);
+                _settings.Save();
+                _presenter.PreferredOutputDir = _settings.OutputDir;
+
                 MarkDirty();
             };
 
@@ -216,6 +227,22 @@ namespace Installer.Builder.Forms
             folderStep.EntryPoint = m.EntryPoint;
             infoStep.Write(m.Product.Name, m.Product.Version, m.Product.Publisher);
             shortcutStep.Write(m);
+
+            // 工程里带了固定输出路径 → 视为"用户选过"，之后不再自动重算。
+            //
+            // 但要区分来源：老版本存下来的**自动推导**路径（目录和现在推导出来的一样）
+            // 不能算"用户选过"，否则改了产品名/版本，文件名就不再跟着变。
+            _outputPinned = false;
+            if (!string.IsNullOrWhiteSpace(b.OutputPath))
+            {
+                var auto = BuilderDocument.SuggestOutputPath(
+                    BuilderPresenter.PickProductName(m), m.Product.Version, b.SourceDir,
+                    _presenter.PreferredOutputDir);
+
+                _outputPinned = !string.Equals(Path.GetDirectoryName(b.OutputPath),
+                    Path.GetDirectoryName(auto), StringComparison.OrdinalIgnoreCase);
+            }
+
             outputBar.OutputPath = _presenter.ResolveOutputPath();
         }
 
@@ -256,11 +283,23 @@ namespace Installer.Builder.Forms
             UpdateTitle();
         }
 
+        /// <summary>界面级设置（目前只有"上次的生成目录"）。</summary>
+        private readonly BuilderSettings _settings = BuilderSettings.Load();
+
+        /// <summary>用户是否自己选过输出路径（选过就不再自动推导，重启也记住）。</summary>
+        private bool _outputPinned;
+
         private void UpdateOutputPath()
         {
             ReadFromViews();
 
-            // 用户没有固定过输出路径 → 自动推导
+            if (_outputPinned)
+            {
+                // 用户自己选过 → 原样保留，不再按产品名/版本重算
+                return;
+            }
+
+            // 没选过 → 按"上次用过的目录（没有就桌面）"推导
             _presenter.Document.Project.Build.OutputPath = null;
             outputBar.OutputPath = _presenter.ResolveOutputPath();
 
@@ -535,15 +574,15 @@ namespace Installer.Builder.Forms
             }
 
             var manifest = _presenter.Document.Project.Manifest;
-
-            // 预览也要看到**真正的**安装目录：清单里存的是根目录，
-            // 直接拿它去预览会显示成 D:\Program Files (x86) 这种"没有产品层级"的路径，
-            // 和真正装出来的位置不一样 —— 预览就失去意义了。
-            var composedDir = InstallPaths.Compose(manifest.DefaultInstallDir,
-                BuilderPresenter.PickVendorName(manifest), BuilderPresenter.PickProductName(manifest));
+            // 预览必须和**真正打包**用同一套目录规则，否则用户看到的路径和装出来的不一样。
+            // 以前这里自己 Compose 了一遍（用产品名，而且清单里可能还带着旧层级），
+            // 于是预览里一直显示 …\厂商\旧产品\厂商\产品。
+            BuilderPresenter.ApplyInstallDirLayout(manifest);
 
             var installDir = Environment.ExpandEnvironmentVariables(
-                string.IsNullOrWhiteSpace(composedDir) ? @"C:\Temp\Preview" : composedDir);
+                string.IsNullOrWhiteSpace(manifest.DefaultInstallDir)
+                    ? @"C:\Temp\Preview"
+                    : manifest.DefaultInstallDir);
 
             try
             {
@@ -675,7 +714,9 @@ namespace Installer.Builder.Forms
             var vendor = BuilderPresenter.PickVendorName(m);
             var product = BuilderPresenter.PickProductName(m);
 
-            var installDir = InstallPaths.Compose(m.DefaultInstallDir, vendor, product);
+            // 打包时 ApplyInstallDirLayout 已经把最终目录算进 DefaultInstallDir，
+            // 这里直接用它 —— 再 Compose 一次会重复拼厂商/产品。
+            var installDir = m.DefaultInstallDir;
 
             var separator = _presenter.S("Msg.Done.TaskSeparator");
             var tasks = new List<string>();
@@ -882,6 +923,36 @@ namespace Installer.Builder.Forms
         ///   ② 用户自己敲名字 → 跟随自动关掉，且名字留住（autoNameAfterTyping=False）
         ///   ③ 重新勾上跟随 → 立刻按当前启动程序重算（nameAfterRecheck == pick1）
         /// </summary>
+        /// <summary>
+        /// 验收用：打印"生成目录"的解析链路（设置文件 → 默认桌面）。
+        ///
+        /// 输出 key=value，便于脚本断言：
+        ///   settingsPath=...  savedDir=...  resolved=...  pinned=...
+        /// </summary>
+        public string SelfTestOutputPath()
+        {
+            var lines = new List<string>();
+
+            lines.Add("settingsPath=" + BuilderSettings.GetPath());
+            lines.Add("savedDir=" + (_settings.OutputDir ?? string.Empty));
+            lines.Add("pinned=" + _outputPinned);
+            lines.Add("resolved=" + outputBar.OutputPath);
+
+            // 预览/打包真正会用到的安装目录（和 PreviewWizard / Build 同一套规则）
+            var manifest = _presenter.Document.Project.Manifest;
+            BuilderPresenter.ApplyInstallDirLayout(manifest);
+            lines.Add("installRoot=" + (manifest.InstallRoot ?? string.Empty));
+            lines.Add("installDir=" + (manifest.DefaultInstallDir ?? string.Empty));
+
+            // 再按"用户选了某个目录"走一遍：应当被记住
+            var probe = Path.Combine(Path.GetTempPath(), "selftest-output");
+            Directory.CreateDirectory(probe);
+            _settings.RememberOutputDir(Path.Combine(probe, "x.exe"));
+            lines.Add("remembered=" + (_settings.OutputDir ?? string.Empty));
+
+            return string.Join("\n", lines.ToArray());
+        }
+
         public string SelfTestAutoName(string folder)
         {
             var lines = new List<string>();

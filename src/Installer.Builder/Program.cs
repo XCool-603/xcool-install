@@ -62,6 +62,27 @@ namespace Installer.Builder
             // 为什么要它：这段逻辑住在 BuilderForm 里，靠 --render-ui 只能看到"某个瞬间
             // 的画面"，验证不了"换启动程序 → 产品名跟着变"这条交互链路 ——
             // 而用户反馈的恰恰就是这条链路没生效。有它就能在 CI 里断言。
+            // 开发/验收用：打印"生成目录"的解析结果（设置文件 → 默认桌面）。
+            // 用户反馈：选了生成目录，重启又回桌面 —— 这条链路得能断言。
+            if (HasFlag(args, "--selftest-output"))
+            {
+                try
+                {
+                    Console.OutputEncoding = System.Text.Encoding.UTF8;
+                }
+                catch (System.IO.IOException)
+                {
+                }
+
+                using (var form = new Forms.BuilderForm())
+                {
+                    Console.WriteLine(form.SelfTestOutputPath());
+                    form.Close();
+                }
+
+                return 0;
+            }
+
             var selfTestFolder = GetOption(args, "--selftest-autoname");
             if (!string.IsNullOrEmpty(selfTestFolder))
             {
@@ -184,7 +205,7 @@ namespace Installer.Builder
                     return Fail("工程里没有入口程序（entryPoint），无法生成安装包");
                 }
 
-                // 与界面上的「生成安装包」走**同一套**安装目录规则（根\厂商\产品）。
+                // 与界面上的「生成安装包」走**同一套**安装目录规则：根\厂商\启动程序名。
                 // 不这么做的话，CI 打出来的包和用户点出来的包目录层级不一样。
                 BuilderPresenter.ApplyInstallDirLayout(manifest);
 
