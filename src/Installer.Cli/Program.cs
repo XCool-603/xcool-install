@@ -110,7 +110,7 @@ namespace Installer.Cli
         {
             var map = ParseArgs(args, "project", "source", "stub", "out", "icon", "build-time",
                 "signtool", "sha1", "ts");
-            var flags = ParseFlags(args, "no-icon", "sign");
+            var flags = ParseFlags(args, "no-icon", "sign", "no-require-admin");
 
             var projectPath = Require(map, "project");
 
@@ -181,6 +181,8 @@ namespace Installer.Cli
                 OutputPath = outPath,
                 IconPath = iconPath,
                 SkipIconPatch = flags.Contains("no-icon") || string.IsNullOrWhiteSpace(iconPath),
+                // 默认要求管理员；CI/自动化可用 --no-require-admin 关掉
+                RequireAdministrator = !flags.Contains("no-require-admin"),
                 BuildTimestamp = buildTime,
                 PackerVersion = PackageBuilder.PackerVersion,
             };
@@ -219,6 +221,17 @@ namespace Installer.Cli
                 foreach (var warning in result.Warnings)
                 {
                     Console.WriteLine("  * " + warning);
+                }
+            }
+
+            // Notes：不构成风险的说明（例如"程序会往安装目录写，但装在用户目录下没问题"）
+            if (result.Notes != null && result.Notes.Count > 0)
+            {
+                Console.WriteLine();
+                Console.WriteLine("说明：");
+                foreach (var note in result.Notes)
+                {
+                    Console.WriteLine("  - " + note);
                 }
             }
 

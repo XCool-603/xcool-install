@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using Installer.Abstractions.Install;
+using Installer.Abstractions.Model;
 using Installer.Abstractions.Platform;
 using Installer.Core.Common;
 using Installer.Core.Install;
@@ -113,6 +114,11 @@ namespace Installer.Core.Uninstall
                 }
             }
 
+            // ②.5 快捷方式删完，把空出来的「产品文件夹」也删掉
+            // （现在开始菜单里是 <产品名>\ 下放程序和卸载两个入口，
+            //  只删 .lnk 会留一个点进去什么都没有的空壳）
+            DeleteEmptyShortcutFolders(record, platform, result);
+
             // ③ 删注册表（自启动项 + 标准卸载键 + 记录里写入的每一个值）
             Step(progress, ++index, total, "uninstall-registry", "正在清理注册表…");
             TryDeleteAutostart(record, platform, result);
@@ -125,7 +131,7 @@ namespace Installer.Core.Uninstall
 
             // ④ 按清单删文件（这是与现状最大的区别）
             Step(progress, ++index, total, "uninstall-files", "正在删除程序文件…");
-            DeleteRecordedFiles(record, platform, result);
+            DeleteRecordedFiles(record, platform, result, progress);
 
             // ⑤ 安装目录里的已知残留：Log 目录、安装记录、journal、.rollback
             //
@@ -136,7 +142,7 @@ namespace Installer.Core.Uninstall
 
             if (deleteInstallDir)
             {
-                DeleteEmptyDirectories(record, platform, result);
+                WipeProductDirectory(record.InstallDir, record.VendorName, platform, result, true);
             }
 
             // 只有"程序文件确实都清掉了"才算成功：
@@ -216,6 +222,82 @@ namespace Installer.Core.Uninstall
                 if (!string.IsNullOrEmpty(name) && seen.Add(name))
                 {
                     yield return name;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 删掉**空出来的**快捷方式目录（产品文件夹）。
+        ///
+        /// 开始菜单里现在是 <c>Programs\&lt;产品名&gt;\</c> 下放「程序」和「卸载」两个入口；
+        /// 只删 .lnk 会留下一个空文件夹 —— 开始菜单里就是一个点进去什么都没有的空壳。
+        /// 只删空目录，且**绝不**动桌面 / 开始菜单 / 启动这些系统目录本身。
+        /// </summary>
+        private static void DeleteEmptyShortcutFolders(InstallRecord record, IPlatformServices platform,
+                                                       UninstallRunResult result)
+        {
+            if (record.Shortcuts == null || record.Shortcuts.Count == 0)
+            {
+                return;
+            }
+
+            var protectedDirs = new List<string>();
+            foreach (var kind in new[]
+            {
+                SpecialFolderKind.Desktop, SpecialFolderKind.StartMenu, SpecialFolderKind.Startup,
+                SpecialFolderKind.CommonDesktop, SpecialFolderKind.CommonStartMenu, SpecialFolderKind.CommonStartup,
+            })
+            {
+                try
+                {
+                    var dir = platform.Environment.GetFolder(kind);
+                    if (!string.IsNullOrEmpty(dir))
+                    {
+                        protectedDirs.Add(dir.TrimEnd('\\'));
+                    }
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            var folders = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var link in record.Shortcuts)
+            {
+                if (string.IsNullOrWhiteSpace(link))
+                {
+                    continue;
+                }
+
+                var dir = Path.GetDirectoryName(link);
+                if (!string.IsNullOrEmpty(dir))
+                {
+                    folders.Add(dir);
+                }
+            }
+
+            foreach (var dir in folders)
+            {
+                if (protectedDirs.Any(p => string.Equals(p, dir.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase)))
+                {
+                    continue;
+                }
+
+                if (!Directory.Exists(dir) || Directory.GetFileSystemEntries(dir).Length != 0)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    Directory.Delete(dir, false);
+                    result.Messages.Add("已删除空的快捷方式目录：" + dir);
+                }
+                catch (IOException)
+                {
+                }
+                catch (UnauthorizedAccessException)
+                {
                 }
             }
         }
@@ -343,14 +425,37 @@ namespace Installer.Core.Uninstall
         }
 
         /// <summary>按安装记录删除文件。内容被改过的也删，但会记下来。</summary>
-        private static void DeleteRecordedFiles(InstallRecord record, IPlatformServices platform, UninstallRunResult result)
+        private static void DeleteRecordedFiles(InstallRecord record, IPlatformServices platform, UninstallRunResult result,
+                                                IProgress<InstallProgress> progress = null)
         {
             if (string.IsNullOrEmpty(record.InstallDir) || !Directory.Exists(record.InstallDir))
             {
                 return;
             }
 
-            foreach (var rel in record.Files ?? new List<string>())
+            // 逐文件进度：界面上的「已删除文件 12 / 85」「已释放空间」靠它
+            var all = record.Files ?? new List<string>();
+            var totalFiles = all.Count;
+            long totalBytes = 0;
+            foreach (var rel in all)
+            {
+                try
+                {
+                    var full0 = SafePath.ResolveWithin(record.InstallDir, rel);
+                    if (File.Exists(full0))
+                    {
+                        totalBytes += new FileInfo(full0).Length;
+                    }
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            var doneFiles = 0;
+            long doneBytes = 0;
+
+            foreach (var rel in all)
             {
                 string full;
                 try
@@ -386,9 +491,21 @@ namespace Installer.Core.Uninstall
                     }
                 }
 
+                long size = 0;
+                try
+                {
+                    size = new FileInfo(full).Length;
+                }
+                catch (IOException)
+                {
+                }
+
                 if (DeleteWithRetry(full))
                 {
                     result.DeletedFiles++;
+                    doneFiles++;
+                    doneBytes += size;
+                    ReportFileProgress(progress, rel, doneFiles, totalFiles, doneBytes, totalBytes);
                     continue;
                 }
 
@@ -500,61 +617,207 @@ namespace Installer.Core.Uninstall
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool MoveFileEx(string existingFileName, string newFileName, int flags);
 
-        /// <summary>自底向上删空目录（只删空的，用户放了东西就保留）。</summary>
-        private static void DeleteEmptyDirectories(InstallRecord record, IPlatformServices platform, UninstallRunResult result)
+        /// <summary>
+        /// **把产品目录整个清空**（用户明确要求：「卸载不是清空整理产品目录」）。
+        ///
+        /// 以前这里只删"空了才删"的目录，于是：
+        ///   · 程序运行时写进安装目录的任何东西（Log、缓存、用户改过的配置）
+        ///     都不在安装记录里 → 目录永远非空 → 产品目录永远留着；
+        ///   · 升级后旧版本独有的文件（被"数据保护闸"保留过的）同理；
+        ///   · 用户看到的就是"卸载成功，但文件夹还在，里面还有东西"。
+        ///
+        /// 为什么现在敢整棵删：安装目录已经按「根\厂商\产品」分层（见 <see cref="InstallPaths"/>），
+        /// 这个目录**只有我们往里写**。但地面仍要扫一遍 ——
+        /// <see cref="InstallPaths.IsSharedRoot"/> 认得"Program Files / Programs / 盘根 / 只有一层的目录"，
+        /// 遇到这种（老包装出来的、或者用户手动改成了公共目录）就退回"只删自己装的文件"，
+        /// 绝不动别人的东西，并在结果里说明原因。
+        ///
+        /// 用户数据（<c>%APPDATA%</c> 里的配置与缓存）不在安装目录里，这条逻辑不会碰 ——
+        /// 那是「同时删除用户配置与缓存数据」勾选项的事。
+        /// </summary>
+        /// <param name="installDir">安装目录（可含 %ENV%）。</param>
+        /// <param name="vendorName">厂商名；用于清理后回收空出来的厂商目录。</param>
+        /// <param name="platform">平台服务（可为 null：降级卸载时没有 record，只需要环境变量展开）。</param>
+        /// <param name="result">卸载结果。</param>
+        /// <param name="aggressive">
+        /// true = 有安装记录（知道哪些是我们装的），整棵清空；
+        /// false = 降级卸载（记录丢了，分不清哪些是用户的），只删已知残留 + 空目录。
+        /// </param>
+        private static void WipeProductDirectory(string installDir, string vendorName,
+                                                IPlatformServices platform, UninstallRunResult result,
+                                                bool aggressive)
         {
-            var dir = record.InstallDir;
-            if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir))
+            if (string.IsNullOrEmpty(installDir) || !Directory.Exists(installDir))
             {
                 return;
             }
 
-            var all = Directory.GetDirectories(dir, "*", SearchOption.AllDirectories)
-                .OrderByDescending(d => d.Length)
-                .ToList();
-
-            foreach (var d in all)
+            var expanded = installDir;
+            if (platform != null)
             {
                 try
                 {
-                    if (Directory.GetFileSystemEntries(d).Length == 0)
-                    {
-                        Directory.Delete(d, false);
-                    }
+                    expanded = platform.Environment.ExpandEnvironmentVariables(installDir);
                 }
-                catch (IOException)
+                catch (Exception)
                 {
+                    expanded = installDir;
                 }
             }
 
-            // 子目录清完之后，**安装目录本身也要删**。
-            // 之前只遍历子目录（GetDirectories 的结果不含 dir 自己），
-            // 所以卸载后总会留下一个空的产品文件夹 —— 用户反馈「卸载后安装目录本身还在」。
-            try
+            if (!aggressive)
             {
-                if (!Directory.Exists(dir))
+                // 降级卸载：没有记录，分不清"我们装的文件"和"用户放的文件"。
+                // 保守处理：只删残留 + 空目录（用户存档不能陪葬）。
+                DeleteEmptyDirectories(expanded);
+                return;
+            }
+
+            if (InstallPaths.IsSharedRoot(expanded))
+            {
+                // 共享目录：只删空的子目录 + 自己装的文件（后者前面已经删过了）。
+                result.Messages.Add("安装目录是共享目录（可能还有别的程序），不做整目录清理：" + installDir);
+                DeleteEmptyDirectories(expanded);
+                return;
+            }
+
+            // ① 文件：逐个删（带重试）。删不掉的登记下来，交给清理副本 / 重启后删除。
+            var locked = new List<string>();
+
+            foreach (var file in Directory.GetFiles(installDir, "*", SearchOption.AllDirectories))
+            {
+                if (DeleteWithRetry(file))
                 {
-                    return;
+                    result.DeletedFiles++;
+                    continue;
                 }
 
-                if (Directory.GetFileSystemEntries(dir).Length == 0)
+                // 卸载器本进程正在运行自己 —— 这个只能交给 %TEMP% 的清理副本。
+                // **不能**算成"残留失败"，否则每次正常卸载都会被判成失败。
+                if (IsUninstallerImage(file) || IsAlreadyHandled(result, file))
                 {
-                    Directory.Delete(dir, false);
-                    result.Messages.Add("已删除安装目录：" + dir);
+                    // IsAlreadyHandled：这个文件在"按清单删"那一步已经试过并被占用过
+                    // （典型是卸载器自己加载进进程的 Newtonsoft.Json.dll）。
+                    // 再登记一次会把它从"重启后删除"降级成"永久残留"—— 重复登记本身会失败。
+                    if (!result.BlockedPaths.Contains(file, StringComparer.OrdinalIgnoreCase))
+                    {
+                        result.BlockedPaths.Add(file);
+                    }
+
+                    continue;
                 }
-                else
+
+                result.Issues.Add("删除文件失败（被占用）：" + file);
+                HandleUndeletable(file, file, result);
+            }
+
+            // ② 目录：自底向上删空目录
+            if (Directory.Exists(installDir))
+            {
+                foreach (var sub in Directory.GetDirectories(installDir, "*", SearchOption.AllDirectories)
+                                             .OrderByDescending(d => d.Length))
                 {
-                    // 目录里还剩东西（通常是用户自己的文件），保留并说明原因
-                    result.Messages.Add("安装目录非空，已保留：" + dir);
+                    TryDeleteEmptyDirectory(sub);
                 }
+            }
+
+            // ③ 产品目录本身
+            if (TryDeleteEmptyDirectory(installDir))
+            {
+                result.Messages.Add("已删除产品目录：" + installDir);
+            }
+            else
+            {
+                // 还有删不掉的东西（典型就是上面那个 Uninstall.exe）：
+                // 把**目录**也交给清理副本，它在本进程退出后再删一次。
+                locked.Add(installDir);
+                result.Messages.Add("产品目录暂时无法删除（有文件被占用），已交给收尾程序：" + installDir);
+            }
+
+            foreach (var path in locked)
+            {
+                if (!result.BlockedPaths.Contains(path, StringComparer.OrdinalIgnoreCase))
+                {
+                    result.BlockedPaths.Add(path);
+                }
+            }
+
+            // ④ 厂商目录：产品目录没了之后，\厂商\ 如果是空的就一并回收，
+            //    否则每卸一个产品就在 Program Files 下留一个空壳。
+            var parent = Path.GetDirectoryName(installDir.TrimEnd('\\', '/'));
+            if (!string.IsNullOrEmpty(parent) && !string.IsNullOrEmpty(vendorName) &&
+                string.Equals(Path.GetFileName(parent), InstallPathsSanitizeOrEmpty(vendorName),
+                    StringComparison.OrdinalIgnoreCase) &&
+                !InstallPaths.IsSharedRoot(parent))
+            {
+                if (TryDeleteEmptyDirectory(parent))
+                {
+                    result.Messages.Add("已删除厂商目录：" + parent);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 这个文件是不是**卸载器自己的程序镜像**（可能是开始菜单入口用的那份副本）。
+        ///
+        /// 卸载器在跑的时候，它自己的镜像删不掉 —— 一律交给 %TEMP% 的清理副本，
+        /// 不算残留、也不报成功。
+        /// </summary>
+        private static bool IsUninstallerImage(string path)
+        {
+            var name = Path.GetFileName(path);
+            return string.Equals(name, InstallRecord.UninstallerFileName, StringComparison.OrdinalIgnoreCase)
+                   || string.Equals(name, InstallRecord.MenuUninstallerFileName, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string InstallPathsSanitizeOrEmpty(string name)
+        {
+            return InstallPaths.SanitizeOrEmpty(name);
+        }
+
+        /// <summary>
+        /// 这个路径是不是已经在别处被登记过（删不掉 → 已交给清理副本 / 已登记重启后删除）。
+        ///
+        /// 为什么需要它：清空产品目录时会**再扫一遍**所有文件，而"按清单删"那一步
+        /// 已经处理过同一个文件了。重复调 <see cref="HandleUndeletable"/> 会再登记一次
+        /// "重启后删除"，第二次往往登记不上 → 文件就从"稍后会被删掉"降级成"永久残留"，
+        /// 卸载被误判为失败（e2e 的 12.5 就是这么红的）。
+        /// </summary>
+        private static bool IsAlreadyHandled(UninstallRunResult result, string path)
+        {
+            return result.BlockedPaths.Contains(path, StringComparer.OrdinalIgnoreCase)
+                   || result.PendingRebootPaths.Contains(path, StringComparer.OrdinalIgnoreCase)
+                   || result.UndeletedPaths.Contains(path, StringComparer.OrdinalIgnoreCase);
+        }
+
+        /// <summary>目录空了就删掉；没空 / 被占用返回 false。</summary>
+        private static bool TryDeleteEmptyDirectory(string path)
+        {
+            if (string.IsNullOrEmpty(path) || !Directory.Exists(path))
+            {
+                return true;
+            }
+
+            try
+            {
+                if (Directory.GetFileSystemEntries(path).Length != 0)
+                {
+                    return false;
+                }
+
+                Directory.Delete(path, false);
+                return true;
             }
             catch (IOException)
             {
+                return false;
             }
             catch (UnauthorizedAccessException)
             {
+                return false;
             }
         }
+
 
         private static string StripHive(string fullPath)
         {
@@ -575,6 +838,28 @@ namespace Installer.Core.Uninstall
                     Percent = (int)(100.0 * index / total),
                 });
             }
+        }
+
+        /// <summary>上报"正在删哪个文件"（<c>Percent</c> 给 -1，条内进度由界面自己算）。</summary>
+        private static void ReportFileProgress(IProgress<InstallProgress> progress, string rel,
+                                               int doneFiles, int totalFiles, long doneBytes, long totalBytes)
+        {
+            if (progress == null)
+            {
+                return;
+            }
+
+            progress.Report(new InstallProgress
+            {
+                StepId = "uninstall-files",
+                Message = "正在删除 " + rel,
+                CurrentFile = rel,
+                FilesDone = doneFiles,
+                FilesTotal = totalFiles,
+                BytesDone = doneBytes,
+                BytesTotal = totalBytes,
+                Percent = -1,
+            });
         }
 
         // ─────────────────────────────────────────────────────────────
@@ -669,9 +954,9 @@ namespace Installer.Core.Uninstall
             Step(progress, ++index, total, "uninstall-files", "正在删除残留文件…");
             DeleteLeftovers(installDir, result);
 
-            // ④ 空目录
-            Step(progress, ++index, total, "uninstall-dirs", "正在清理空目录…");
-            DeleteEmptyDirectories(installDir);
+            // ④ 产品目录
+            Step(progress, ++index, total, "uninstall-dirs", "正在清理产品目录…");
+            WipeProductDirectory(installDir, null, platform, result, false);
 
             // 与 Run 保持一致：有真正删不掉的残留就不算成功
             result.Success = result.UndeletedPaths.Count == 0;
@@ -750,7 +1035,8 @@ namespace Installer.Core.Uninstall
 
             var targets = new List<string>
             {
-                Path.Combine(installDir, "Uninstall.exe"),
+                Path.Combine(installDir, InstallRecord.UninstallerFileName),
+                Path.Combine(installDir, InstallRecord.MenuUninstallerFileName),
                 InstallRecord.GetPath(installDir),
                 Path.Combine(installDir, ".install-journal.jsonl"),
                 Path.Combine(installDir, ".install.log"),
@@ -784,10 +1070,10 @@ namespace Installer.Core.Uninstall
                 }
 
                 // 卸载器自己正被占用，删不掉很正常 —— 交给自删除流程
-                // （把副本复制到 %TEMP% 由它删掉安装目录里的 Uninstall.exe）。
+                // （把副本复制到 %TEMP% 由它删掉安装目录里的 Uninstall.exe / AppUninstall.exe）。
                 // 注意：这里跳过它，也**绝不能**把它算进 UndeletedPaths ——
                 // 否则每次正常卸载都会被判成"失败"。
-                if (string.Equals(Path.GetFileName(path), "Uninstall.exe", StringComparison.OrdinalIgnoreCase))
+                if (IsUninstallerImage(path))
                 {
                     continue;
                 }

@@ -24,6 +24,10 @@ namespace Installer.UI.Common
             Add(t, "Wizard.Back", "上一步", "Back");
             Add(t, "Wizard.Cancel", "取消", "Cancel");
             Add(t, "Wizard.Install", "立即安装", "Install");
+            Add(t, "Wizard.Update", "更新", "Update");
+            Add(t, "Wizard.Reinstall", "重新安装", "Reinstall");
+            Add(t, "Wizard.InstallAnyway", "仍要安装", "Install anyway");
+            Add(t, "Step.Update", "更新信息", "Update");
             Add(t, "Wizard.Finish", "完成", "Finish");
             Add(t, "Wizard.InstallKind", "安装向导", "Setup wizard");
             Add(t, "Wizard.UninstallKind", "卸载向导", "Uninstall wizard");
@@ -32,8 +36,8 @@ namespace Installer.UI.Common
             Add(t, "Wizard.Retry", "重试", "Retry");
 
             Add(t, "Wizard.StepInfo", "第 {0} 步，共 {1} 步", "Step {0} of {1}");
-            Add(t, "Welcome.HintNoLicense", "确认安装位置与附加任务后，点击「下一步」开始安装。",
-                "Review the install location and tasks, then click Next to begin.");
+            Add(t, "Welcome.HintNoLicense", "确认安装位置后，点击「下一步」开始安装。",
+                "Review the install location, then click Next to begin.");
             Add(t, "Finish.RunHint", "点击「完成」后将自动启动程序", "The app will start after you click Finish");
             // 完成页的勾选标签与「运行」那一行 —— 设计稿第 5 页的措辞和安装设置页不同，
             // 不能和 Options.* 共用（共用必然有一边写错，这正是之前"两边不一致"的根因）。
@@ -41,8 +45,12 @@ namespace Installer.UI.Common
             Add(t, "Finish.ChipStartMenu", "开始菜单", "Start Menu");
             Add(t, "Finish.ChipAutostart", "安装后自动运行", "Run after install");
             Add(t, "Finish.RunNow", "立即运行「{0}」", "Run {0} now");
-            Add(t, "Finish.UninstallHint", "如需卸载，可在「设置 → 应用 → 已安装的应用」中找到「{0}」。",
-                "To uninstall, find {0} in Settings > Apps.");
+            // 卸载入口现在有两个：开始菜单里的「卸载 <产品>」快捷方式（安装时建的），
+            // 以及「设置 → 应用」。以前这里只提后者，用户根本不知道开始菜单里也有
+            // （实测反馈："卸载只能去控制面板"）。
+            Add(t, "Finish.UninstallHint",
+                "如需卸载：开始菜单里的「卸载」，或「设置 → 应用 → 已安装的应用」。",
+                "To uninstall: the \u201CUninstall {0}\u201D entry in the Start menu, or Settings > Apps.");
             Add(t, "Finish.OpenDir", "打开安装目录", "Open install folder");
             Add(t, "Progress.Subtitle", "安装程序正在解压并写入文件，请不要关闭窗口或关机。",
                 "Setup is extracting files. Do not close the window or power off.");
@@ -80,6 +88,27 @@ namespace Installer.UI.Common
             Add(t, "Step.Options", "选项", "Options");
             Add(t, "Wizard.StepSettings", "安装设置", "Setup");
             Add(t, "Step.Install", "正在安装", "Installing");
+
+            // ── 更新 / 重新安装 / 降级 ──────────────────────────────────
+            // 已经装过同一产品时不再显示「安装设置」页，改显示这一页：只讲版本关系。
+            Add(t, "Update.Title", "更新「{0}」", "Update {0}");
+            Add(t, "Update.Title.Same", "重新安装「{0}」", "Reinstall {0}");
+            Add(t, "Update.Title.Older", "安装旧版本「{0}」", "Install an older {0}");
+            Add(t, "Update.Subtitle",
+                "这台电脑上已经安装了「{0}」，本次将安装 {1}，文件会直接写入现有安装目录。",
+                "{0} is already installed. This will install {1} into the existing folder.");
+            Add(t, "Update.CaptionInstalled", "当前已安装版本", "Installed version");
+            Add(t, "Update.CaptionNew", "将要安装的版本", "Version to install");
+            Add(t, "Update.CaptionDir", "安装目录（不会变）", "Install folder (unchanged)");
+            Add(t, "Update.Hint.Newer",
+                "将从 {0} 更新到 {1}：程序文件会被覆盖，你的配置与数据保留。",
+                "Updating from {0} to {1}. Program files will be replaced; your settings and data are kept.");
+            Add(t, "Update.Hint.Same",
+                "这台电脑上已经是 {0}。继续将覆盖现有程序文件，相当于重新安装一次。",
+                "Version {0} is already installed. Continuing overwrites the program files (a reinstall).");
+            Add(t, "Update.Hint.Older",
+                "要安装的是 {0}，比已安装的 {1} 更旧。继续会把程序降级到旧版本。",
+                "You are installing {0}, which is older than the installed {1}. Continuing downgrades the program.");
 
             // 文案照抄设计稿第 3 版（欢迎页），不要自己改写
             Add(t, "Welcome.Title", "欢迎使用「{0}」安装向导", "Welcome to the {0} Setup Wizard");
@@ -131,6 +160,14 @@ namespace Installer.UI.Common
             Add(t, "Progress.Preparing", "正在准备…", "Preparing...");
             Add(t, "Progress.RollingBack", "安装失败，正在撤销更改…", "Installation failed, rolling back...");
             Add(t, "Install.Com", "正在注册组件…", "Registering components...");
+            Add(t, "Install.UninstallShortcut", "正在创建卸载快捷方式…", "Creating uninstall shortcut...");
+            // 开始菜单里那个卸载快捷方式的显示名。
+            //
+            // **产品名在前**（"空中飞翔CSVS 卸载"），不是 Windows 惯例的"卸载 X"：
+            // 「所有应用」是按名字首字排序的，「空中飞翔CSVS」(K) 和「卸载 空中飞翔CSVS」(X)
+            // 会隔着好几屏 —— 用户找不到，实测反馈过两次。
+            // 把产品名放前面，两条就排在同一个位置，一眼能看到。
+            Add(t, "Shortcut.Uninstall", "卸载", "Uninstall");
             Add(t, "Install.Repair", "正在校验并修复文件…", "Verifying and repairing files...");
             Add(t, "Install.CleanupOrphans", "正在清理残留的卸载项…", "Cleaning up stale uninstall entries...");
             Add(t, "Install.CleanupOldFiles", "正在清理上一版残留文件…", "Removing files from the previous version...");
@@ -148,6 +185,21 @@ namespace Installer.UI.Common
             Add(t, "Uninstall.Done", "卸载完成。", "Uninstall complete.");
             Add(t, "Uninstall.Running", "正在卸载…", "Uninstalling...");
             Add(t, "Uninstall.Progress", "正在删除文件与注册表项…", "Removing files and registry entries...");
+
+            // 卸载进度页自己的标题/副标题/统计卡/步骤列表。
+            // **必须和安装页分开**：以前这一页整块沿用安装文案，卸载时显示
+            // 「安装程序正在解压并写入文件」「已解压文件 123/199」「准备安装目录…」—— 全是错的。
+            Add(t, "Uninstall.ProgressTitle", "正在卸载「{0}」", "Uninstalling {0}");
+            Add(t, "Uninstall.ProgressSubtitle", "正在删除程序文件、快捷方式与注册表项，请不要关闭窗口或关机。",
+                "Removing program files, shortcuts and registry entries. Do not close the window or shut down.");
+            Add(t, "Uninstall.CapFiles", "已删除文件", "Files removed");
+            Add(t, "Uninstall.CapSize", "已释放空间", "Space freed");
+            Add(t, "Uninstall.CapElapsed", "已用时间", "Elapsed");
+            Add(t, "Uninstall.CapRemaining", "预计剩余", "Remaining");
+            Add(t, "Uninstall.Step1", "结束正在运行的程序", "Closing running programs");
+            Add(t, "Uninstall.Step2", "删除程序文件", "Removing program files");
+            Add(t, "Uninstall.Step3", "移除桌面与开始菜单快捷方式", "Removing shortcuts");
+            Add(t, "Uninstall.Step4", "清理注册表与卸载信息", "Cleaning registry and uninstall info");
 
             // ── 卸载向导「确认卸载」页（设计稿第 3 版，文案照抄设计稿）─────
             // 注意：Uninstall.Title（=「卸载」）同时也是这一页主按钮的文案 key，

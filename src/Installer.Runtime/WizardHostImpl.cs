@@ -129,11 +129,22 @@ namespace Installer.Runtime
 
                         var installDir = EffectiveInstallDir;
 
+                        // 已安装更高版本 → 这是"降级安装"。用户已经在「更新信息」页
+                        // 点过「仍要安装」，所以这里放行；静默安装不走这条路。
+                        var allowDowngrade = false;
+                        var existing = Installer.Core.Uninstall.UninstallEngine.LoadRecord(installDir);
+                        if (existing != null && !string.IsNullOrWhiteSpace(existing.ProductVersion))
+                        {
+                            allowDowngrade = Installer.Core.Install.PreflightStep.CompareVersions(
+                                existing.ProductVersion, _manifest.Product.Version) > 0;
+                        }
+
                         var context = new InstallContext
                         {
                             Manifest = _manifest,
                             Mode = InstallMode.Install,
                             InstallDir = installDir,
+                            AllowDowngrade = allowDowngrade,
                             Payload = ContainerFormat.OpenPayload(self, info),
                             StubLength = info.StubLength,
                             CurrentExecutablePath = _selfPath,

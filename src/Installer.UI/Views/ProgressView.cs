@@ -102,6 +102,12 @@ namespace Installer.UI.Views
             }
         }
 
+        /// <summary>当前百分比（0~100）。</summary>
+        public int GetPercent()
+        {
+            return (int)Math.Round(progressBar.Value * 100);
+        }
+
         /// <summary>设置百分比（0~100）。</summary>
         public void SetPercent(int percent)
         {

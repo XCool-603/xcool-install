@@ -146,11 +146,27 @@ namespace Installer.Core.Packaging
                 // 顺手做一次"老程序会不会往安装目录里写"的体检。
                 // 不阻断构建 —— 但装到 Program Files 之后才发现的成本高得多，
                 // 所以在打包阶段就把话说明白。
-                var writeRisk = InstallDirWriteHeuristic.Describe(sourceFull,
-                    string.Equals(manifest.Scope, InstallScopes.PerMachine, StringComparison.OrdinalIgnoreCase));
+                // 「始终请求管理员权限」要一起传进去：这种包运行时本来就是管理员，
+                // 不能还拿"普通用户写不进去"去吓人（提示一旦瞎报，就没人看了）。
+                var perMachine = string.Equals(manifest.Scope, InstallScopes.PerMachine,
+                    StringComparison.OrdinalIgnoreCase);
+
+                var writeRisk = InstallDirWriteHeuristic.Describe(sourceFull, perMachine,
+                    manifest.AlwaysElevate, options.RequireAdministrator);
+
                 if (!string.IsNullOrEmpty(writeRisk))
                 {
-                    result.Warnings.Add(writeRisk);
+                    // 装到用户目录（%LOCALAPPDATA%）时这件事**不构成风险** ——
+                    // 只作为提示记一笔，不弹"有几点需要注意"的模态框。
+                    // （用户反馈：都设成管理员了还弹这个，纯噪音。）
+                    if (perMachine)
+                    {
+                        result.Warnings.Add(writeRisk);
+                    }
+                    else
+                    {
+                        result.Notes.Add(writeRisk);
+                    }
                 }
 
                 // ── Stage 3：哈希 ────────────────────────────────────────
@@ -180,6 +196,18 @@ namespace Installer.Core.Packaging
                     var icoBytes = File.ReadAllBytes(options.IconPath);
                     stubBytes = PeIconPatcher.ReplaceIcon(stubBytes, icoBytes);
                     result.IconPatched = true;
+                }
+
+                // 把清单改成 requireAdministrator（双击即要求管理员）。
+                //
+                // **必须在组装容器之前**：UpdateResource 会重写整个 PE 文件，
+                // 追加在文件尾部的 payload + footer 会被它弄丢（实测：自校验直接报
+                // "不是本程序的安装包容器"）。所以只对 stub 本体做补丁，再拿回来组装。
+                if (options.RequireAdministrator)
+                {
+                    Report(progress, BuildStage.PatchIcon, "正在设置「以管理员身份运行」…", 33);
+                    stubBytes = PatchStubManifest(stubBytes);
+                    result.RequireAdministrator = true;
                 }
 
                 result.StageMilliseconds[BuildStage.PatchIcon] = sw.ElapsedMilliseconds;
@@ -475,6 +503,44 @@ namespace Installer.Core.Packaging
         // ─────────────────────────────────────────────────────────────
         // Stage 5
         // ─────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// 把 stub 的清单换成 requireAdministrator，返回新的字节。
+        ///
+        /// UpdateResource 只能对**文件**操作，所以先落一个临时文件、打完补丁再读回来。
+        /// 注意：只能对 stub 本体做，**不能对已经组装好的容器做** —— 它会重写整个 PE，
+        /// 追加在文件尾的 payload 与 footer 会被丢掉（实测：自校验报"不是本程序的安装包容器"）。
+        /// </summary>
+        private static byte[] PatchStubManifest(byte[] stubBytes)
+        {
+            var temp = Path.Combine(Path.GetTempPath(),
+                "stub-manifest-" + Guid.NewGuid().ToString("N") + ".exe");
+
+            try
+            {
+                File.WriteAllBytes(temp, stubBytes);
+                ManifestPatcher.ApplyRequireAdministrator(temp);
+                return File.ReadAllBytes(temp);
+            }
+            catch (Exception ex)
+            {
+                // 改不动就明确失败 —— 用户要的是"必须管理员"，悄悄退回 asInvoker 更糟
+                throw new PackageBuildException("设置 requireAdministrator 失败：" + ex.Message, ex);
+            }
+            finally
+            {
+                try
+                {
+                    if (File.Exists(temp))
+                    {
+                        File.Delete(temp);
+                    }
+                }
+                catch (IOException)
+                {
+                }
+            }
+        }
 
         private static async Task WritePayloadAsync(
             Stream output,

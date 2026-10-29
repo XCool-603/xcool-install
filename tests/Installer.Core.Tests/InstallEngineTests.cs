@@ -274,6 +274,30 @@ namespace Installer.Core.Tests
             }
         }
 
+        /// <summary>
+        /// 同步收集进度。
+        ///
+        /// 不能用 <see cref="Progress{T}"/>：它会把自己异步投递到线程池，
+        /// 测试里靠 Sleep(50) 等它 —— 机器一忙（比如测试并行度变高）就漏，变成随机红。
+        /// </summary>
+        private sealed class SyncProgress : IProgress<InstallProgress>
+        {
+            private readonly List<InstallProgress> _reports;
+
+            public SyncProgress(List<InstallProgress> reports)
+            {
+                _reports = reports;
+            }
+
+            public void Report(InstallProgress value)
+            {
+                lock (_reports)
+                {
+                    _reports.Add(value);
+                }
+            }
+        }
+
         [Fact]
         public void 进度应报告每一步()
         {
@@ -281,8 +305,7 @@ namespace Installer.Core.Tests
             var reports = new List<InstallProgress>();
             var engine = new InstallEngine(() => new List<IInstallStep> { new WriterStep(), new WriterStep() });
 
-            engine.Run(ctx, new Progress<InstallProgress>(reports.Add));
-            Thread.Sleep(50);   // Progress<T> 是异步投递的
+            engine.Run(ctx, new SyncProgress(reports));
 
             Assert.Contains(reports, r => r.StepIndex == 1);
             Assert.Contains(reports, r => r.Percent == 100);

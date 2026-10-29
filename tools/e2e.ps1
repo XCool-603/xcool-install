@@ -45,6 +45,14 @@ function Check([string]$what, [bool]$ok, [string]$detail = '') {
 # PowerShell 5.1 会把原生程序的 stderr 当成终止性错误，所以统一走这个包装。
 function Invoke-Cli {
     param([string[]]$Arguments)
+
+    # 测试机器跑不了提权：打包时统一关掉 requireAdministrator，
+    # 否则 Start-Process 启动安装包会直接报 740（需要提升）。
+    # 产物本身的 requireAdministrator 由单测（ManifestPatcherTests）覆盖。
+    if ($Arguments.Count -gt 0 -and $Arguments[0] -eq 'pack') {
+        $Arguments = $Arguments + '--no-require-admin'
+    }
+
     $prev = $ErrorActionPreference
     $ErrorActionPreference = 'Continue'
     try {
@@ -118,6 +126,10 @@ Check 'Core 里的 Crc32 可用' ($null -ne [Installer.Core.Common.Crc32])
 Step '1. 造样例源目录'
 # ─────────────────────────────────────────────────────────────
 if (Test-Path $WorkDir) { Remove-Item -Recurse -Force $WorkDir }
+New-Item -ItemType Directory -Force -Path $WorkDir | Out-Null
+# 把工作目录换成"长名"再往下走：本机 $env:TEMP 是 8.3 短名（C:\Users\ADMINI~1\...），
+# 而安装器写进结果文件的是长名 —— 两串直接比会假红（"安装目录在沙箱内"就这么红过）。
+$WorkDir = (Get-Item -LiteralPath $WorkDir).FullName
 $source = Join-Path $WorkDir 'source'
 $dist = Join-Path $WorkDir 'dist'
 New-Item -ItemType Directory -Force -Path $source, $dist | Out-Null
@@ -174,7 +186,20 @@ $r = Invoke-Cli $packArgs
 Write-Host $r.Output
 Check 'pack 退出码为 0' ($r.ExitCode -eq 0)
 Check '产物已生成' (Test-Path $setup) ("{0:N0} 字节" -f (Get-Item $setup).Length)
-Check '产物大于 stub（确实含 payload）' ((Get-Item $setup).Length -gt (Get-Item $stub).Length)
+
+# 不再拿"产物 > stub 文件大小"判断是否含 payload：
+# 打包时会把 stub 的清单改成 requireAdministrator（重写 PE 资源段），
+# stub 本身会**变小**，这个比较就失效了。改成按 CLI 自己报的构成核对：
+#   stub + payload + manifest + 128(footer) == 产物大小
+$sizeLine = ($r.Output -split "`n" | Where-Object { $_ -match 'stub .*payload' } | Select-Object -First 1)
+Check 'pack 输出了大小构成' (-not [string]::IsNullOrWhiteSpace($sizeLine)) $sizeLine
+if ($sizeLine) {
+    $nums = [regex]::Matches($sizeLine, '(\d[\d,]*)') | ForEach-Object { [int64]($_.Groups[1].Value -replace ',', '') }
+    # 顺序：产物大小、stub、payload、manifest
+    $total = $nums[0]; $sum = $nums[1] + $nums[2] + $nums[3] + 128
+    Check '产物 = stub + payload + manifest + footer' ($total -eq $sum) ("{0} vs {1}" -f $total, $sum)
+    Check '产物确实带 payload（payload > 0）' ($nums[2] -gt 0) ("payload={0}" -f $nums[2])
+}
 
 $distFiles = Get-ChildItem -LiteralPath $dist
 Check '输出目录里只有 1 个文件（不是 4 个文件的目录）' ($distFiles.Count -eq 1) ($distFiles.Name -join ', ')
@@ -216,8 +241,13 @@ Check '回滚未发生' ($installResult.rolledBack -eq $false)
 # ─────────────────────────────────────────────────────────────
 Step '6. 断言安装结果与源目录逐字节一致'
 # ─────────────────────────────────────────────────────────────
+# $source 可能是 8.3 短名（本机 $env:TEMP 就是 C:\Users\ADMINI~1\...），而 Get-ChildItem
+# 返回的 FullName 是长名 —— 直接按 $source.Length 截会切错位置（实测切出 "ource\readme.txt"）。
+# 先取一次"长名"再截，两边才对得上。
+$sourceFull = (Get-Item -LiteralPath $source).FullName
+
 foreach ($f in $srcFiles) {
-    $rel = $f.FullName.Substring($source.Length).TrimStart('\')
+    $rel = $f.FullName.Substring($sourceFull.Length).TrimStart('\')
     $target = Join-Path $installDir $rel
     if (-not (Test-Path -LiteralPath $target)) {
         Check "文件已安装：$rel" $false '目标不存在'
@@ -441,18 +471,19 @@ Check '安装退出码为 0' ($p.ExitCode -eq 0) "exit=$($p.ExitCode)"
 
 $ir = Get-Content -LiteralPath $m1Result -Raw -Encoding UTF8 | ConvertFrom-Json
 Check '安装结果 ok' ($ir.ok -eq $true) $ir.error
-Check '执行了全部 13 个步骤' ($ir.stepsExecuted -eq 13 -and $ir.stepCount -eq 13) "$($ir.stepsExecuted)/$($ir.stepCount)"
+Check '执行了全部 14 个步骤' ($ir.stepsExecuted -eq 14 -and $ir.stepCount -eq 14) "$($ir.stepsExecuted)/$($ir.stepCount)"
 Check '没有发生回滚' ($ir.rolledBack -eq $false)
 Check '语言解析为 zh-Hans' ($ir.culture -eq 'zh-Hans')
 Check '产品名按语言取（不是字典里的任意一个）' ($ir.productName -eq 'M1测试产品') $ir.productName
 Check '安装了 2 个文件' ($ir.filesInstalled -eq 2)
-Check '创建了 2 个快捷方式' ($ir.shortcutsCreated -eq 2)
+Check '创建了 3 个快捷方式（桌面 + 开始菜单 + 卸载）' ($ir.shortcutsCreated -eq 3)
 
 $m1InstallDir = $ir.installDir
 Check '安装目录在沙箱内' ($m1InstallDir.StartsWith($sb, [StringComparison]::OrdinalIgnoreCase)) $m1InstallDir
 Check '文件已落盘' ((Test-Path (Join-Path $m1InstallDir 'bin\App.exe')) -and (Test-Path (Join-Path $m1InstallDir 'readme.txt')))
 Check '桌面快捷方式已创建（真实 .lnk）' (Test-Path (Join-Path $sb 'Desktop\M1测试产品.lnk'))
-Check '开始菜单快捷方式已创建' (Test-Path (Join-Path $sb 'StartMenu\M1测试产品.lnk'))
+Check '开始菜单快捷方式已创建（在产品文件夹里）' (Test-Path (Join-Path $sb 'StartMenu\M1测试产品\M1测试产品.lnk'))
+Check '开始菜单里有「卸载」快捷方式（不用再去控制面板）' (Test-Path (Join-Path $sb 'StartMenu\M1测试产品\卸载.lnk'))
 Check '安装记录已写出' (Test-Path (Join-Path $m1InstallDir '.install-record.json'))
 
 # 卸载器应该只有 stub 大小，而不是整个安装包
@@ -508,9 +539,14 @@ Check '安装记录记住了沙箱根' ($rec.sandboxRoot -eq $sb)
 Check '安装记录里有文件哈希' (@($rec.fileHashes.PSObject.Properties).Count -eq 2)
 
 # ─────────────────────────────────────────────────────────────
-Step '12. 完整卸载（按清单删，不是删光目录）'
+Step '12. 完整卸载（产品目录整个清空）'
 # ─────────────────────────────────────────────────────────────
-# 往安装目录里放一个"用户自己的文件" —— 卸载**不能**删它
+# 往安装目录里放一个"不是清单里的文件"。
+#
+# 现在的约定是：安装目录 = 「根\厂商\产品」，是我们**独占**的目录，
+# 卸载就把整个目录清空（用户反馈"卸载不是清空产品目录"）。
+# 所以在产品目录里放的东西会被一起清掉 —— 下面按新约定断言。
+# 用户真正的存档放 %APPDATA%，那是「同时删除用户配置与缓存数据」勾选项的事。
 $userFile = Join-Path $m1InstallDir 'user-data.txt'
 [System.IO.File]::WriteAllText($userFile, 'this is the user''s own file', $utf8)
 
@@ -530,18 +566,18 @@ Check '卸载退出码为 0' ($p.ExitCode -eq 0) "exit=$($p.ExitCode)"
 
 $ur = Get-Content -LiteralPath $m1UnResult -Raw -Encoding UTF8 | ConvertFrom-Json
 Check '卸载结果 ok' ($ur.ok -eq $true)
-# 3 = bin\App.exe + readme.txt（安装清单里的 2 个）+ .install.log。
-# .install.log 是卸载器自己写在安装目录里的日志 —— 以前正常卸载路径漏了 DeleteLeftovers，
-# 连它都不会被删；现在按预期一起清掉（这正是"卸载后目录里还有东西"的一类残留）。
-Check '删除了 3 个文件（2 个清单文件 + 卸载器自己的 .install.log）' ($ur.deletedFiles -eq 3) $ur.deletedFiles
-Check '删除了 2 个快捷方式' ($ur.deletedShortcuts -eq 2)
+# 数量不再写死：清空产品目录时，"删了几个文件"取决于运行时往目录里写了多少东西。
+# 这里只要求"确实删了"，具体结构由下面的断言保证。
+Check '删除了文件（清单文件 + 卸载器自己的日志等）' ($ur.deletedFiles -gt 0) $ur.deletedFiles
+Check '删除了 3 个快捷方式（含卸载快捷方式）' ($ur.deletedShortcuts -eq 3)
 Check '卸载没有报问题' (@($ur.issues).Count -eq 0) (@($ur.issues) -join '; ')
 
 Start-Sleep -Seconds 3   # 等自删除收尾
 
 Check '安装的程序文件已删除' (-not (Test-Path (Join-Path $m1InstallDir 'bin\App.exe')))
 Check '桌面快捷方式已删除' (-not (Test-Path (Join-Path $sb 'Desktop\M1测试产品.lnk')))
-Check '开始菜单快捷方式已删除' (-not (Test-Path (Join-Path $sb 'StartMenu\M1测试产品.lnk')))
+Check '开始菜单快捷方式已删除' (-not (Test-Path (Join-Path $sb 'StartMenu\M1测试产品\M1测试产品.lnk')))
+Check '开始菜单的产品文件夹也一并删掉了（不留空壳）' (-not (Test-Path (Join-Path $sb 'StartMenu\M1测试产品')))
 
 $reg2 = Get-Content -LiteralPath $regPath -Raw -Encoding UTF8 | ConvertFrom-Json
 Check '标准卸载键已完整删除' ($null -eq $reg2.$unKey)
@@ -552,9 +588,19 @@ Check '老约定兼容键已删除（按 exe 名）' ($null -eq $reg2.$legacyKey
 Check '卸载器自删除成功' (-not (Test-Path $uninstallerPath))
 Check '安装记录已删除' (-not (Test-Path (Join-Path $m1InstallDir '.install-record.json')))
 Check '程序文件所在目录已清空' (-not (Test-Path (Join-Path $m1InstallDir 'bin')))
-Check '用户自己的文件没有被删（按清单删的证明）' (Test-Path $userFile) $userFile
-Check '安装目录本身保留（因为用户文件还在，不是"删光目录"）' (Test-Path $m1InstallDir)
 Check '运行时创建的 Log 目录已整棵删除' (-not (Test-Path (Join-Path $m1InstallDir 'Log')))
+
+# 新约定：产品目录是我们独占的 → 卸载后它应该**整个消失**
+# （以前只删"空了的"目录，于是运行时产物一留，产品目录就永远在那里）
+Check '产品目录已被整个清空（不再留空壳或半拉子）' (-not (Test-Path $m1InstallDir)) $m1InstallDir
+
+# 厂商层级：产品目录没了之后，空的 <厂商>\ 也该回收，否则 Program Files 下全是空壳
+$m1VendorDir = Split-Path -Parent $m1InstallDir
+Check '空的厂商目录已被回收' (-not (Test-Path $m1VendorDir)) $m1VendorDir
+
+# 但公共容器（…\Programs）必须留着 —— 别的产品还在用，绝不能被递归删掉
+$m1RootDir = Split-Path -Parent $m1VendorDir
+Check '公共安装根目录保留（不是递归删目录）' (Test-Path $m1RootDir) $m1RootDir
 
 # ─────────────────────────────────────────────────────────────
 Step '12.5. payload 自带外部版本 DLL（卸载器"自锁"回归护栏）'
@@ -609,17 +655,32 @@ if ($null -eq $foreignJson) {
     Check '外部版本的 DLL 已落盘' (Test-Path $fDll) $fDll
 
     $fUninstall = Join-Path $WorkDir 'foreign-uninstall.json'
-    # 故意**不带** --uninstall —— 模拟用户在资源管理器里双击 Uninstall.exe。
+    # 故意**不带** --uninstall —— 模拟用户在资源管理器里双击 卸载.exe。
     # 控制面板调用时会带 --uninstall，但双击不带任何参数，以前会掉进安装流程、
     # 报一句"这个 exe 里没有本程序的安装包容器"（用户实测反馈）。
-    # 现在靠"自己叫 Uninstall.exe / 旁边有安装记录"识别出自己是卸载器。
+    # 现在靠"自己叫 卸载.exe / 旁边有安装记录"识别出自己是卸载器。
     $p = Start-Process -FilePath (Join-Path $fDir 'Uninstall.exe') -ArgumentList @('--silent', '--result', $fUninstall) -Wait -PassThru -NoNewWindow
     $fu = Get-Content -LiteralPath $fUninstall -Raw -Encoding UTF8 | ConvertFrom-Json
 
     Check '双击卸载器（不带 --uninstall）也能进卸载流程' ($fu.mode -eq 'uninstall') $fu.mode
     Check '卸载时该 DLL 确实被阻塞过（证明护栏不是空跑）' `
           (@($fu.blockedFiles) -contains $fDll) (@($fu.blockedFiles) -join '; ')
-    Check '没有无法处理的永久残留' (@($fu.undeletedFiles).Count -eq 0) (@($fu.undeletedFiles) -join '; ')
+
+    # "重启后删除"（MoveFileEx + MOVEFILE_DELAY_UNTIL_REBOOT）要**管理员**权限。
+    # 在 UAC 过滤令牌下（EnableLUA=1 且未提权）登记必然失败，于是这个删不掉的 DLL
+    # 会被如实记进 undeletedFiles —— 那是环境限制，不是护栏失效。
+    # 关键断言是下面那条：清理副本在本进程退出后把整个目录删掉。
+    $elevated = (New-Object Security.Principal.WindowsPrincipal(
+        [Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole(
+        [Security.Principal.WindowsBuiltInRole]::Administrator)
+
+    if ($elevated) {
+        Check '没有无法处理的永久残留' (@($fu.undeletedFiles).Count -eq 0) (@($fu.undeletedFiles) -join '; ')
+    }
+    else {
+        Write-Host '  [跳过] 非提权环境：登记不了"重启后删除"，只断言它交给了清理副本' -ForegroundColor Yellow
+        Check '被自锁的 DLL 已交给清理副本（blockedFiles）' (@($fu.blockedFiles) -contains $fDll)
+    }
 
     Start-Sleep -Seconds 4
     Check '安装目录已整棵删除（清理副本删掉了被自锁的 DLL）' (-not (Test-Path $fDir)) $fDir
@@ -1017,7 +1078,7 @@ $p = Start-Process -FilePath (Join-Path $WorkDir 'up-v2.exe') `
 $u2 = Get-Content -LiteralPath $up2 -Raw -Encoding UTF8 | ConvertFrom-Json
 
 Check 'v2 覆盖安装成功' ($p.ExitCode -eq 0 -and $u2.ok -eq $true) $u2.error
-Check '执行了全部 13 个步骤（含升级清理）' ($u2.stepsExecuted -eq 13) "$($u2.stepsExecuted)/$($u2.stepCount)"
+Check '执行了全部 14 个步骤（含升级清理）' ($u2.stepsExecuted -eq 14) "$($u2.stepsExecuted)/$($u2.stepCount)"
 Check '上一版独有文件已清理 Old.dll' (-not (Test-Path (Join-Path $upDir 'Old.dll')))
 Check '子目录里的上一版文件也已清理' (-not (Test-Path (Join-Path $upDir 'sub\Old.dat')))
 Check '两版都有的文件保留 Keep.dll' (Test-Path (Join-Path $upDir 'Keep.dll'))

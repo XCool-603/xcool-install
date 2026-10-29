@@ -36,9 +36,10 @@ namespace Installer.Builder.Models
                         Url = "",
                     },
                     Scope = InstallScopes.PerUser,
-                    // 默认目录跟安装范围共用同一份规则（InstallPaths），
-                    // 不再在这里硬编码一串路径 —— 否则改了范围、目录还留在原档。
-                    DefaultInstallDir = InstallPaths.Suggest("我的产品", false),
+                    // 这里存的是**安装根目录**（程序最终会装到「根\厂商\产品名」）。
+                    // 以前这里写死 "<根>\我的产品"，于是改了产品名以后目录名还是"我的产品"，
+                    // 而且没法一眼看出"根"和"产品目录"是两回事。
+                    DefaultInstallDir = InstallPaths.Root(false),
                     EntryPoint = "",
                     License = new LicenseInfo
                     {

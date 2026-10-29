@@ -85,6 +85,9 @@ namespace Installer.UI.Presenters
                         return true;
                     case WizardPage.Options:
                         return true;
+                    case WizardPage.Update:
+                        // 更新页可以退回上一步（欢迎 / 许可）
+                        return true;
                     default:
                         return false;
                 }
@@ -102,6 +105,11 @@ namespace Installer.UI.Presenters
                     case WizardPage.Options:
                         // 设计稿把「安装位置」与「附加任务」合成一页，所以这一页的主按钮直接是「安装」
                         return "Wizard.Install";
+                    case WizardPage.Update:
+                        // 已装过 → 按版本关系换按钮：更新 / 重新安装 / 仍要安装
+                        return Kind == UpdateKind.Same
+                            ? "Wizard.Reinstall"
+                            : Kind == UpdateKind.Older ? "Wizard.InstallAnyway" : "Wizard.Update";
                     case WizardPage.Installing:
                     case WizardPage.Uninstalling:
                         return "Wizard.Cancel";
@@ -179,10 +187,124 @@ namespace Installer.UI.Presenters
             get { return _manifest.Product.Version; }
         }
 
+        // ─────────────────────────────────────────────────────────────
+        // 更新 / 重新安装 / 降级
+        // ─────────────────────────────────────────────────────────────
+
+        /// <summary>本机已装着的那个产品（null = 全新安装）。</summary>
+        public InstalledProduct Installed { get; private set; }
+
+        /// <summary>是否走"更新"流程（已装过同一产品 → 跳过「安装设置」页）。</summary>
+        public bool IsUpdate
+        {
+            get { return Installed != null && !string.IsNullOrWhiteSpace(Installed.Version); }
+        }
+
+        /// <summary>本次安装与已安装版本的关系。</summary>
+        public UpdateKind Kind
+        {
+            get
+            {
+                if (!IsUpdate)
+                {
+                    return UpdateKind.None;
+                }
+
+                var cmp = Installer.Core.Install.PreflightStep.CompareVersions(
+                    Installed.Version, _manifest.Product.Version);
+
+                if (cmp < 0)
+                {
+                    return UpdateKind.Newer;   // 新版本更高
+                }
+
+                return cmp == 0 ? UpdateKind.Same : UpdateKind.Older;
+            }
+        }
+
+        /// <summary>
+        /// 告诉向导"本机已经装了这个产品"。
+        ///
+        /// 一旦设置：不再进「安装设置」页，安装目录直接用已安装的那个（用户诉求：
+        /// 更新时不要重新选目录），主按钮文案按版本关系变成「更新 / 重新安装 / 仍要安装」。
+        /// </summary>
+        public void SetInstalled(InstalledProduct installed)
+        {
+            Installed = installed;
+
+            if (installed != null && !string.IsNullOrWhiteSpace(installed.InstallDir))
+            {
+                Options.InstallDir = installed.InstallDir;
+            }
+        }
+
+        /// <summary>更新页的标题（按版本关系换措辞）。</summary>
+        public string UpdateTitle
+        {
+            get
+            {
+                var key = Kind == UpdateKind.Same
+                    ? "Update.Title.Same"
+                    : Kind == UpdateKind.Older ? "Update.Title.Older" : "Update.Title";
+
+                return string.Format(CultureInfo.CurrentCulture, _text.Get(key), ProductName);
+            }
+        }
+
+        /// <summary>更新页的副标题。</summary>
+        public string UpdateSubtitle
+        {
+            get
+            {
+                return string.Format(CultureInfo.CurrentCulture, _text.Get("Update.Subtitle"),
+                    ProductName, ProductVersion);
+            }
+        }
+
+        /// <summary>更新页的提示条（说明这次会发生什么）。</summary>
+        public string UpdateHint
+        {
+            get
+            {
+                switch (Kind)
+                {
+                    case UpdateKind.Same:
+                        return string.Format(CultureInfo.CurrentCulture, _text.Get("Update.Hint.Same"),
+                            Installed.Version);
+                    case UpdateKind.Older:
+                        return string.Format(CultureInfo.CurrentCulture, _text.Get("Update.Hint.Older"),
+                            ProductVersion, Installed.Version);
+                    case UpdateKind.Newer:
+                        return string.Format(CultureInfo.CurrentCulture, _text.Get("Update.Hint.Newer"),
+                            Installed.Version, ProductVersion);
+                    default:
+                        return string.Empty;
+                }
+            }
+        }
+
+        /// <summary>降级安装时，需要把"允许降级"传下去（否则预检会拦住）。</summary>
+        public bool AllowDowngrade
+        {
+            get { return Kind == UpdateKind.Older; }
+        }
+
         /// <summary>发布者（按当前语言）。</summary>
         public string Publisher
         {
             get { return _text.Resolve(_manifest.Product.Publisher, string.Empty); }
+        }
+
+        /// <summary>
+        /// 厂商名 —— 安装目录的**厂商层级**用它（<c>{根}\{厂商}\{产品}</c>）。
+        /// 没填厂商返回空串，表示不建这一层。
+        /// </summary>
+        public string Vendor
+        {
+            get
+            {
+                return InstallPaths.SanitizeOrEmpty(_text.Resolve(_manifest.Product.Publisher, string.Empty));
+            }
         }
 
         /// <summary>许可协议正文（按当前语言）。</summary>
@@ -220,6 +342,9 @@ namespace Installer.UI.Presenters
                     case WizardPage.Options:
                         // 设计稿把「安装位置」与「附加任务」合成一步「安装设置」
                         // 没有许可协议时许可页被跳过，后面的步骤号整体前移一位
+                        return _licenseRequired ? 2 : 1;
+                    case WizardPage.Update:
+                        // 更新流程：第 2 步就是「更新信息」（没有「安装设置」）
                         return _licenseRequired ? 2 : 1;
                     case WizardPage.Installing:
                         return _licenseRequired ? 3 : 2;
@@ -264,6 +389,14 @@ namespace Installer.UI.Presenters
                     return new[] { "Step.UninstallConfirm", "Step.Uninstalling", "Wizard.Finish" };
                 }
 
+                // 更新流程：没有「安装设置」页，第 2 步换成「更新信息」
+                if (IsUpdate)
+                {
+                    return _licenseRequired
+                        ? new[] { "Wizard.StepWelcome", "Step.License", "Step.Update", "Step.Install", "Wizard.Finish" }
+                        : new[] { "Wizard.StepWelcome", "Step.Update", "Step.Install", "Wizard.Finish" };
+                }
+
                 // 安装流程：没勾「必须接受许可」时许可页会被跳过，步骤条就是 4 步而不是 5 步
                 return _licenseRequired
                     ? new[] { "Wizard.StepWelcome", "Step.License", "Wizard.StepSettings", "Step.Install", "Wizard.Finish" }
@@ -287,7 +420,7 @@ namespace Installer.UI.Presenters
             switch (Current)
             {
                 case WizardPage.Welcome:
-                    Current = _licenseRequired ? WizardPage.License : WizardPage.Path;
+                    Current = _licenseRequired ? WizardPage.License : NextAfterWelcome();
                     return true;
 
                 case WizardPage.License:
@@ -296,7 +429,12 @@ namespace Installer.UI.Presenters
                         return false;
                     }
 
-                    Current = WizardPage.Path;
+                    Current = NextAfterWelcome();
+                    return true;
+
+                case WizardPage.Update:
+                    // 更新页 → 直接开装（文件写进已安装目录）
+                    Current = WizardPage.Installing;
                     return true;
 
                 case WizardPage.Path:
@@ -336,6 +474,17 @@ namespace Installer.UI.Presenters
             }
         }
 
+        /// <summary>
+        /// 欢迎页/许可页之后该去哪个页。
+        ///
+        /// 已经装过同一产品 → **跳过「安装设置」**，直接进「更新信息」页
+        /// （用户诉求：更新时不要再让用户选目录/勾任务，只告诉他版本关系）。
+        /// </summary>
+        private WizardPage NextAfterWelcome()
+        {
+            return IsUpdate ? WizardPage.Update : WizardPage.Path;
+        }
+
         /// <summary>点"上一步"。</summary>
         public void Back()
         {
@@ -349,6 +498,9 @@ namespace Installer.UI.Presenters
                     break;
                 case WizardPage.Options:
                     Current = WizardPage.Path;
+                    break;
+                case WizardPage.Update:
+                    Current = _licenseRequired ? WizardPage.License : WizardPage.Welcome;
                     break;
             }
         }
@@ -503,7 +655,22 @@ namespace Installer.UI.Presenters
         public void ApplyScopeDefaultDir()
         {
             Options.InstallDir = Environment.ExpandEnvironmentVariables(
-                InstallPaths.Suggest(ProductName, Options.AllUsers));
+                InstallPaths.Suggest(ProductName, Vendor, Options.AllUsers));
+        }
+
+        /// <summary>
+        /// 把一个**根目录**（Program Files / 本地 AppData / D:\Program Files…）变成真正的安装目录。
+        ///
+        /// 「安装设置」页那排快捷路径 chips 以前是死的（点了没反应）——
+        /// 用户只能靠「浏览」一级级点进去。这里补上：点 chip → 按「根\厂商\产品」拼出最终目录。
+        /// 逻辑放在 Presenter 里（而不是窗体里）是为了能被单测钉住：
+        /// 少拼一层厂商、或者把产品名拼丢，界面不会报错，只会**静默装错地方**。
+        /// </summary>
+        /// <param name="rootDirectory">根目录（可含 %ENV%）。</param>
+        public string ComposeInstallDir(string rootDirectory)
+        {
+            return Environment.ExpandEnvironmentVariables(
+                InstallPaths.Compose(rootDirectory, Vendor, ProductName));
         }
 
         /// <summary>

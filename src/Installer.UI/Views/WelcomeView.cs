@@ -98,6 +98,19 @@ namespace Installer.UI.Views
             set { lblHint.Text = value ?? string.Empty; }
         }
 
+        /// <summary>
+        /// 更新页：把信息卡三行换成「当前已安装版本 / 将要安装的版本 / 安装目录」。
+        ///
+        /// 复用欢迎页的布局（标题 + 说明 + 三行信息卡 + 提示条），
+        /// 因为「更新信息」页本来就是一张纯信息页，没必要再做一套控件。
+        /// </summary>
+        public void ApplyUpdateCaptions(string installed, string next, string dir)
+        {
+            lblDirCaption.Text = installed;
+            lblSpaceCaption.Text = next;
+            lblVersionCaption.Text = dir;
+        }
+
         /// <summary>刷新信息卡的三个标签文案。</summary>
         public void ApplyCaptions(Func<string, string> lookup)
         {

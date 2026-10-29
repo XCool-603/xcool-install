@@ -388,6 +388,15 @@ Check ((Get-Auto $auto 'nameAfterTyping') -eq 'MyOwnName') `
 Check ((Get-Auto $auto 'nameAfterRecheck') -eq 'Helper') `
       '重新勾上「跟随」→ 立刻按当前启动程序重算' (Get-Auto $auto 'nameAfterRecheck')
 
+# 用户这次反馈：**打开制作软件（工程里已经有产品名）之后**换启动程序，产品名不再跟着变。
+# 那时「跟随」复选框是关的，产品名又是上次自动填的 —— 应该继续跟着启动程序走。
+Check ((Get-Auto $auto 'projectLoadFollowed') -eq 'True') `
+      '打开已有工程后换启动程序 → 产品名仍然跟着变（用户报的 bug）' `
+      ("nameAfterProjectLoadPick=$(Get-Auto $auto 'nameAfterProjectLoadPick')  pickFirst=$(Get-Auto $auto 'pickFirst')")
+Check ((Get-Auto $auto 'typedNameKept') -eq 'True') `
+      '用户自己改过名字之后，再换启动程序不会覆盖他的输入' `
+      (Get-Auto $auto 'nameAfterTypedPick')
+
 # ─────────────────────────────────────────────────────────────
 Write-Host "== 9. 制作端与安装端「附加任务」用词一致" -ForegroundColor Cyan
 

@@ -35,6 +35,40 @@ namespace Installer.UI.Models
 
         /// <summary>卸载完成。</summary>
         Uninstalled = 9,
+
+        /// <summary>
+        /// 更新信息（已经装过同一产品时**替代**「安装设置」页）。
+        ///
+        /// 用户诉求：已经装了 1.0.0 再装新包时，不该再让用户选安装目录/附加任务，
+        /// 而是直接告诉他"当前已安装 X、要安装 Y"，主按钮变成「更新」。
+        /// </summary>
+        Update = 10,
+    }
+
+    /// <summary>本次安装与"已安装版本"的关系。</summary>
+    public enum UpdateKind
+    {
+        /// <summary>没装过 —— 全新安装。</summary>
+        None = 0,
+
+        /// <summary>要装的是**更高**版本 —— 正常更新。</summary>
+        Newer = 1,
+
+        /// <summary>版本相同 —— 相当于重新安装。</summary>
+        Same = 2,
+
+        /// <summary>要装的是**更低**版本 —— 降级安装。</summary>
+        Older = 3,
+    }
+
+    /// <summary>本机已经装着的那个产品（从安装记录里读出来）。</summary>
+    public sealed class InstalledProduct
+    {
+        /// <summary>已安装版本。</summary>
+        public string Version { get; set; }
+
+        /// <summary>已安装目录 —— 更新时**直接写这里**，不再让用户选。</summary>
+        public string InstallDir { get; set; }
     }
 
     /// <summary>用户在向导里做的选择。</summary>

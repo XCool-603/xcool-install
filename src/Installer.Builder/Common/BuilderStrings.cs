@@ -80,7 +80,10 @@ namespace Installer.Builder.Common
             Add(t, "Advanced.AlwaysElevate",
                 "始终请求管理员权限（程序自身需要管理员时才勾选）",
                 "Always require administrator (only if the app itself needs it)");
-            Add(t, "Advanced.InstallDir", "默认安装目录", "Default install folder");
+            Add(t, "Advanced.InstallDir", "安装根目录", "Install root folder");
+            Add(t, "Advanced.InstallDir.Hint",
+                "程序会装到「根目录\\厂商\\产品名」；没填厂商就不建厂商这一层",
+                "Installs to <root>\\<vendor>\\<product>; vendor level is skipped when empty");
             Add(t, "Advanced.Com", "需要注册的 COM 组件", "COM components to register");
             Add(t, "Advanced.Com.Hint", "填相对打包文件夹的路径，一行一个",
                 "Paths relative to the packaged folder, one per line");
@@ -106,8 +109,20 @@ namespace Installer.Builder.Common
             Add(t, "Status.Failed", "失败：{0}", "Failed: {0}");
 
             Add(t, "Msg.Done.Title", "生成成功", "Build complete");
-            Add(t, "Msg.Done.Body", "安装包已生成：\r\n\r\n{0}\r\n\r\n大小 {1}。\r\n\r\n要打开所在文件夹吗？",
-                "Installer created:\r\n\r\n{0}\r\n\r\nSize {1}.\r\n\r\nOpen the containing folder?");
+            Add(t, "Msg.Done.Body", "安装包已生成：\r\n\r\n{0}\r\n\r\n{1}\r\n\r\n大小 {2}。\r\n\r\n要打开所在文件夹吗？",
+                "Installer created:\r\n\r\n{0}\r\n\r\n{1}\r\n\r\nSize {2}.\r\n\r\nOpen the containing folder?");
+
+            // 打包结果里把"这个包到底会装到哪、会做哪些事"直接写出来。
+            //
+            // 为什么值得占这几行：安装目录层级和这四个附加任务是**打包时固化**的，
+            // 用户装完发现不对，回头根本分不清是"包做错了"还是"安装时没照做"。
+            // 生成完就把结论摆在眼前，省掉一次装一遍的排查。
+            Add(t, "Msg.Done.Summary",
+                "装到：{0}\r\n附加任务：{1}",
+                "Installs to: {0}\r\nTasks: {1}");
+            Add(t, "Msg.Done.TaskOn", "{0} ✓", "{0} ✓");
+            Add(t, "Msg.Done.TaskOff", "{0} ✗", "{0} ✗");
+            Add(t, "Msg.Done.TaskSeparator", "  ·  ", "  ·  ");
             Add(t, "Msg.Fix.Title", "还差一点", "Almost there");
             Add(t, "Msg.Error.Title", "出错了", "Something went wrong");
             Add(t, "Msg.Warn.Title", "有几点需要注意", "A few things to note");

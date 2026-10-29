@@ -105,7 +105,17 @@ namespace Installer.Core.Install
 
                     context.Log.Info("步骤 " + index + "/" + steps.Count + "：" + step.Id + " —— " + text);
 
-                    step.Execute(context);
+                    // 让步骤自己上报"正在处理哪个文件"（解压步骤用它填逐文件进度）
+                    context.Progress = progress;
+                    try
+                    {
+                        step.Execute(context);
+                    }
+                    finally
+                    {
+                        context.Progress = null;
+                    }
+
                     result.StepsExecuted = index;
                 }
 
@@ -180,11 +190,10 @@ namespace Installer.Core.Install
             context.Log.Warn("回滚结束，问题 " + result.RollbackIssues.Count + " 条。");
         }
 
-        /// <summary>撤销一条记录。</summary>
         /// <summary>
         /// 撤销一条日志记录。
         ///
-        /// internal 而不是 private：<see cref="StandardSteps.PreflightStep"/> 要用它
+        /// internal 而不是 private：<see cref="PreflightStep"/> 要用它
         /// 回滚**上一次被中断**的安装（进程被杀 / 断电时留下的日志）。
         /// </summary>
         internal static void Undo(InstallContext context, JournalEntry e)
@@ -341,6 +350,35 @@ namespace Installer.Core.Install
             });
 
             writer(path);
+        }
+
+        /// <summary>
+        /// 删文件并记录（先备份，回滚时原样还原）。
+        ///
+        /// 用在"升级时清掉上一版留下的东西"这种场合：直接 File.Delete 的话，
+        /// 本次安装后面失败回滚，那个文件就**回不来**了。
+        /// </summary>
+        /// <returns>真的删掉了返回 true。</returns>
+        public static bool DeleteFile(InstallContext ctx, string stepId, string path)
+        {
+            if (!File.Exists(path))
+            {
+                return false;
+            }
+
+            var backup = ctx.Journal.BackupFile(path);
+
+            ctx.Journal.Record(new JournalEntry
+            {
+                StepId = stepId,
+                Op = JournalOps.WriteFile,
+                Target = path,
+                ExistedBefore = true,
+                BackupPath = backup,
+            });
+
+            File.Delete(path);
+            return true;
         }
 
         /// <summary>写注册表值并记录旧值。</summary>

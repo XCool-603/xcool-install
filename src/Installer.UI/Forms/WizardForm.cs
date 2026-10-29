@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -58,6 +59,7 @@ namespace Installer.UI.Forms
             ApplyCardRegion();
             MakeLabelsTransparent(this);
             this.Icon = Installer.UI.Common.AppIcon.Load();
+            EnableDragByHeader(headerView);
         }
 
         /// <summary>构造。</summary>
@@ -92,6 +94,9 @@ namespace Installer.UI.Forms
             ApplyCardRegion();
             MakeLabelsTransparent(this);
 
+            // 无边框窗口没有标题栏 —— 整条品牌区当作标题栏，按住就能拖（见 EnableDragByHeader）
+            EnableDragByHeader(headerView);
+
             // 显式设置窗口图标 —— 标题栏 / 任务栏 / Alt+Tab 都跟着它。
             // 向导跑在 Setup.exe 里，所以拿到的是打包时打进去的那个图标。
             this.Icon = Installer.UI.Common.AppIcon.Load();
@@ -117,6 +122,20 @@ namespace Installer.UI.Forms
         public bool RelaunchedForElevation
         {
             get { return _relaunchedForElevation; }
+        }
+
+        /// <summary>
+        /// 告诉向导"这台电脑上已经装了这个产品"。
+        ///
+        /// 宿主在打开向导**之前**调用（从安装记录/卸载键里读到的版本与目录）。
+        /// 一旦设置：跳过「安装设置」页，改显示「更新信息」页，主按钮变成
+        /// 「更新 / 重新安装 / 仍要安装」，安装目录直接用已安装的那个。
+        /// </summary>
+        /// <param name="installed">已安装的版本与目录；null 表示全新安装。</param>
+        public void SetInstalled(InstalledProduct installed)
+        {
+            _presenter.SetInstalled(installed);
+            Render();
         }
 
         /// <summary>
@@ -202,6 +221,9 @@ namespace Installer.UI.Forms
             switch (page)
             {
                 case WizardPage.Welcome:
+                    return 712;
+                case WizardPage.Update:
+                    // 更新信息页：标题 + 说明 + 三行信息卡 + 提示条，和欢迎页同高度
                     return 712;
                 case WizardPage.License:
                     // 设计稿是 1012，但 1080p 屏上几乎顶满、观感太"长"，
@@ -316,14 +338,69 @@ namespace Installer.UI.Forms
             ApplyCardBox(DesignHeight(_presenter.Current));
         }
 
+        // ─────────────────────────────────────────────────────────────
+        // 拖动窗口
+        // ─────────────────────────────────────────────────────────────
+
+        private const int WM_NCLBUTTONDOWN = 0xA1;
+        private const int HTCAPTION = 0x2;
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern bool ReleaseCapture();
+
+        [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
+        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
+
+        /// <summary>
+        /// 让整条**品牌区都能拖动窗口**。
+        ///
+        /// 窗口是 <c>FormBorderStyle.None</c>（设计稿要求无边框、四角圆角），
+        /// 于是系统当成"没有标题栏"，鼠标按在蓝条上拖不动 ——
+        /// 用户只能先点任务栏再挪窗口（实测反馈「安装包程序不能拖动」）。
+        ///
+        /// 做法就是补回系统标题栏那套：按下左键时把鼠标消息转成
+        /// <c>WM_NCLBUTTONDOWN + HTCAPTION</c>，之后由系统负责移动窗口
+        /// （比自己在 MouseMove 里算偏移更稳：不会和在途的动画/缩放打架）。
+        ///
+        /// 必须递归挂到子控件上：AntdUI 的 Panel / Label 都是独立 HWND，
+        /// 只挂 UserControl 的话，按在文字上（占了品牌区大半）依然拖不动。
+        /// </summary>
+        private void EnableDragByHeader(Control root)
+        {
+            if (root == null)
+            {
+                return;
+            }
+
+            root.MouseDown += DragWindowOnMouseDown;
+
+            foreach (Control child in root.Controls)
+            {
+                EnableDragByHeader(child);
+            }
+        }
+
+        private void DragWindowOnMouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left)
+            {
+                return;
+            }
+
+            ReleaseCapture();
+            SendMessage(Handle, WM_NCLBUTTONDOWN, (IntPtr)HTCAPTION, IntPtr.Zero);
+        }
+
         private void ApplyAppearance()
         {
             Text = _presenter.ProductName + " " + _presenter.ProductVersion;
 
             // 品牌区：产品名 + 「安装向导 · 版本 x」/「卸载向导 · 版本 x」
-            var uninstall = _presenter.Current == WizardPage.UninstallConfirm
-                            || _presenter.Current == WizardPage.Uninstalling
-                            || _presenter.Current == WizardPage.Uninstalled;
+            //
+            // 用 `_uninstallMode` 判断，**不要看 Current**：构造函数里 ApplyAppearance()
+            // 跑在 EnterUninstallConfirm() 之前，那时 Current 还是 Welcome，
+            // 于是卸载向导的头部会显示成「安装向导」（用户实测截图里就是这个）。
+            var uninstall = _uninstallMode;
 
             headerView.ApplyText(_presenter.Text, _presenter.ProductName, _presenter.ProductVersion, uninstall);
 
@@ -340,9 +417,11 @@ namespace Installer.UI.Forms
                 }
             }
 
-            // 品牌头部始终是品牌蓝 —— 设计稿里卸载向导的头部也没有变红，
-            // 只有步骤条的当前点与主按钮换成红色。所以 accent 只作用于后两者。
-            headerView.ApplyAccent(WizardTheme.Primary);
+            // 品牌头部跟着主色走：安装 = 品牌蓝，卸载 = 删除红。
+            // 以前这里写死 WizardTheme.Primary，所以卸载向导的标题区一直是蓝的
+            // （用户反馈：卸载引导的标题框要换成偏红的删除色）。
+            headerView.ApplyAccent(accent);
+            headerView.ApplyGlyph(uninstall);
             stepBar.Accent = accent;
             _accent = accent;
 
@@ -399,6 +478,25 @@ namespace Installer.UI.Forms
             };
 
             _pathView.BrowseClick += BrowseClick;
+
+            // 快捷路径 chips（C:\Program Files (x86) / AppData / D:\Program Files (x86)）。
+            //
+            // 以前点了没反应 —— chip 只是画得像按钮。现在点一下就把安装位置换到那个根目录。
+            //
+            // **只换目录，不动「为所有用户安装」**：那是用户自己的选择，
+            // 替人勾上会让人以为安装包在自作主张（用户明确要求）。
+            // 真出现"装到 Program Files 但只有当前用户"的组合时，
+            // 安装/卸载都会按目录写不写得进去自己判断要不要提权，不会装坏。
+            _pathView.PathChipClicked += root =>
+            {
+                var o = _presenter.Options;
+                o.InstallDir = _presenter.ComposeInstallDir(root);
+
+                _pathView.ApplyOptions(o);
+                _pathView.SpaceText = BuildSpaceText();
+                _pathView.InfoText = BuildSettingsInfo();
+                UpdateButtons();
+            };
             _pathView.PathChanged += () =>
             {
                 _presenter.Options.InstallDir = _pathView.InstallPath;
@@ -418,14 +516,13 @@ namespace Installer.UI.Forms
             {
                 var allUsers = _pathView.AllUsers;
 
-                // Render() 会把 Options 写进界面，那同样会触发本事件 ——
                 // 值没变就直接返回，否则会和下面的"换默认目录"互相触发成死循环。
                 if (allUsers == _presenter.Options.AllUsers)
                 {
                     return;
                 }
 
-                _pathView.ReadInto(_presenter.Options);
+                _presenter.Options.AllUsers = allUsers;
                 _presenter.ApplyScopeDefaultDir();
                 _pathView.InstallPath = _presenter.Options.InstallDir;
                 UpdateButtons();
@@ -492,9 +589,26 @@ namespace Installer.UI.Forms
 
                     case WizardPage.Uninstalling:
                         ShowView(_progressView);
-                        _progressView.Title = _presenter.Text("Uninstall.Running");
+                        _progressView.Title = string.Format(CultureInfo.CurrentCulture,
+                            _presenter.Text("Uninstall.ProgressTitle"), _presenter.ProductName);
+                        _progressView.Subtitle = _presenter.Text("Uninstall.ProgressSubtitle");
                         _progressView.StepText = _presenter.Text("Uninstall.Progress");
+
+                        // 统计卡的**标签**必须换成卸载口径 ——
+                        // 以前这里什么都不设，界面直接沿用安装页的「已解压文件 / 已写入大小」，
+                        // 卸载时显示"已解压 123/199"这种明显不对的内容（用户实测截图）。
+                        _progressView.SetStatCaptions(
+                            _presenter.Text("Uninstall.CapFiles"), _presenter.Text("Uninstall.CapSize"),
+                            _presenter.Text("Uninstall.CapElapsed"), _presenter.Text("Uninstall.CapRemaining"));
+                        _progressView.SetStats("—", "—", "00:00", "—");
+
+                        // 步骤列表同理：卸载是「结束进程 → 删文件 → 删快捷方式 → 清注册表」
+                        _progressView.SetSteps(UninstallStepTexts(), 0);
+
+                        _progressView.CurrentFileText = string.Empty;
+                        _progressView.SetError(false);
                         _progressView.SetPercent(0);
+                        ResetProgressClock();
                         break;
 
                     case WizardPage.Uninstalled:
@@ -530,6 +644,23 @@ namespace Installer.UI.Forms
                         : _presenter.Text("Welcome.HintNoLicense");
                     break;
 
+                case WizardPage.Update:
+                    // 已经装过同一产品 → 这一页取代「安装设置」：只讲版本关系，
+                    // 安装目录沿用已安装的那个，用户没有可选项，直接「更新」。
+                    ShowView(_welcomeView);
+                    _welcomeView.Title = _presenter.UpdateTitle;
+                    _welcomeView.Body = _presenter.UpdateSubtitle;
+                    _welcomeView.Body2 = string.Empty;
+                    _welcomeView.ApplyUpdateCaptions(
+                        _presenter.Text("Update.CaptionInstalled"),
+                        _presenter.Text("Update.CaptionNew"),
+                        _presenter.Text("Update.CaptionDir"));
+                    _welcomeView.DirValue = _presenter.Installed == null ? "—" : _presenter.Installed.Version;
+                    _welcomeView.SpaceValue = _presenter.ProductVersion;
+                    _welcomeView.VersionValue = _presenter.Options.InstallDir;
+                    _welcomeView.Hint = _presenter.UpdateHint;
+                    break;
+
                 case WizardPage.License:
                     ShowView(_licenseView);
                     _licenseView.Title = _presenter.Text("License.Title");
@@ -552,7 +683,6 @@ namespace Installer.UI.Forms
                     _pathView.PathLabel = _presenter.Text("Path.Label");
                     _pathView.TaskLabel = _presenter.Text("Options.Title");
                     _pathView.BrowseText = _presenter.Text("Path.Browse");
-                    _pathView.InstallPath = _presenter.Options.InstallDir;
                     _pathView.SpaceText = BuildSpaceText();
 
                     _pathView.ApplyTaskText(
@@ -563,12 +693,12 @@ namespace Installer.UI.Forms
 
                     _pathView.AllUsersText = _presenter.Text("Options.AllUsers");
                     _pathView.AllUsersHint = _presenter.Text("Options.AllUsers.Hint");
-                    _pathView.AllUsers = _presenter.Options.AllUsers;
 
-                    _pathView.DesktopShortcut = _presenter.Options.DesktopShortcut;
-                    _pathView.StartMenuShortcut = _presenter.Options.StartMenuShortcut;
-                    _pathView.Autostart = _presenter.Options.Autostart;
-                    _pathView.RunAfterInstall = _presenter.Options.RunAfterInstall;
+                    // **一次原子写入**，不要一个个设属性：
+                    // 单个属性赋值会触发控件事件 → 窗体的 OptionsChanged 回调 →
+                    // 把"还没灌进去的"勾选框（此刻仍是未勾）读回模型，
+                    // 于是清单里四项全勾、界面却只剩第一项，装出来也只建一个快捷方式。
+                    _pathView.ApplyOptions(_presenter.Options);
 
                     _pathView.InfoText = BuildSettingsInfo();
                     break;
@@ -597,6 +727,7 @@ namespace Installer.UI.Forms
                         _presenter.Text("Progress.Step3"), _presenter.Text("Progress.Step4"),
                     }, 0);
                     _progressView.SetPercent(0);
+                    ResetProgressClock();
                     break;
 
                 case WizardPage.Finish:
@@ -664,8 +795,52 @@ namespace Installer.UI.Forms
             return string.Format(
                 System.Globalization.CultureInfo.CurrentCulture,
                 _presenter.Text("Options.InfoFormat"),
-                o.InstallDir,
+                ShortenPathForDisplay(o.InstallDir),
                 count);
+        }
+
+        /// <summary>
+        /// 信息条里的路径按「盘符 + … + 尾部」压缩。
+        ///
+        /// 为什么必须压：这条提示是**单行**、宽 520px。真实安装路径动辄 80 多个字符
+        /// （<c>C:\Users\…\AppData\Local\Temp\xxx\Programs\厂商\产品</c>），
+        /// 路径里一带中文就会在这里换行，第二行正好被条子的高度裁掉 ——
+        /// 用户看到的是「将安装到」后面**什么都没有**，像是界面坏了。
+        /// 尾部（厂商\产品）才是他想看的那部分，所以留尾巴、砍中间。
+        /// </summary>
+        /// <param name="path">完整安装路径。</param>
+        /// <param name="maxLength">压缩后的目标长度。</param>
+        public static string ShortenPathForDisplay(string path, int maxLength = 52)
+        {
+            if (string.IsNullOrEmpty(path) || path.Length <= maxLength)
+            {
+                return path;
+            }
+
+            var root = Path.GetPathRoot(path) ?? string.Empty;
+            var rest = path.Substring(root.Length);
+            if (rest.Length == 0)
+            {
+                return path;
+            }
+
+            // 留出 "…\" 的位置
+            var keep = maxLength - root.Length - 2;
+            if (keep < 8)
+            {
+                keep = 8;
+            }
+
+            var tail = rest.Length > keep ? rest.Substring(rest.Length - keep) : rest;
+
+            // 别从半个目录名开始
+            var cut = tail.IndexOf('\\');
+            if (cut >= 0 && cut < tail.Length - 1)
+            {
+                tail = tail.Substring(cut + 1);
+            }
+
+            return root + "…\\" + tail;
         }
 
         /// <summary>卸载页用的「已占用大小」（卸载模式下清单是空的，所以直接量安装目录）。</summary>
@@ -963,6 +1138,90 @@ namespace Installer.UI.Forms
         }
 
         /// <summary>进度回调（可能在后台线程）。</summary>
+        /// <summary>卸载进度页的四个步骤文案（顺序与 <c>UninstallEngine</c> 的步骤一致）。</summary>
+        private string[] UninstallStepTexts()
+        {
+            return new[]
+            {
+                _presenter.Text("Uninstall.Step1"), _presenter.Text("Uninstall.Step2"),
+                _presenter.Text("Uninstall.Step3"), _presenter.Text("Uninstall.Step4"),
+            };
+        }
+
+        /// <summary>进度页的计时起点（统计卡里的「已用时间 / 预计剩余」用它算）。</summary>
+        private readonly Stopwatch _progressWatch = new Stopwatch();
+
+        private void ResetProgressClock()
+        {
+            _progressWatch.Reset();
+            _progressWatch.Start();
+        }
+
+        /// <summary>
+        /// 用真实的逐文件进度刷新进度条与统计卡。
+        ///
+        /// 数据来源：解压步骤/删文件步骤上报的 <see cref="InstallProgress.FilesDone"/> 等
+        /// （<c>Percent</c> 在逐文件上报时是 -1，条内进度用字节比例自己算）。
+        /// </summary>
+        private void ApplyRealProgress(InstallProgress p)
+        {
+            var hasFiles = p.FilesTotal > 0;
+
+            // 进度条：步骤占比 + 当前步骤内按字节的完成度
+            int percent;
+            if (hasFiles && p.StepCount > 0 && p.BytesTotal > 0)
+            {
+                var inStep = Math.Min(1.0, (double)p.BytesDone / p.BytesTotal);
+                percent = (int)Math.Round(100.0 * (Math.Max(0, p.StepIndex - 1) + inStep) / p.StepCount);
+            }
+            else if (p.Percent >= 0)
+            {
+                percent = p.Percent;
+            }
+            else if (hasFiles)
+            {
+                percent = (int)Math.Round(100.0 * p.FilesDone / p.FilesTotal);
+            }
+            else
+            {
+                percent = _progressView.GetPercent();
+            }
+
+            _progressView.SetPercent(Math.Min(100, Math.Max(0, percent)));
+
+            if (!string.IsNullOrEmpty(p.CurrentFile))
+            {
+                _progressView.CurrentFileText = (_uninstallMode ? "正在删除：" : "正在写入：") + p.CurrentFile;
+            }
+
+            var elapsed = _progressWatch.Elapsed;
+
+            // 已用时间 / 预计剩余
+            var elapsedText = string.Format(CultureInfo.CurrentCulture, "{0:00}:{1:00}",
+                (int)elapsed.TotalMinutes, elapsed.Seconds);
+
+            var remainingText = "—";
+            if (p.BytesTotal > 0 && p.BytesDone > 0 && elapsed.TotalSeconds >= 0.5)
+            {
+                var rate = p.BytesDone / elapsed.TotalSeconds;
+                var left = (p.BytesTotal - p.BytesDone) / Math.Max(1.0, rate);
+                remainingText = left < 1
+                    ? "即将完成"
+                    : "约 " + ((int)Math.Ceiling(left)) + " 秒";
+            }
+
+            var filesText = hasFiles
+                ? p.FilesDone.ToString(CultureInfo.CurrentCulture) + " / " +
+                  p.FilesTotal.ToString(CultureInfo.CurrentCulture)
+                : "—";
+
+            var sizeText = p.BytesTotal > 0
+                ? FormatSize(p.BytesDone) + " / " + FormatSize(p.BytesTotal)
+                : "—";
+
+            _progressView.SetStats(filesText, sizeText, elapsedText, remainingText);
+        }
+
         private void OnProgress(InstallProgress p)
         {
             if (IsDisposed || !IsHandleCreated)
@@ -977,21 +1236,41 @@ namespace Installer.UI.Forms
             }
 
             _progressView.SetIndeterminate(false);
-            _progressView.SetPercent(p.Percent);
+
+            // 有逐文件数据就按真实数据刷新（进度条 + 统计卡 + 当前文件），
+            // 没有就退回步骤级百分比。
+            if (p.FilesTotal > 0 || p.BytesTotal > 0)
+            {
+                ApplyRealProgress(p);
+            }
+            else
+            {
+                _progressView.SetPercent(p.Percent);
+            }
 
             if (!string.IsNullOrEmpty(p.Message))
             {
                 _progressView.StepText = p.Message;
-                _progressView.CurrentFileText = p.Message;
+
+                // 逐文件上报时 CurrentFileText 由 ApplyRealProgress 写（带"正在写入/正在删除"前缀）
+                if (string.IsNullOrEmpty(p.CurrentFile))
+                {
+                    _progressView.CurrentFileText = p.Message;
+                }
             }
 
             // 步骤列表按进度推进：0~25 / 25~50 / 50~75 / 75~100
-            var stage = Math.Min(3, Math.Max(0, p.Percent / 25));
-            _progressView.SetSteps(new[]
-            {
-                _presenter.Text("Progress.Step1"), _presenter.Text("Progress.Step2"),
-                _presenter.Text("Progress.Step3"), _presenter.Text("Progress.Step4"),
-            }, stage);
+            var stage = Math.Min(3, Math.Max(0, (p.Percent >= 0 ? p.Percent : _progressView.GetPercent()) / 25));
+
+            // 卸载和安装的步骤名不一样 —— 以前这里一律用 Progress.Step*，
+            // 于是卸载页列的是「准备安装目录 / 解压程序文件 / 创建快捷方式 / 写入注册表」。
+            _progressView.SetSteps(_uninstallMode
+                ? UninstallStepTexts()
+                : new[]
+                {
+                    _presenter.Text("Progress.Step1"), _presenter.Text("Progress.Step2"),
+                    _presenter.Text("Progress.Step3"), _presenter.Text("Progress.Step4"),
+                }, stage);
 
             if (p.IsRollingBack)
             {
@@ -1129,9 +1408,20 @@ namespace Installer.UI.Forms
             // 流程是 Welcome -> License -> Path -> Installing -> Finish，
             // Options 已经不可达（Primary() 从 Path 直接进 Installing）。
             // 留着它只会生成一张和 Path.png 重复、名字却对不上的图。
+            // 预览「更新信息」页需要"已装过某个版本"这个前提，截图时临时塞一个假的，
+            // 否则 ForcePage(Update) 之后 Render 会拿不到 Installed。
+            if (!_uninstallMode && _presenter.Installed == null)
+            {
+                _presenter.SetInstalled(new InstalledProduct
+                {
+                    Version = "1.0.0",
+                    InstallDir = _presenter.Options.InstallDir,
+                });
+            }
+
             var pages = _uninstallMode
                 ? new[] { WizardPage.UninstallConfirm, WizardPage.Uninstalling, WizardPage.Uninstalled }
-                : new[] { WizardPage.Welcome, WizardPage.License, WizardPage.Path,
+                : new[] { WizardPage.Welcome, WizardPage.License, WizardPage.Path, WizardPage.Update,
                           WizardPage.Installing, WizardPage.Finish, WizardPage.Failed };
 
             foreach (var page in pages)
@@ -1212,6 +1502,7 @@ namespace Installer.UI.Forms
                 case WizardPage.License:
                 case WizardPage.Path:
                 case WizardPage.Options:
+                case WizardPage.Update:
                     // 直接设页，**不要改回用 Primary() 逐步推进**。
                     //
                     // 为什么逐步推进不可行：

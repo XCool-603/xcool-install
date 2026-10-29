@@ -99,7 +99,23 @@ namespace Installer.Builder.Forms
                 UpdateOutputPath();
             };
 
-            shortcutStep.Changed += () => { if (!_initializing) MarkDirty(); };
+            // 勾选状态必须**立刻**回写清单。
+            //
+            // 以前这里只 MarkDirty()，回写要等到"下一次 ReadFromViews"（点打包 / 关窗口）：
+            //   · 保存出来的工程里还是旧勾选 —— 下次打开勾选被悄悄改回去，
+            //     用户会以为"勾了没用"（实际是根本没收进去）；
+            //   · 打包内容也取决于"最后一次 ReadFromViews 发生在什么时候"。
+            // 这两条都属于"界面看着对、结果不对"，所以改成即时回写。
+            shortcutStep.Changed += () =>
+            {
+                if (_initializing)
+                {
+                    return;
+                }
+
+                ReadFromViews();
+                MarkDirty();
+            };
 
             outputBar.OutputChanged += () =>
             {
@@ -319,6 +335,7 @@ namespace Installer.Builder.Forms
         // ─────────────────────────────────────────────────────────────
 
         /// <summary>上一次自动填入的产品名，用于判断"这个名字是不是我填的"。</summary>
+        private string _autoName;
         /// <summary>用户选了文件夹 → 产品名跟随**文件夹名**（与复选框文案一致）。</summary>
         private void AutoFillProductName(string folder)
         {
@@ -352,6 +369,8 @@ namespace Installer.Builder.Forms
                 return;
             }
 
+            // 用户自己敲了名字 → 以后不再自动覆盖（_autoName 清空即可）
+            _autoName = null;
             folderStep.AutoNameFromFolder = false;
         }
 
@@ -383,17 +402,16 @@ namespace Installer.Builder.Forms
         /// </summary>
         private void ApplyAutoName(string suggested)
         {
-            if (!folderStep.AutoNameFromFolder)
+            var next = BuilderPresenter.ResolveAutoName(
+                infoStep.CurrentProductName, _autoName, suggested, folderStep.AutoNameFromFolder);
+
+            if (next == null)
             {
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(suggested))
-            {
-                return;
-            }
-
-            infoStep.SetProductName(suggested);
+            infoStep.SetProductName(next);
+            _autoName = next;
         }
 
         /// <summary>
@@ -404,6 +422,12 @@ namespace Installer.Builder.Forms
         private void SyncAutoNameToggle()
         {
             folderStep.AutoNameFromFolder = string.IsNullOrWhiteSpace(infoStep.CurrentProductName);
+
+            // 工程里的名字当作"自动填过的名字"：用户换启动程序时它仍然会跟着变，
+            // 但只要他自己改过名字（OnProductNameEdited），就不再跟随。
+            _autoName = string.IsNullOrWhiteSpace(infoStep.CurrentProductName)
+                ? null
+                : infoStep.CurrentProductName;
         }
 
         private void OpenProject()
@@ -511,10 +535,15 @@ namespace Installer.Builder.Forms
             }
 
             var manifest = _presenter.Document.Project.Manifest;
+
+            // 预览也要看到**真正的**安装目录：清单里存的是根目录，
+            // 直接拿它去预览会显示成 D:\Program Files (x86) 这种"没有产品层级"的路径，
+            // 和真正装出来的位置不一样 —— 预览就失去意义了。
+            var composedDir = InstallPaths.Compose(manifest.DefaultInstallDir,
+                BuilderPresenter.PickVendorName(manifest), BuilderPresenter.PickProductName(manifest));
+
             var installDir = Environment.ExpandEnvironmentVariables(
-                string.IsNullOrWhiteSpace(manifest.DefaultInstallDir)
-                    ? @"C:\Temp\Preview"
-                    : manifest.DefaultInstallDir);
+                string.IsNullOrWhiteSpace(composedDir) ? @"C:\Temp\Preview" : composedDir);
 
             try
             {
@@ -610,7 +639,14 @@ namespace Installer.Builder.Forms
             }
 
             var body = string.Format(CultureInfo.CurrentCulture, _presenter.S("Msg.Done.Body"),
-                result.OutputPath, size);
+                result.OutputPath, BuildPackageSummary(), size);
+
+            // 提示性信息（不弹模态框）：例如"程序会往安装目录写，但装在用户目录下没问题"。
+            // 用户反馈过"都设成管理员了还弹这个"，所以这类不构成风险的话只放在完成框里。
+            if (result.Notes != null && result.Notes.Count > 0)
+            {
+                body += "\r\n\r\n" + string.Join("\r\n\r\n", result.Notes.ToArray());
+            }
 
             if (AntdUI.Modal.open(new AntdUI.Modal.Config(this, _presenter.S("Msg.Done.Title"), body))
                 == DialogResult.OK)
@@ -624,6 +660,45 @@ namespace Installer.Builder.Forms
                     AntdUI.Message.warn(this, ex.Message);
                 }
             }
+        }
+
+        /// <summary>
+        /// 生成完成后回显"这个包会装到哪、会做哪些事"。
+        ///
+        /// 这三个信息（安装目录层级 + 四个附加任务）是**打包时固化进 exe 的**：
+        /// 装完才发现不对，用户根本分不清是包做错了还是安装时没照做。
+        /// 摆在这里，一眼就能对上。
+        /// </summary>
+        private string BuildPackageSummary()
+        {
+            var m = _presenter.Document.Project.Manifest;
+            var vendor = BuilderPresenter.PickVendorName(m);
+            var product = BuilderPresenter.PickProductName(m);
+
+            var installDir = InstallPaths.Compose(m.DefaultInstallDir, vendor, product);
+
+            var separator = _presenter.S("Msg.Done.TaskSeparator");
+            var tasks = new List<string>();
+
+            AddTask(tasks, HasShortcut(m, "Desktop"), "Shortcut.Desktop");
+            AddTask(tasks, HasShortcut(m, "StartMenu"), "Shortcut.StartMenu");
+            AddTask(tasks, m.Autostart, "Shortcut.Autostart");
+            AddTask(tasks, m.RunAfterInstall, "Shortcut.RunAfter");
+
+            return string.Format(CultureInfo.CurrentCulture, _presenter.S("Msg.Done.Summary"),
+                installDir, string.Join(separator, tasks.ToArray()));
+        }
+
+        private void AddTask(List<string> tasks, bool on, string textKey)
+        {
+            tasks.Add(string.Format(CultureInfo.CurrentCulture,
+                _presenter.S(on ? "Msg.Done.TaskOn" : "Msg.Done.TaskOff"), _presenter.S(textKey)));
+        }
+
+        private static bool HasShortcut(InstallerManifest m, string location)
+        {
+            return m.Shortcuts != null && m.Shortcuts.Any(s => s != null &&
+                string.Equals(s.Location, location, StringComparison.OrdinalIgnoreCase));
         }
 
         private static string FormatSize(long bytes)
@@ -859,6 +934,32 @@ namespace Installer.Builder.Forms
             // ③ 重新勾上"跟随" → 立刻按当前启动程序重算
             folderStep.AutoNameFromFolder = true;
             lines.Add("nameAfterRecheck=" + infoStep.CurrentProductName);
+
+            // ④ **打开已有工程**之后换启动程序，产品名仍然要跟着变。
+            //
+            //    这是用户这次反馈的原始场景：工程里带着产品名（上次自动填的），
+            //    复选框是关的，于是换 exe 名字一点反应都没有。
+            //    这里把状态摆成"刚载入工程"的样子再换一次启动程序。
+            folderStep.AutoNameFromFolder = false;
+            infoStep.SetProductName(pickedFirst);
+            _autoName = pickedFirst;                  // SyncAutoNameToggle 会这么设
+
+            folderStep.SimulateEntryPick(exes[exes.Count - 1]);
+            var afterProjectLoad = infoStep.CurrentProductName;
+            lines.Add("nameAfterProjectLoadPick=" + afterProjectLoad);
+            lines.Add("projectLoadFollowed=" +
+                (!string.Equals(afterProjectLoad, pickedFirst, StringComparison.Ordinal)));
+
+            // ⑤ 用户自己改过名字之后，再换启动程序 → **不许**动他的输入
+            infoStep.Write(
+                new LocalizedText { { "zh-Hans", "KeepMine" }, { "en", "KeepMine" } },
+                infoStep.Version,
+                new LocalizedText { { "zh-Hans", "TestPublisher" }, { "en", "TestPublisher" } });
+            folderStep.SimulateEntryPick(exes[0]);
+            lines.Add("nameAfterTypedPick=" + infoStep.CurrentProductName);
+            lines.Add("typedNameKept=" +
+                string.Equals(infoStep.CurrentProductName, "KeepMine", StringComparison.Ordinal));
+
             lines.Add("AUTONAME-DONE");
 
             return string.Join("\n", lines.ToArray());

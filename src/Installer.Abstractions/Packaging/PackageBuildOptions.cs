@@ -70,6 +70,15 @@ namespace Installer.Abstractions.Packaging
         public bool SkipIconPatch { get; set; }
 
         /// <summary>
+        /// 把产物 exe 的清单设成 <c>requireAdministrator</c>（双击安装包就弹 UAC）。
+        ///
+        /// 默认 **true**：用户要求"制作的安装包权限设置为管理员"。
+        /// 卸载器是从这个 exe 复制出来的，所以卸载同样要求管理员。
+        /// 自动化测试跑不了提权时可以置 false 退回 asInvoker。
+        /// </summary>
+        public bool RequireAdministrator { get; set; } = true;
+
+        /// <summary>
         /// 构建时间戳。**可重现构建的关键**：同一个值 + 同一份输入 = 同样的输出字节。
         /// 为 null 时取 <see cref="DateTimeOffset.UtcNow"/>。
         /// </summary>
@@ -131,6 +140,9 @@ namespace Installer.Abstractions.Packaging
         /// <summary>是否执行了图标补丁。</summary>
         public bool IconPatched { get; set; }
 
+        /// <summary>是否把清单改成了 requireAdministrator（双击安装包要求管理员）。</summary>
+        public bool RequireAdministrator { get; set; }
+
         /// <summary>各阶段耗时（毫秒），用于诊断。</summary>
         public Dictionary<BuildStage, long> StageMilliseconds { get; set; } =
             new Dictionary<BuildStage, long>();
@@ -143,6 +155,14 @@ namespace Installer.Abstractions.Packaging
         /// 普通用户写不进去，程序启动正常、一操作就报错。
         /// </summary>
         public List<string> Warnings { get; set; } = new List<string>();
+
+        /// <summary>
+        /// **提示性**信息：不影响使用，只是让制作人员知道（例如"程序会往安装目录写，
+        /// 但当前是装到用户目录、普通用户可写，没问题"）。
+        /// 和 <see cref="Warnings"/> 的区别：Warnings 会弹「有几点需要注意」的模态框，
+        /// Notes 只出现在打包结果里 —— 用户明确说过"都是管理员了还弹这个"属于噪音。
+        /// </summary>
+        public List<string> Notes { get; set; } = new List<string>();
     }
 
     /// <summary>打包过程中的失败。</summary>

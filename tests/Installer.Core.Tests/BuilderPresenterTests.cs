@@ -69,7 +69,20 @@ namespace Installer.Core.Tests
 
         private BuilderPresenter NewPresenter(string stub = null)
         {
-            return new BuilderPresenter("zh-Hans", stub ?? NewStub());
+            return Presenter("zh-Hans", stub ?? NewStub());
+        }
+
+        /// <summary>
+        /// 造一个 Presenter，并把 <c>requireAdministrator</c> 关掉。
+        ///
+        /// 测试里的 stub 是几字节的假文件（不是 PE），做不了清单补丁；
+        /// "真实产物要求管理员"这件事由 <see cref="ManifestPatcherTests"/> 单独覆盖。
+        /// </summary>
+        private static BuilderPresenter Presenter(string culture, string stub)
+        {
+            var p = new BuilderPresenter(culture, stub);
+            p.Document.Project.Build.RequireAdministrator = false;
+            return p;
         }
 
         // ─────────────────────────────────────────────────────────────
@@ -91,7 +104,7 @@ namespace Installer.Core.Tests
         public void 显式指定的_stub_优先于自动查找()
         {
             var mine = NewStub();
-            var p = new BuilderPresenter("zh-Hans", mine);
+            var p = Presenter("zh-Hans", mine);
 
             Assert.Equal(mine, p.ResolveStubPath());
         }
@@ -99,7 +112,7 @@ namespace Installer.Core.Tests
         [Fact]
         public void 找不到_stub_时校验要给出可操作的提示()
         {
-            var p = new BuilderPresenter("zh-Hans", Path.Combine(_root, "nonexistent.exe"));
+            var p = Presenter("zh-Hans", Path.Combine(_root, "nonexistent.exe"));
             p.Document.Project.Build.SourceDir = NewSource();
             p.Document.Project.Manifest.Product.Name = new LocalizedText { { "zh-Hans", "X" } };
 
@@ -419,7 +432,7 @@ namespace Installer.Core.Tests
                 { "en", "" },
             };
 
-            Assert.Equal("汽车小镇", p.PickProductName(m));
+            Assert.Equal("汽车小镇", BuilderPresenter.PickProductName(m));
         }
 
         [Fact]
@@ -613,6 +626,82 @@ namespace Installer.Core.Tests
             Assert.StartsWith("{", a.Manifest.ProductCode);
         }
 
+        [Fact]
+        public void 打包时应按_根目录_厂商_产品名_生成安装目录()
+        {
+            // 用户把"安装根目录"填成 D:\Program Files (x86) —— 以前会把几百个文件
+            // 直接平铺进去（跟别人的软件混在一起），卸载都不敢删。
+            var p = NewPresenter();
+            var m = p.Document.Project.Manifest;
+            m.DefaultInstallDir = @"D:\Program Files (x86)";
+            m.Scope = InstallScopes.PerMachine;
+            m.Product.Name = new LocalizedText { { "zh-Hans", "空中小火车" } };
+            m.Product.Publisher = new LocalizedText { { "zh-Hans", "唯非工作室" } };
+            m.Product.Version = "1.0";
+            m.EntryPoint = "App0.exe";
+            p.Document.Project.Build.SourceDir = NewSource();
+
+            p.Build();
+
+            Assert.Equal(@"D:\Program Files (x86)\唯非工作室\空中小火车",
+                p.Document.Project.Manifest.DefaultInstallDir);
+        }
+
+        [Fact]
+        public void 没填厂商时打包不应多出厂商层级()
+        {
+            var p = NewPresenter();
+            var m = p.Document.Project.Manifest;
+            m.DefaultInstallDir = @"D:\Apps";
+            m.Product.Name = new LocalizedText { { "zh-Hans", "空中小火车" } };
+            m.Product.Publisher = new LocalizedText { { "zh-Hans", "" }, { "en", "" } };
+            m.Product.Version = "1.0";
+            m.EntryPoint = "App0.exe";
+            p.Document.Project.Build.SourceDir = NewSource();
+
+            p.Build();
+
+            Assert.Equal(@"D:\Apps\空中小火车", p.Document.Project.Manifest.DefaultInstallDir);
+        }
+
+        [Fact]
+        public void 连续打包两次不应把目录套娃()
+        {
+            var p = NewPresenter();
+            var m = p.Document.Project.Manifest;
+            m.DefaultInstallDir = @"D:\Apps";
+            m.Product.Name = new LocalizedText { { "zh-Hans", "空中小火车" } };
+            m.Product.Publisher = new LocalizedText { { "zh-Hans", "唯非工作室" } };
+            m.Product.Version = "1.0";
+            m.EntryPoint = "App0.exe";
+            p.Document.Project.Build.SourceDir = NewSource();
+
+            p.Build();
+            var first = m.DefaultInstallDir;
+            p.Build();
+
+            Assert.Equal(first, p.Document.Project.Manifest.DefaultInstallDir);
+            Assert.Equal(@"D:\Apps\唯非工作室\空中小火车", first);
+        }
+
+        [Fact]
+        public void 没改过安装目录时应按安装范围给根目录()
+        {
+            var p = NewPresenter();
+            var m = p.Document.Project.Manifest;
+            m.DefaultInstallDir = InstallPaths.Root(false);
+            m.Scope = InstallScopes.PerMachine;
+            m.Product.Name = new LocalizedText { { "zh-Hans", "空中小火车" } };
+            m.Product.Version = "1.0";
+            m.EntryPoint = "App0.exe";
+            p.Document.Project.Build.SourceDir = NewSource();
+
+            p.Build();
+
+            // 范围改成"所有用户"了，根目录就不该还留在 %LOCALAPPDATA%
+            Assert.StartsWith(@"%ProgramFiles%\", p.Document.Project.Manifest.DefaultInstallDir);
+        }
+
         // ─────────────────────────────────────────────────────────────
         // 界面文案
         // ─────────────────────────────────────────────────────────────
@@ -620,8 +709,8 @@ namespace Installer.Core.Tests
         [Fact]
         public void 界面文案应有中英两版()
         {
-            var zh = new BuilderPresenter("zh-Hans", NewStub());
-            var en = new BuilderPresenter("en", NewStub());
+            var zh = Presenter("zh-Hans", NewStub());
+            var en = Presenter("en", NewStub());
 
             Assert.Equal("安装包制作助手", zh.S("App.Title"));
             Assert.Equal("Installer Builder", en.S("App.Title"));
@@ -641,6 +730,28 @@ namespace Installer.Core.Tests
                 Assert.True(kv.Value.ContainsKey("zh-Hans"), kv.Key + " 缺少中文");
                 Assert.True(kv.Value.ContainsKey("en"), kv.Key + " 缺少英文");
             }
+        }
+        [Fact]
+        public void 换启动程序时产品名应跟着变()
+        {
+            // 用户反馈：打开制作软件后换「启动程序」，产品名称不再跟着变。
+            // 场景：工程里已经带了名字（= 上次自动填的），用户换了 exe → 应该跟着换。
+            Assert.Equal("新程序",
+                BuilderPresenter.ResolveAutoName("老程序", "老程序", "新程序", false));
+
+            // 名字还是空的 → 直接填
+            Assert.Equal("新程序",
+                BuilderPresenter.ResolveAutoName("", null, "新程序", false));
+
+            // 用户自己敲过名字（和上次自动填的不一样）→ 一个字符都不碰
+            Assert.Null(BuilderPresenter.ResolveAutoName("我自己起的名", "老程序", "新程序", false));
+
+            // 勾了「跟随」→ 无条件覆盖
+            Assert.Equal("新程序",
+                BuilderPresenter.ResolveAutoName("我自己起的名", null, "新程序", true));
+
+            // 推导不出名字 → 不动
+            Assert.Null(BuilderPresenter.ResolveAutoName("老程序", "老程序", "  ", false));
         }
     }
 }

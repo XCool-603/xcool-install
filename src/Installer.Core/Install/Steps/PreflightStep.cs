@@ -60,6 +60,14 @@ namespace Installer.Core.Install
                 throw new InstallException(Id, "安装目录不能是驱动器根目录：" + dir);
             }
 
+            // 盘符都不存在：要么是外置盘没插，要么是制作机上配的路径照搬过来了。
+            // 必须在这里说清楚 —— 否则会一路失败到"解压"那一步，报一句看不懂的系统错误。
+            if (!string.IsNullOrEmpty(root) && !Directory.Exists(root))
+            {
+                throw new InstallException(Id,
+                    "安装位置所在的磁盘不存在：" + root + "\r\n请换一个安装位置后重试。");
+            }
+
             var windows = ctx.Platform.Environment.GetFolder(SpecialFolderKind.System);
             if (!string.IsNullOrEmpty(windows) && SafePath.IsWithin(windows, dir))
             {
@@ -101,7 +109,7 @@ namespace Installer.Core.Install
                 if (old != null && !string.IsNullOrEmpty(old.ProductVersion))
                 {
                     var cmp = CompareVersions(old.ProductVersion, ctx.Manifest.Product.Version);
-                    if (cmp > 0 && ctx.Mode == InstallMode.Install)
+                    if (cmp > 0 && ctx.Mode == InstallMode.Install && !ctx.AllowDowngrade)
                     {
                         throw new InstallException(Id, string.Format(CultureInfo.InvariantCulture,
                             "已安装更高版本（{0} > {1}）。如需降级请先卸载。",

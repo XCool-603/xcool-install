@@ -205,6 +205,63 @@ namespace Installer.Core.Tests
         }
 
         [Fact]
+        public void 勾了始终提权时提示应改口说运行时是管理员()
+        {
+            // 用户实测反馈：包本身是"所有用户 + 始终请求管理员权限"，
+            // 程序运行时就是管理员，往安装目录写东西并不会失败 ——
+            // 提示却还在说"普通用户写不进去，建议改成 %LOCALAPPDATA%"，属于瞎报。
+            WithSourceDir(dir =>
+            {
+                Directory.CreateDirectory(Path.Combine(dir, "Conf"));
+                File.WriteAllText(Path.Combine(dir, "App.exe"), "x");
+
+                var text = InstallDirWriteHeuristic.Describe(dir, true, alwaysElevate: true);
+
+                Assert.NotNull(text);
+                Assert.Contains("始终请求管理员权限", text);
+                // 仍然给出"换目录"这个选项，但要说清"通常没问题"
+                Assert.Contains("%LOCALAPPDATA%", text);
+                Assert.Contains("自己的清单", text);
+            });
+        }
+
+        [Fact]
+        public void 未勾始终提权时应建议勾上()
+        {
+            WithSourceDir(dir =>
+            {
+                Directory.CreateDirectory(Path.Combine(dir, "Conf"));
+                File.WriteAllText(Path.Combine(dir, "App.exe"), "x");
+
+                var text = InstallDirWriteHeuristic.Describe(dir, true, alwaysElevate: false);
+
+                Assert.NotNull(text);
+                Assert.Contains("勾上「始终请求管理员权限」", text);
+            });
+        }
+
+        [Fact]
+        public void 卸载时目录写不进去也要提权()
+        {
+            // 用户可以在向导里点着路径 chip 把"仅当前用户"的包装进 Program Files ——
+            // 这种组合下卸载同样需要管理员，否则删文件全部失败（"卸载成功但文件还在"）。
+            Assert.True(ElevationRules.UninstallNeedsAdmin(InstallScopes.PerUser, "HKCU\\X", false));
+        }
+
+        [Fact]
+        public void 卸载时目录可写且键在HKCU就不用提权()
+        {
+            Assert.False(ElevationRules.UninstallNeedsAdmin(InstallScopes.PerUser, "HKCU\\X", true));
+        }
+
+        [Fact]
+        public void 所有用户安装的卸载一律要提权()
+        {
+            Assert.True(ElevationRules.UninstallNeedsAdmin(InstallScopes.PerMachine, "HKCU\\X", true));
+            Assert.True(ElevationRules.UninstallNeedsAdmin(InstallScopes.PerUser, "HKLM\\X", true));
+        }
+
+        [Fact]
         public void 目录不存在时体检不抛异常()
         {
             var missing = Path.Combine(Path.GetTempPath(), "wm-none-" + Guid.NewGuid().ToString("N"));
@@ -266,13 +323,14 @@ namespace Installer.Core.Tests
             p.Options.AllUsers = true;
             p.ApplyScopeDefaultDir();
 
-            Assert.Equal(Environment.ExpandEnvironmentVariables(@"%ProgramFiles%\测试产品"),
+            // 目录规则是「根\厂商\产品」—— TestManifest 里厂商是"唯非工作室"
+            Assert.Equal(Environment.ExpandEnvironmentVariables(@"%ProgramFiles%\唯非工作室\测试产品"),
                 p.Options.InstallDir);
 
             p.Options.AllUsers = false;
             p.ApplyScopeDefaultDir();
 
-            Assert.Equal(Environment.ExpandEnvironmentVariables(@"%LOCALAPPDATA%\Programs\测试产品"),
+            Assert.Equal(Environment.ExpandEnvironmentVariables(@"%LOCALAPPDATA%\Programs\唯非工作室\测试产品"),
                 p.Options.InstallDir);
         }
 
@@ -572,6 +630,22 @@ namespace Installer.Core.Tests
                 {
                 }
             }
+        }
+        [Fact]
+        public void 安装包要求管理员时提示要说明提权的只是安装过程()
+        {
+            WithSourceDir(dir =>
+            {
+                Directory.CreateDirectory(Path.Combine(dir, "Log"));
+
+                var text = InstallDirWriteHeuristic.Describe(dir, allUsers: false, alwaysElevate: false,
+                    requireAdministrator: true);
+
+                Assert.NotNull(text);
+                // 用户反馈：都设成管理员了为什么还提示 —— 提示必须解释"程序运行时仍是普通权限"
+                Assert.Contains("普通权限", text);
+                Assert.Contains("%LOCALAPPDATA%", text);
+            });
         }
     }
 }

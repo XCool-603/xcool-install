@@ -201,9 +201,19 @@ namespace Installer.Runtime
                 logger.Info("平台：" + (options.SandboxRoot != null ? "沙箱 " + options.SandboxRoot : "真实系统") +
                             "；语言：" + text.Culture);
 
+                // 静默安装的控制台进度：只打**步骤**（Percent >= 0）。
+                // 逐文件上报（Percent = -1）在静默模式下没意义，几百行刷屏反而看不清走到哪一步。
                 var progress = options.Silent
-                    ? new Progress<InstallProgress>(p => Console.WriteLine(
-                        string.Format(CultureInfo.InvariantCulture, "  [{0,3}] {1}", p.Percent, p.Message)))
+                    ? new Progress<InstallProgress>(p =>
+                    {
+                        if (p.Percent < 0)
+                        {
+                            return;
+                        }
+
+                        Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "  [{0,3}] {1}",
+                            p.Percent, p.Message));
+                    })
                     : null;
 
                 var engine = new InstallEngine();
@@ -269,8 +279,9 @@ namespace Installer.Runtime
                     return false;
                 }
 
-                if (string.Equals(Path.GetFileName(selfPath), "Uninstall.exe",
-                                  StringComparison.OrdinalIgnoreCase))
+                var selfName = Path.GetFileName(selfPath);
+                if (string.Equals(selfName, InstallRecord.UninstallerFileName, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(selfName, InstallRecord.MenuUninstallerFileName, StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
                 }
@@ -323,8 +334,17 @@ namespace Installer.Runtime
             logger.Info("=== 开始卸载 " + record.ProductCode + " ← " + record.InstallDir + " ===");
 
             var progress = options.Silent
-                ? new Progress<InstallProgress>(p => Console.WriteLine(
-                    string.Format(CultureInfo.InvariantCulture, "  [{0,3}] {1}", p.Percent, p.Message)))
+                ? new Progress<InstallProgress>(p =>
+                {
+                    // 只打步骤级进度；逐文件上报（Percent = -1）在静默模式下不刷屏
+                    if (p.Percent < 0)
+                    {
+                        return;
+                    }
+
+                    Console.WriteLine(string.Format(CultureInfo.InvariantCulture, "  [{0,3}] {1}",
+                        p.Percent, p.Message));
+                })
                 : null;
 
             var result = new UninstallEngine().Run(record, platform, progress);
@@ -345,8 +365,13 @@ namespace Installer.Runtime
                 blockedFiles = result.BlockedPaths,
             });
 
-            // 卸载器自己还在安装目录里，删不掉自己 —— 复制到 %TEMP% 让副本收尾
-            if (result.Success)
+            // 卸载器自己还在安装目录里，删不掉自己 —— 复制到 %TEMP% 让副本收尾。
+            //
+            // 条件不能只看 Success：被占用而删不掉的文件会进 BlockedPaths，
+            // 那种情况 Success 已经是 false（没提权时登记不了"重启后删除"更是必然 false），
+            // 但**副本能删掉它们**（它不加载安装目录里的同名 DLL，且等本进程退出后才动手）。
+            // 只看 Success 的后果：非提权环境下那个 DLL 和整个产品目录永远留在那里。
+            if (result.Success || result.BlockedPaths.Count > 0)
             {
                 try
                 {
@@ -424,7 +449,7 @@ namespace Installer.Runtime
                 requiresRestart = result.RequiresRestart,
             });
 
-            if (result.Success)
+            if (result.Success || result.BlockedPaths.Count > 0)
             {
                 try
                 {
@@ -465,7 +490,7 @@ namespace Installer.Runtime
         // 可以穷举测试（这台验证机 UAC 是关的，弹不出 UAC 就只能靠单测覆盖决策）。
         // 这里只负责"判完之后真的重启自己"。
 
-        /// <summary>卸载是否需要管理员（卸载键在 HKLM，或安装范围是所有用户）。</summary>
+        /// <summary>卸载是否需要管理员（卸载键在 HKLM、scope 所有用户、或安装目录写不进去）。</summary>
         private static bool NeedsElevationForUninstall(InstallRecord record)
         {
             if (record == null)
@@ -473,14 +498,11 @@ namespace Installer.Runtime
                 return false;
             }
 
-            if (string.Equals(record.Scope, InstallScopes.PerMachine, StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
+            // 目录写不进去也算（"仅当前用户"却装到 Program Files 的组合）：
+            // 不提权的话删文件会全部失败，用户看到的是"卸载成功但文件还在"。
+            var writable = ElevationProbe.CanWrite(record.InstallDir);
 
-            var key = record.UninstallKeyPath ?? string.Empty;
-            return key.IndexOf("HKLM", StringComparison.OrdinalIgnoreCase) >= 0
-                   || key.IndexOf("LocalMachine", StringComparison.OrdinalIgnoreCase) >= 0;
+            return ElevationRules.UninstallNeedsAdmin(record.Scope, record.UninstallKeyPath, writable);
         }
 
         /// <summary>当前进程是不是管理员。</summary>
@@ -736,16 +758,17 @@ namespace Installer.Runtime
 
             System.Threading.Thread.Sleep(300);
 
-            // 只删**卸载器自己留下的**残留物。
-            // 绝不递归删整个目录 —— 那是现状 FrmUnInstall.cs:232-257 的做法，
-            // 会把用户放在安装目录里的数据一并抹掉。真正属于程序的文件由
-            // UninstallEngine 按安装记录精确删除，这里只负责"运行中的 exe 删不掉自己"。
+            // 这一步只负责"运行中的 exe 删不掉自己"以及它带出来的锁。
+            // 整个产品目录的清空是 UninstallEngine.WipeProductDirectory 在卸载时做的
+            // （安装目录已经分层成「根\厂商\产品」，是我们独占的目录）；
+            // 这里等主进程退出后把**剩下的空目录/厂商目录**收干净，作为第二道防线。
             var dir = options.CleanupDir;
             if (Directory.Exists(dir))
             {
                 var leftovers = new[]
                 {
-                    Path.Combine(dir, "Uninstall.exe"),
+                    Path.Combine(dir, InstallRecord.UninstallerFileName),
+                    Path.Combine(dir, InstallRecord.MenuUninstallerFileName),
                     InstallRecord.GetPath(dir),
                     Path.Combine(dir, ".install.log"),
                     Path.Combine(dir, ".install-journal.jsonl"),
@@ -823,18 +846,21 @@ namespace Installer.Runtime
                 }
 
                 // 自底向上删空目录（非空的一律保留）
-                foreach (var sub in Directory.GetDirectories(dir, "*", SearchOption.AllDirectories)
-                                             .OrderByDescending(d => d.Length))
+                if (Directory.Exists(dir))
                 {
-                    try
+                    foreach (var sub in Directory.GetDirectories(dir, "*", SearchOption.AllDirectories)
+                                                 .OrderByDescending(d => d.Length))
                     {
-                        if (Directory.GetFileSystemEntries(sub).Length == 0)
+                        try
                         {
-                            Directory.Delete(sub, false);
+                            if (Directory.GetFileSystemEntries(sub).Length == 0)
+                            {
+                                Directory.Delete(sub, false);
+                            }
                         }
-                    }
-                    catch (IOException)
-                    {
+                        catch (IOException)
+                        {
+                        }
                     }
                 }
 
@@ -846,6 +872,33 @@ namespace Installer.Runtime
                     }
                 }
                 catch (IOException)
+                {
+                }
+            }
+
+            // 产品目录已经清空了 —— 顺手把空出来的**厂商目录**也回收掉，
+            // 否则每卸一个产品就在 Program Files 下留一个空壳。
+            //
+            // 注意：这段必须放在 `if (Directory.Exists(dir))` **外面**。
+            // 产品目录常常是上面的 --pending 循环（本进程删不掉、交给副本重试的那批路径）
+            // 才删掉的，那时 `Directory.Exists(dir)` 已经是 false，
+            // 写在里面就永远不会执行 —— 实测就是这样留下一层空的厂商目录。
+            if (!string.IsNullOrEmpty(dir))
+            {
+                try
+                {
+                    var parent = Path.GetDirectoryName(dir.TrimEnd('\\', '/'));
+                    if (!string.IsNullOrEmpty(parent) && Directory.Exists(parent) &&
+                        !Installer.Abstractions.Model.InstallPaths.IsSharedRoot(parent) &&
+                        Directory.GetFileSystemEntries(parent).Length == 0)
+                    {
+                        Directory.Delete(parent, false);
+                    }
+                }
+                catch (IOException)
+                {
+                }
+                catch (UnauthorizedAccessException)
                 {
                 }
             }
@@ -907,6 +960,14 @@ namespace Installer.Runtime
 
             using (var form = new Installer.UI.Forms.WizardForm(manifest, host, installDir, options.Culture))
             {
+                // 已经装过同一产品 → 走「更新」流程：跳过「安装设置」页，
+                // 改显示「当前已安装 X / 将要安装 Y」，按钮变「更新 / 重新安装 / 仍要安装」。
+                var installed = DetectInstalled(options, manifest, installDir);
+                if (installed != null)
+                {
+                    form.SetInstalled(installed);
+                }
+
                 // 提权重启后的续跑：把上次的选择原样恢复，并直接停在「安装位置」页。
                 // 用户已经确认过许可协议、勾过选项，不能让他重来一遍。
                 if (resume != null)
@@ -931,6 +992,103 @@ namespace Installer.Runtime
             });
 
             return host.ExitCode;
+        }
+
+        /// <summary>
+        /// 找"这台电脑上已经装着的同一个产品"。
+        ///
+        /// 两条路，按可靠性排序：
+        /// <list type="number">
+        /// <item>目标目录里的 <c>.install-record.json</c> —— 最准，版本和目录都在里面；</item>
+        /// <item>标准卸载键（按 productCode）的 <c>InstallLocation</c> —— 用户上次装到了别的目录、
+        ///       或者新包的默认目录变了时靠它兜住。</item>
+        /// </list>
+        /// 找不到返回 null（全新安装）。
+        /// </summary>
+        private static Installer.UI.Models.InstalledProduct DetectInstalled(
+            RuntimeOptions options, InstallerManifest manifest, string installDir)
+        {
+            var local = TryReadInstalled(installDir);
+            if (local != null)
+            {
+                return local;
+            }
+
+            var code = manifest == null ? null : manifest.ProductCode;
+            if (string.IsNullOrWhiteSpace(code))
+            {
+                return null;
+            }
+
+            try
+            {
+                var platform = CreatePlatform(options);
+                var sub = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\" + code;
+
+                foreach (var hive in new[] { RegistryRoot.CurrentUser, RegistryRoot.LocalMachine })
+                {
+                    if (!platform.Registry.SubKeyExists(hive, sub))
+                    {
+                        continue;
+                    }
+
+                    var location = platform.Registry.GetString(hive, sub, "InstallLocation");
+                    if (string.IsNullOrWhiteSpace(location))
+                    {
+                        continue;
+                    }
+
+                    var fromRecord = TryReadInstalled(location);
+                    if (fromRecord != null)
+                    {
+                        return fromRecord;
+                    }
+
+                    var version = platform.Registry.GetString(hive, sub, "DisplayVersion");
+                    if (!string.IsNullOrWhiteSpace(version))
+                    {
+                        return new Installer.UI.Models.InstalledProduct
+                        {
+                            Version = version,
+                            InstallDir = location,
+                        };
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // 读注册表失败不影响安装：按全新安装处理
+            }
+
+            return null;
+        }
+
+        /// <summary>读某个目录里的安装记录，转成"已安装产品"。</summary>
+        internal static Installer.UI.Models.InstalledProduct TryReadInstalled(string dir)
+        {
+            if (string.IsNullOrWhiteSpace(dir))
+            {
+                return null;
+            }
+
+            try
+            {
+                var record = UninstallEngine.LoadRecord(dir);
+                if (record == null || string.IsNullOrWhiteSpace(record.ProductVersion))
+                {
+                    return null;
+                }
+
+                return new Installer.UI.Models.InstalledProduct
+                {
+                    Version = record.ProductVersion,
+                    InstallDir = string.IsNullOrWhiteSpace(record.InstallDir) ? dir : record.InstallDir,
+                };
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         /// <summary>走卸载向导。</summary>
@@ -972,7 +1130,7 @@ namespace Installer.Runtime
             // 向导卸载（RunUninstallWizard）里没有。于是 e2e 走 --silent 全绿，
             // 而用户在控制面板点"卸载"（走向导）就会永久残留 Uninstall.exe。
             var cleanupScheduled = false;
-            if (host.UninstallCompleted)
+            if (host.UninstallCompleted || host.BlockedPaths.Count > 0)
             {
                 try
                 {
@@ -1103,7 +1261,8 @@ namespace Installer.Runtime
 
             if (string.IsNullOrWhiteSpace(dir) && !string.IsNullOrEmpty(options.SandboxRoot))
             {
-                dir = Path.Combine(options.SandboxRoot, "Programs", SafePathSanitize(productName));
+                dir = Installer.Abstractions.Model.InstallPaths.Compose(
+                    Path.Combine(options.SandboxRoot, "Programs"), VendorNameOf(manifest), productName);
             }
 
             if (string.IsNullOrWhiteSpace(dir))
@@ -1113,16 +1272,79 @@ namespace Installer.Runtime
 
             if (string.IsNullOrWhiteSpace(dir))
             {
-                dir = Path.Combine(platform.Environment.GetFolder(SpecialFolderKind.LocalApplicationData),
-                    "Programs", SafePathSanitize(productName));
+                // 清单里没写默认目录（老包 / 手写清单）：落到「根\厂商\产品」，
+                // 而不是「根\产品」—— 层级规则只有一份，就是 InstallPaths。
+                dir = Installer.Abstractions.Model.InstallPaths.Compose(
+                    Installer.Abstractions.Model.InstallPaths.PerUserRoot,
+                    VendorNameOf(manifest),
+                    productName);
             }
 
-            return Path.GetFullPath(platform.Environment.ExpandEnvironmentVariables(dir));
+            // 制作机上配的根目录（比如 D:\Program Files）在这台机器上可能根本不存在。
+            var expanded = platform.Environment.ExpandEnvironmentVariables(dir);
+            expanded = ApplyMissingRootFallback(expanded, manifest, VendorNameOf(manifest), productName, platform);
+
+            return Path.GetFullPath(expanded);
         }
 
-        private static string SafePathSanitize(string name)
+        /// <summary>
+        /// 安装根盘符在这台机器上不存在时，退回到系统默认根目录。
+        ///
+        /// 为什么要这一层：安装包是在**制作机**上生成的。制作机上可能有 D 盘，
+        /// 于是根目录被填成 <c>D:\Program Files</c>；装到一台没有 D 盘的机器上，
+        /// 这条路根本创建不出来（以前会一路失败到解压那一步，错误信息还看不出原因）。
+        ///
+        /// 回退目标：
+        /// <list type="bullet">
+        /// <item>perMachine → <c>%ProgramFiles%</c>（安装器是 x86 进程，展开即
+        /// <c>C:\Program Files (x86)</c>，与「所有用户」语义一致）</item>
+        /// <item>perUser → <c>%LOCALAPPDATA%\Programs</c></item>
+        /// </list>
+        /// 厂商 / 产品两层会重新拼上，不会退化成裸根目录。
+        /// </summary>
+        /// <param name="expandedDir">已展开环境变量的安装目录。</param>
+        /// <param name="manifest">清单（只用来判 scope）。</param>
+        /// <param name="vendorName">厂商名（可空）。</param>
+        /// <param name="productName">产品名。</param>
+        /// <param name="platform">平台服务（要环境变量展开与日志）。</param>
+        internal static string ApplyMissingRootFallback(string expandedDir, InstallerManifest manifest,
+                                                       string vendorName, string productName,
+                                                       IPlatformServices platform)
         {
-            return Installer.Core.Security.SafePath.SanitizeFileName(name);
+            if (string.IsNullOrWhiteSpace(expandedDir) || platform == null)
+            {
+                return expandedDir;
+            }
+
+            var root = Path.GetPathRoot(expandedDir);
+            if (string.IsNullOrEmpty(root) || Directory.Exists(root))
+            {
+                return expandedDir;
+            }
+
+            var allUsers = string.Equals(manifest == null ? null : manifest.Scope, InstallScopes.PerMachine,
+                StringComparison.OrdinalIgnoreCase);
+
+            var fallbackRoot = platform.Environment.ExpandEnvironmentVariables(
+                Installer.Abstractions.Model.InstallPaths.Root(allUsers));
+
+            platform.Log.Warn(string.Format(CultureInfo.InvariantCulture,
+                "安装位置所在磁盘 {0} 不存在，回退到 {1}。", root, fallbackRoot));
+
+            return Installer.Abstractions.Model.InstallPaths.Compose(fallbackRoot, vendorName, productName);
+        }
+
+        /// <summary>清单里的厂商名（按默认语言取；没填返回空串 = 不建厂商层级）。</summary>
+        private static string VendorNameOf(InstallerManifest manifest)
+        {
+            if (manifest == null || manifest.Product == null)
+            {
+                return string.Empty;
+            }
+
+            return Installer.Abstractions.Model.InstallPaths.SanitizeOrEmpty(
+                Installer.Abstractions.Model.InstallPaths.PickText(
+                    manifest.Product.Publisher, null, manifest.DefaultCulture));
         }
 
         private static string GetSelfPath()

@@ -31,10 +31,12 @@ namespace Installer.UI.Views
             this.brandPanel = new AntdUI.Panel();
             this.iconPanel = new AntdUI.Panel();
             this.lblIcon = new AntdUI.Label();
+            this.picIcon = new System.Windows.Forms.PictureBox();
             this.lblProduct = new AntdUI.Label();
             this.lblSubtitle = new AntdUI.Label();
             this.brandPanel.SuspendLayout();
             this.iconPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picIcon)).BeginInit();
             this.SuspendLayout();
             //
             // brandPanel —— 蓝色品牌区，上方两角随卡片圆角
@@ -61,13 +63,18 @@ namespace Installer.UI.Views
             //
             // iconPanel —— 56x56 圆角块（白 18% 叠在品牌蓝上）
             //
+            this.brandPanel.Controls.Add(this.picIcon);
             this.iconPanel.Controls.Add(this.lblIcon);
             this.iconPanel.Location = new System.Drawing.Point(32, 24);
             this.iconPanel.Margin = new System.Windows.Forms.Padding(0);
             this.iconPanel.Name = "iconPanel";
+            // 不要描边：默认 1px 边框落在深色品牌区上就是一圈白边
+            this.iconPanel.BorderWidth = 0F;
             this.iconPanel.Radius = 16;
             this.iconPanel.Size = new System.Drawing.Size(56, 56);
             this.iconPanel.TabIndex = 0;
+            // 不再用白底圆角块：图标直接画在品牌区上（用户要求"别加纯色背景"）
+            this.iconPanel.Visible = false;
             //
             // lblIcon —— 白色立方体（产品图标占位）
             //
@@ -85,6 +92,20 @@ namespace Installer.UI.Views
             this.lblIcon.TabIndex = 0;
             this.lblIcon.Text = " ";
             //
+            // picIcon —— **产品自己的图标**（取安装包 exe 的图标，也就是制作端选的那个）
+            //
+            // 以前这里只有一个白色立方体占位图，用户看到的是"每个安装包都是同一个方块"。
+            // 现在优先显示真实图标；取不到图标时退回立方体（lblIcon）。
+            this.picIcon.BackColor = System.Drawing.Color.Transparent;
+            this.picIcon.Location = new System.Drawing.Point(36, 28);
+            this.picIcon.Margin = new System.Windows.Forms.Padding(0);
+            this.picIcon.Name = "picIcon";
+            this.picIcon.Size = new System.Drawing.Size(48, 48);
+            this.picIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.picIcon.TabIndex = 3;
+            this.picIcon.TabStop = false;
+            this.picIcon.Visible = false;
+            //
             // lblProduct —— 产品名 20px = 15pt SemiBold 白
             //
             this.lblProduct.AutoSize = true;
@@ -92,6 +113,8 @@ namespace Installer.UI.Views
             this.lblProduct.Location = new System.Drawing.Point(104, 26);
             this.lblProduct.Margin = new System.Windows.Forms.Padding(0);
             this.lblProduct.Name = "lblProduct";
+            // 品牌区上的标题必须是白字（以前没设 ForeColor，默认黑色 → 蓝底黑字）
+            this.lblProduct.ForeColor = System.Drawing.Color.White;
             this.lblProduct.Size = new System.Drawing.Size(200, 26);
             this.lblProduct.TabIndex = 1;
             this.lblProduct.Text = "产品名称";
@@ -119,6 +142,7 @@ namespace Installer.UI.Views
             this.brandPanel.ResumeLayout(false);
             this.brandPanel.PerformLayout();
             this.iconPanel.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.picIcon)).EndInit();
             this.ResumeLayout(false);
         }
 
@@ -127,6 +151,7 @@ namespace Installer.UI.Views
         private AntdUI.Panel brandPanel;
         private AntdUI.Panel iconPanel;
         private AntdUI.Label lblIcon;
+        private System.Windows.Forms.PictureBox picIcon;
         private AntdUI.Label lblProduct;
         private AntdUI.Label lblSubtitle;
     }

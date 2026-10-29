@@ -231,7 +231,7 @@
             this.chip1.Margin = new System.Windows.Forms.Padding(0);
             this.chip1.Name = "chip1";
             this.chip1.Radius = 8;
-            this.chip1.Size = new System.Drawing.Size(121, 30);
+            this.chip1.Size = new System.Drawing.Size(172, 30);
             this.chip1.TabIndex = 7;
             this.chip1Icon.AutoSize = false;
             this.chip1Icon.BackColor = System.Drawing.Color.Transparent;
@@ -253,17 +253,17 @@
             this.chip1Text.Location = new System.Drawing.Point(36, 7);
             this.chip1Text.Margin = new System.Windows.Forms.Padding(0);
             this.chip1Text.Name = "chip1Text";
-            this.chip1Text.Size = new System.Drawing.Size(73, 18);
+            this.chip1Text.Size = new System.Drawing.Size(124, 18);
             this.chip1Text.TabIndex = 1;
-            this.chip1Text.Text = "Program Files";
+            this.chip1Text.Text = "C:\\Program Files (x86)";
             this.chip2.Controls.Add(this.chip2Text);
             this.chip2.Controls.Add(this.chip2Icon);
             this.chip2.Back = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(247)))), ((int)(((byte)(250)))));
-            this.chip2.Location = new System.Drawing.Point(129, 224);
+            this.chip2.Location = new System.Drawing.Point(180, 224);
             this.chip2.Margin = new System.Windows.Forms.Padding(0);
             this.chip2.Name = "chip2";
             this.chip2.Radius = 8;
-            this.chip2.Size = new System.Drawing.Size(151, 30);
+            this.chip2.Size = new System.Drawing.Size(110, 30);
             this.chip2.TabIndex = 8;
             this.chip2Icon.AutoSize = false;
             this.chip2Icon.BackColor = System.Drawing.Color.Transparent;
@@ -283,17 +283,17 @@
             this.chip2Text.Location = new System.Drawing.Point(36, 7);
             this.chip2Text.Margin = new System.Windows.Forms.Padding(0);
             this.chip2Text.Name = "chip2Text";
-            this.chip2Text.Size = new System.Drawing.Size(103, 18);
+            this.chip2Text.Size = new System.Drawing.Size(58, 18);
             this.chip2Text.TabIndex = 1;
-            this.chip2Text.Text = "Program Files (x86)";
+            this.chip2Text.Text = "AppData";
             this.chip3.Controls.Add(this.chip3Text);
             this.chip3.Controls.Add(this.chip3Icon);
             this.chip3.Back = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(247)))), ((int)(((byte)(250)))));
-            this.chip3.Location = new System.Drawing.Point(288, 224);
+            this.chip3.Location = new System.Drawing.Point(298, 224);
             this.chip3.Margin = new System.Windows.Forms.Padding(0);
             this.chip3.Name = "chip3";
             this.chip3.Radius = 8;
-            this.chip3.Size = new System.Drawing.Size(119, 30);
+            this.chip3.Size = new System.Drawing.Size(172, 30);
             this.chip3.TabIndex = 9;
             this.chip3Icon.AutoSize = false;
             this.chip3Icon.BackColor = System.Drawing.Color.Transparent;
@@ -313,9 +313,9 @@
             this.chip3Text.Location = new System.Drawing.Point(36, 7);
             this.chip3Text.Margin = new System.Windows.Forms.Padding(0);
             this.chip3Text.Name = "chip3Text";
-            this.chip3Text.Size = new System.Drawing.Size(71, 18);
+            this.chip3Text.Size = new System.Drawing.Size(124, 18);
             this.chip3Text.TabIndex = 1;
-            this.chip3Text.Text = "本地 AppData";
+            this.chip3Text.Text = "D:\\Program Files (x86)";
             this.chip4.Controls.Add(this.chip4Text);
             this.chip4.Controls.Add(this.chip4Icon);
             this.chip4.Back = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(247)))), ((int)(((byte)(250)))));
@@ -325,6 +325,7 @@
             this.chip4.Radius = 8;
             this.chip4.Size = new System.Drawing.Size(137, 30);
             this.chip4.TabIndex = 10;
+            this.chip4.Visible = false;
             this.chip4Icon.AutoSize = false;
             this.chip4Icon.BackColor = System.Drawing.Color.Transparent;
             this.chip4Icon.Font = new System.Drawing.Font("微软雅黑", 9F);
@@ -472,6 +473,7 @@
             //
             // lblInfo —— 条内 (40,13) 520x16，12px = 9pt #0958D9
             //
+            this.lblInfo.AutoEllipsis = true;
             this.lblInfo.AutoSize = false;
             this.lblInfo.BackColor = System.Drawing.Color.Transparent;
             this.lblInfo.Font = new System.Drawing.Font("微软雅黑", 9F);

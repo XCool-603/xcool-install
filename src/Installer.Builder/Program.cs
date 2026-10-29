@@ -184,6 +184,10 @@ namespace Installer.Builder
                     return Fail("工程里没有入口程序（entryPoint），无法生成安装包");
                 }
 
+                // 与界面上的「生成安装包」走**同一套**安装目录规则（根\厂商\产品）。
+                // 不这么做的话，CI 打出来的包和用户点出来的包目录层级不一样。
+                BuilderPresenter.ApplyInstallDirLayout(manifest);
+
                 var resolvedOut = project.Build.OutputPath;
                 if (string.IsNullOrEmpty(resolvedOut))
                 {
@@ -201,6 +205,8 @@ namespace Installer.Builder
                     OutputPath = resolvedOut,
                     IconPath = string.IsNullOrWhiteSpace(icon) ? null : icon,
                     SkipIconPatch = string.IsNullOrWhiteSpace(icon),
+                    // 无头构建默认也要求管理员；自动化里可用 --no-require-admin 关掉
+                    RequireAdministrator = !HasFlag(args, "--no-require-admin"),
                     PackerVersion = service.PackerVersion,
                 }, null);
 

@@ -86,6 +86,21 @@ namespace Installer.Abstractions.Install
         /// <summary>0–100；未知为 -1。</summary>
         public int Percent { get; set; }
 
+        /// <summary>正在处理的文件（相对路径，如 <c>bin\App.exe</c>）；没有具体文件时为 null。</summary>
+        public string CurrentFile { get; set; }
+
+        /// <summary>已处理的文件数（安装=已解压，卸载=已删除）。</summary>
+        public int FilesDone { get; set; }
+
+        /// <summary>要处理的文件总数。</summary>
+        public int FilesTotal { get; set; }
+
+        /// <summary>已处理的字节数。</summary>
+        public long BytesDone { get; set; }
+
+        /// <summary>要处理的字节总数。</summary>
+        public long BytesTotal { get; set; }
+
         /// <summary>是否处于回滚中。</summary>
         public bool IsRollingBack { get; set; }
     }
@@ -174,6 +189,14 @@ namespace Installer.Abstractions.Install
         /// </summary>
         public List<string> LegacyRegistryKeys { get; set; } = new List<string>();
 
+        /// <summary>
+        /// 允许降级安装（要装的版本比已安装的**低**）。
+        ///
+        /// 默认 false：预检会拦住降级。只有用户在向导的「更新信息」页里明确点了
+        /// 「仍要安装」之后，宿主才会把它置为 true —— 静默安装不会自动降级。
+        /// </summary>
+        public bool AllowDowngrade { get; set; }
+
         /// <summary>是否只校验不落盘（试运行）。</summary>
         public bool DryRun { get; set; }
 
@@ -191,6 +214,15 @@ namespace Installer.Abstractions.Install
 
         /// <summary>沙箱根目录（非沙箱安装为 null）。会被写进安装记录。</summary>
         public string SandboxRoot { get; set; }
+
+        /// <summary>
+        /// 逐文件进度上报口（可为 null）。
+        ///
+        /// 引擎在每个步骤开始时会把它设进来，步骤（解压/删文件）据此上报
+        /// "正在处理哪个文件、已处理几个、已处理多少字节" —— 界面上的
+        /// 「已解压文件 12 / 199」「正在写入 bin\App.exe」就是靠它。
+        /// </summary>
+        public IProgress<InstallProgress> Progress { get; set; }
 
         /// <summary>取消令牌。</summary>
         public System.Threading.CancellationToken CancellationToken { get; set; }

@@ -53,11 +53,19 @@ namespace Installer.Core.Install
 
             foreach (var spec in ctx.Manifest.Shortcuts)
             {
-                var folder = ResolveFolder(ctx, spec.Location);
+                var folder = StandardSteps.ShortcutFolder(ctx, spec.Location);
                 if (folder == null)
                 {
                     ctx.Log.Warn("未知的快捷方式位置，跳过：" + spec.Location);
                     continue;
+                }
+
+                // 开始菜单的条目统一放进「产品文件夹」——平铺在开始菜单根上的第二条
+                // 常常不出现在「所有应用」里（见 StandardSteps.StartMenuProductFolder 的注释）。
+                if (string.Equals(spec.Location, "StartMenu", StringComparison.OrdinalIgnoreCase))
+                {
+                    folder = StandardSteps.StartMenuProductFolder(ctx) ?? folder;
+                    JournalWriter.EnsureDirectory(ctx, Id, folder, null);
                 }
 
                 var displayName = StandardSteps.Localized(spec.Name, ctx, StandardSteps.ProductName(ctx));
@@ -82,26 +90,6 @@ namespace Installer.Core.Install
 
                 ctx.Log.Info("已创建快捷方式：" + linkPath);
             }
-        }
-
-        private static string ResolveFolder(InstallContext ctx, string location)
-        {
-            if (string.Equals(location, "Desktop", StringComparison.OrdinalIgnoreCase))
-            {
-                return ctx.Platform.Environment.GetFolder(SpecialFolderKind.Desktop);
-            }
-
-            if (string.Equals(location, "StartMenu", StringComparison.OrdinalIgnoreCase))
-            {
-                return ctx.Platform.Environment.GetFolder(SpecialFolderKind.StartMenu);
-            }
-
-            if (string.Equals(location, "Startup", StringComparison.OrdinalIgnoreCase))
-            {
-                return ctx.Platform.Environment.GetFolder(SpecialFolderKind.Startup);
-            }
-
-            return null;
         }
     }
 

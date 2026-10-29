@@ -85,7 +85,7 @@ namespace Installer.Core.Install
                 ? StandardSteps.Localized(ctx.Manifest.Product.Publisher, ctx, null)
                 : null;
 
-            var uninstaller = Path.Combine(ctx.InstallDir, "Uninstall.exe");
+            var uninstaller = Path.Combine(ctx.InstallDir, InstallRecord.UninstallerFileName);
 
             foreach (var name in names)
             {

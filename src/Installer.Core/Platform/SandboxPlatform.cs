@@ -231,6 +231,20 @@ namespace Installer.Core.Platform
                 case SpecialFolderKind.ProgramFiles:
                     sub = "ProgramFiles";
                     break;
+                // 「所有用户」的快捷方式落点。沙箱里单独一层，免得和当前用户的混在一起 ——
+                // e2e 断言"perMachine 装到公共桌面"要能看到两条不同的路径。
+                case SpecialFolderKind.CommonDesktop:
+                    sub = "CommonDesktop";
+                    break;
+                case SpecialFolderKind.CommonStartMenu:
+                    sub = "CommonStartMenu";
+                    break;
+                case SpecialFolderKind.CommonStartup:
+                    sub = "CommonStartup";
+                    break;
+                case SpecialFolderKind.ProgramFilesX86:
+                    sub = "ProgramFilesX86";
+                    break;
                 case SpecialFolderKind.Temp:
                     sub = "Temp";
                     break;

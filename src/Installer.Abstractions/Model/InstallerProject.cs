@@ -46,6 +46,14 @@ namespace Installer.Abstractions.Model
         [JsonProperty("timestamp", NullValueHandling = NullValueHandling.Ignore, Order = 5)]
         public string Timestamp { get; set; }
 
+        /// <summary>
+        /// 让做出来的安装包**要求管理员权限**（清单 <c>requireAdministrator</c>，双击即弹 UAC）。
+        ///
+        /// 默认 true。关掉就退回 asInvoker：安装器运行时再按需 runas 重启。
+        /// </summary>
+        [JsonProperty("requireAdministrator", NullValueHandling = NullValueHandling.Ignore, Order = 7)]
+        public bool? RequireAdministrator { get; set; }
+
         /// <summary>要注册的 COM 组件（相对源目录的路径）。</summary>
         [JsonProperty("comFiles", NullValueHandling = NullValueHandling.Ignore, Order = 6)]
         public System.Collections.Generic.List<string> ComFiles { get; set; }

@@ -30,6 +30,22 @@ namespace Installer.Abstractions.Platform
 
         /// <summary>%TEMP%。</summary>
         Temp = 7,
+
+        /// <summary>
+        /// 公共桌面（<c>%PUBLIC%\Desktop</c>）—— **所有用户**安装的快捷方式要放这里。
+        /// 放当前用户桌面的话，别的账号看不到，提权用另一个管理员账号安装时
+        /// 连"装它的那个人"都看不到（用户反馈"勾了桌面快捷方式却没有"）。
+        /// </summary>
+        CommonDesktop = 8,
+
+        /// <summary>公共开始菜单（<c>%ProgramData%\Microsoft\Windows\Start Menu\Programs</c>）。</summary>
+        CommonStartMenu = 9,
+
+        /// <summary>公共「启动」文件夹（所有用户的开机自启）。</summary>
+        CommonStartup = 10,
+
+        /// <summary>%ProgramFiles(x86)%（32 位程序目录）。</summary>
+        ProgramFilesX86 = 11,
     }
 
     /// <summary>注册表配置单元。</summary>

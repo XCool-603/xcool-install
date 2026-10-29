@@ -118,12 +118,16 @@ namespace Installer.Core.Tests
         /// <summary>记录每次创建的目标。</summary>
         public Dictionary<string, string> Targets { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
+        /// <summary>记录每次创建时的启动参数。</summary>
+        public Dictionary<string, string> Arguments { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
         /// <inheritdoc />
         public void Create(string linkPath, string targetPath, string arguments, string workingDirectory,
                            string description, string iconPath)
         {
             Links.Add(linkPath);
             Targets[linkPath] = targetPath;
+            Arguments[linkPath] = arguments ?? string.Empty;
         }
 
         /// <inheritdoc />

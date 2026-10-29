@@ -67,7 +67,7 @@ namespace Installer.Core.Install
 
             var name = StandardSteps.ProductName(ctx);
             var entry = StandardSteps.EntryPointFullPath(ctx);
-            var uninstaller = Path.Combine(ctx.InstallDir, "Uninstall.exe");
+            var uninstaller = Path.Combine(ctx.InstallDir, InstallRecord.UninstallerFileName);
             var estimatedKb = (int)Math.Min(int.MaxValue, ctx.Manifest.Files.Sum(f => f.Size) / 1024);
 
             Set(ctx, hive, subKey, "DisplayName", name);

@@ -14,25 +14,63 @@ namespace Installer.UI.Views
     /// </summary>
     public partial class WizardHeaderView : UserControl
     {
+        /// <summary>线条图的颜色（跟随主色：安装=蓝，卸载=红）。</summary>
+        private Color _glyphColor = WizardTheme.Primary;
+
+        /// <summary>品牌区底色（图标里的结构缝用它画，缝才看不出来）。</summary>
+        private Color _headerBack = WizardTheme.Primary;
+
+        /// <summary>当前是不是卸载向导（决定画包裹还是垃圾桶）。</summary>
+        private bool _uninstall;
         /// <summary>构造。</summary>
         public WizardHeaderView()
         {
             InitializeComponent();
             ApplyAccent(WizardTheme.Primary);
+            ApplyGlyph(false);
+        }
+
+        /// <summary>
+        /// 画品牌区里的图标：**纯色线条图**（安装=向下箭头，卸载=垃圾桶）。
+        ///
+        /// 图标块是白底，线条用主色 —— 蓝底/红底上都对比清楚，也不再受"产品图标太花"影响。
+        /// </summary>
+        public void ApplyGlyph(bool uninstall)
+        {
+            _uninstall = uninstall;
+
+            var old = picIcon.Image;
+            picIcon.Image = HeaderGlyph.Create(uninstall, picIcon.Width, _glyphColor, _headerBack);
+            if (old != null)
+            {
+                old.Dispose();
+            }
+
+            picIcon.Visible = true;
+
+            // 立方体占位图彻底不用了
+            lblIcon.Visible = false;
         }
 
         /// <summary>设置主色（安装 = 蓝，卸载 = 红）。</summary>
         public void ApplyAccent(Color accent)
         {
+            _glyphColor = Color.White;
+            _headerBack = accent;
             brandPanel.Back = accent;
             // 判定性实验：暂时不设 WinForms 的 BackColor
 
-            // 图标块是「白 20% 叠在主色上」，用实色近似（AntdUI.Panel.Back 不吃 alpha）
-            var iconBack = Blend(accent, Color.White, 0.20);
-            iconPanel.Back = iconBack;
+            // 图标直接画在品牌区上：白底圆角块去掉了（用户要求"别加纯色背景"），
+            // 图形用白色实心，蓝底/红底上都清楚。
+
+            // 产品名：品牌区上的标题一律白字（以前没设 ForeColor，默认黑色 → 蓝底黑字）
+            lblProduct.ForeColor = Color.White;
 
             // 副标题比产品名淡一档
             lblSubtitle.ForeColor = Blend(accent, Color.White, 0.78);
+
+            // 主色变了，线条图要跟着重画
+            ApplyGlyph(_uninstall);
         }
 
         /// <summary>刷新文案。</summary>

@@ -70,6 +70,14 @@ namespace Installer.Core.Install
 
             using (var zip = new ZipArchive(ctx.Payload, ZipArchiveMode.Read, true))
             {
+                // 逐文件进度：界面上的「已解压文件 12 / 199」「正在写入 bin\App.exe」靠它。
+                var totalFiles = zip.Entries.Count(e => !e.FullName.EndsWith("/", StringComparison.Ordinal));
+                long totalBytes = zip.Entries
+                    .Where(e => !e.FullName.EndsWith("/", StringComparison.Ordinal))
+                    .Sum(e => e.Length);
+                var doneFiles = 0;
+                long doneBytes = 0;
+
                 foreach (var entry in zip.Entries)
                 {
                     ctx.CancellationToken.ThrowIfCancellationRequested();
@@ -132,6 +140,10 @@ namespace Installer.Core.Install
 
                     extracted.Add(rel);
                     ctx.InstalledFiles.Add(rel);
+
+                    doneFiles++;
+                    doneBytes += entry.Length;
+                    ReportFile(ctx, rel, doneFiles, totalFiles, doneBytes, totalBytes);
                 }
             }
 
@@ -148,6 +160,35 @@ namespace Installer.Core.Install
             }
 
             ctx.Log.Info("已解压 " + extracted.Count + " 个条目。");
+        }
+
+        /// <summary>
+        /// 上报"正在写哪个文件"。
+        ///
+        /// <c>Percent</c> 故意给 -1：进度条按**步骤**推进（14 步各占一段），
+        /// 这里再塞一个 0–100 会把进度条拽回去。界面用
+        /// <c>StepIndex / FilesDone / BytesTotal</c> 自己算条内进度。
+        /// </summary>
+        private static void ReportFile(InstallContext ctx, string rel, int doneFiles, int totalFiles,
+                                       long doneBytes, long totalBytes)
+        {
+            var progress = ctx.Progress;
+            if (progress == null)
+            {
+                return;
+            }
+
+            progress.Report(new InstallProgress
+            {
+                StepId = "extract",
+                Message = "正在解压 " + rel,
+                CurrentFile = rel,
+                FilesDone = doneFiles,
+                FilesTotal = totalFiles,
+                BytesDone = doneBytes,
+                BytesTotal = totalBytes,
+                Percent = -1,
+            });
         }
     }
 

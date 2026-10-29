@@ -279,6 +279,36 @@ namespace Installer.Core.Tests
             Assert.False(m.RunAfterInstall);
         }
 
+        [Fact]
+        public void 清单里勾了四项时_向导默认四项都要勾着()
+        {
+            // 用户实测反馈："制作端选了快捷方式，安装包执行的时候没按选择。"
+            // 事故点在"往界面灌值"那一步（PathView.ApplyOptions），这里同时把
+            // Presenter 这一侧钉住：清单四项 → Options 四项 → 写回清单仍是四项。
+            var m = TestManifest.Create();
+            m.Shortcuts = new List<ShortcutSpec>
+            {
+                new ShortcutSpec { Location = "Desktop", Name = m.Product.Name },
+                new ShortcutSpec { Location = "StartMenu", Name = m.Product.Name },
+            };
+            m.Autostart = true;
+            m.RunAfterInstall = true;
+
+            var table = new StringTable(WizardStrings.Merge(m.Strings), "zh-Hans", m.DefaultCulture);
+            var p = new WizardPresenter(m, table, @"C:\Test\App");
+
+            Assert.True(p.Options.DesktopShortcut);
+            Assert.True(p.Options.StartMenuShortcut);
+            Assert.True(p.Options.Autostart);
+            Assert.True(p.Options.RunAfterInstall);
+
+            p.ApplyToManifest();
+
+            Assert.Equal(2, GetManifest(p).Shortcuts.Count);
+            Assert.True(GetManifest(p).Autostart);
+            Assert.True(GetManifest(p).RunAfterInstall);
+        }
+
         // ─────────────────────────────────────────────────────────────
         // 回归：用户在"安装位置"页改成 D 盘，就**必须**装到 D 盘
         // ─────────────────────────────────────────────────────────────
@@ -345,6 +375,134 @@ namespace Installer.Core.Tests
             p.EnterUninstalled();
             Assert.Equal(2, p.StepIndex);
             Assert.Equal("Wizard.Close", p.SecondaryKey);
+        }
+
+        [Fact]
+        public void 点快捷路径chip应按_根目录_厂商_产品名_拼出安装目录()
+        {
+            // 「安装设置」页那排 Program Files / 本地 AppData chips 以前点了没反应。
+            // 拼装规则放在 Presenter 里，所以能在这里钉住：少一层厂商、丢产品名都会静默装错地方。
+            var p = NewPresenter();
+
+            Assert.Equal(@"D:\Program Files\唯非工作室\测试产品",
+                p.ComposeInstallDir(@"D:\Program Files"));
+        }
+
+        [Fact]
+        public void 没填厂商时chip拼出来的目录不带厂商层级()
+        {
+            var m = TestManifest.Create();
+            m.Product.Publisher = new LocalizedText();
+            var table = new StringTable(WizardStrings.Merge(m.Strings), "zh-Hans", m.DefaultCulture);
+            var p = new WizardPresenter(m, table, @"C:\Test\App");
+
+            Assert.Equal(@"D:\Program Files\测试产品", p.ComposeInstallDir(@"D:\Program Files"));
+        }
+
+        [Fact]
+        public void 卸载进度页的文案必须和安装页分开()
+        {
+            // 用户实测截图：卸载进度页显示「安装程序正在解压并写入文件」「已解压文件 123/199」
+            // 「准备安装目录…」—— 整块沿用安装文案。这里钉住卸载页自己的一套 key。
+            var table = WizardStrings.CreateDefault();
+
+            var uninstallKeys = new[]
+            {
+                "Uninstall.ProgressTitle", "Uninstall.ProgressSubtitle",
+                "Uninstall.CapFiles", "Uninstall.CapSize", "Uninstall.CapElapsed", "Uninstall.CapRemaining",
+                "Uninstall.Step1", "Uninstall.Step2", "Uninstall.Step3", "Uninstall.Step4",
+            };
+
+            foreach (var key in uninstallKeys)
+            {
+                Assert.True(table.ContainsKey(key), "缺少卸载进度页文案：" + key);
+                Assert.False(string.IsNullOrWhiteSpace(table[key]["zh-Hans"]), key + " 缺少中文");
+                Assert.False(string.IsNullOrWhiteSpace(table[key]["en"]), key + " 缺少英文");
+            }
+
+            // 统计卡标题不能和安装页相同
+            Assert.NotEqual(table["Progress.CapFiles"]["zh-Hans"], table["Uninstall.CapFiles"]["zh-Hans"]);
+            // 步骤名也不能相同
+            Assert.NotEqual(table["Progress.Step1"]["zh-Hans"], table["Uninstall.Step1"]["zh-Hans"]);
+        }
+
+        // ── 更新流程（已安装同一产品）────────────────────────────────
+
+        [Fact]
+        public void 已安装旧版本时应跳过安装设置页并显示版本对比()
+        {
+            var manifest = TestManifest.Create();
+            manifest.Product.Version = "2.0.0";
+
+            var p = new WizardPresenter(manifest, Text(manifest), @"C:\Apps\Test");
+            p.SetInstalled(new InstalledProduct { Version = "1.0.0", InstallDir = @"D:\Old\Test" });
+
+            Assert.True(p.IsUpdate);
+            Assert.Equal(UpdateKind.Newer, p.Kind);
+            Assert.Equal(@"D:\Old\Test", p.Options.InstallDir);   // 直接写已安装目录
+            Assert.Contains("1.0.0", p.UpdateHint);
+            Assert.Contains("2.0.0", p.UpdateHint);
+
+            // 欢迎页下一步 → 更新页（不是安装设置页）
+            p.Primary();
+            Assert.Equal(WizardPage.Update, p.Current);
+            Assert.Equal("Wizard.Update", p.PrimaryKey);
+
+            // 更新页主按钮 → 直接开装
+            p.Primary();
+            Assert.Equal(WizardPage.Installing, p.Current);
+        }
+
+        [Fact]
+        public void 相同版本应提示重新安装()
+        {
+            var manifest = TestManifest.Create();
+            manifest.Product.Version = "1.0.0";
+
+            var p = new WizardPresenter(manifest, Text(manifest), @"C:\Apps\Test");
+            p.SetInstalled(new InstalledProduct { Version = "1.0.0", InstallDir = @"C:\Apps\Test" });
+
+            Assert.Equal(UpdateKind.Same, p.Kind);
+
+            p.Primary();
+            Assert.Equal(WizardPage.Update, p.Current);
+            Assert.Equal("Wizard.Reinstall", p.PrimaryKey);
+        }
+
+        [Fact]
+        public void 低版本应提示仍要安装并允许降级()
+        {
+            var manifest = TestManifest.Create();
+            manifest.Product.Version = "0.9.0";
+
+            var p = new WizardPresenter(manifest, Text(manifest), @"C:\Apps\Test");
+            p.SetInstalled(new InstalledProduct { Version = "1.0.0", InstallDir = @"C:\Apps\Test" });
+
+            Assert.Equal(UpdateKind.Older, p.Kind);
+            Assert.True(p.AllowDowngrade);
+
+            p.Primary();
+            Assert.Equal(WizardPage.Update, p.Current);
+            Assert.Equal("Wizard.InstallAnyway", p.PrimaryKey);
+        }
+
+        [Fact]
+        public void 没装过时应照旧进安装设置页()
+        {
+            var manifest = TestManifest.Create();
+            var p = new WizardPresenter(manifest, Text(manifest), @"C:\Apps\Test");
+
+            Assert.False(p.IsUpdate);
+            Assert.Equal(UpdateKind.None, p.Kind);
+
+            p.Primary();
+            Assert.Equal(WizardPage.Path, p.Current);
+            Assert.Equal("Wizard.Install", p.PrimaryKey);
+        }
+
+        private static StringTable Text(InstallerManifest m)
+        {
+            return new StringTable(WizardStrings.Merge(m.Strings), "zh-Hans", m.DefaultCulture);
         }
 
         private static InstallerManifest GetManifest(WizardPresenter p)

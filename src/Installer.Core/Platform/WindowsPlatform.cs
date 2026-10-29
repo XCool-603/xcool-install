@@ -137,6 +137,25 @@ namespace Installer.Core.Platform
     /// <summary>真实的快捷方式实现（走 IShellLink）。</summary>
     public sealed class WindowsShortcutService : IShortcutService
     {
+        // 外壳通知：建完快捷方式必须告诉 Explorer，否则开始菜单「所有应用」不会收录它。
+        private const int SHCNE_CREATE = 0x00000002;
+        private const int SHCNE_DELETE = 0x00000004;
+        private const int SHCNE_UPDATEDIR = 0x00002000;
+        private const int SHCNE_ASSOCCHANGED = unchecked((int)0x08000000);
+        private const uint SHCNF_PATH = 0x0001;
+        private const uint SHCNF_IDLIST = 0x0000;
+        private const uint SHCNF_FLUSH = 0x1000;
+
+        [System.Runtime.InteropServices.DllImport("shell32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
+        private static extern void SHChangeNotify(int eventId, uint flags, string item1, string item2);
+
+        /// <summary>
+        /// 参数为 IDLIST 版本（不传具体条目，让外壳整体刷新）。
+        /// </summary>
+        [System.Runtime.InteropServices.DllImport("shell32.dll", EntryPoint = "SHChangeNotify",
+            CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
+        private static extern void SHChangeNotifyIdList(int eventId, uint flags, IntPtr item1, IntPtr item2);
+
         /// <inheritdoc />
         public void Create(string linkPath, string targetPath, string arguments, string workingDirectory,
                            string description, string iconPath)
@@ -148,21 +167,61 @@ namespace Installer.Core.Platform
             }
 
             ShellLink.Create(linkPath, targetPath, arguments, workingDirectory, description, iconPath);
+
+            // 精确通知：这个文件建好了 + 它所在的目录变了。
+            // 只发 ASSOCCHANGED 时实测**不可靠** —— 开始菜单「所有应用」可能一直不收录新条目
+            // （用户反馈"目录里有、菜单里没有"就是这件事）。目录也在变，所以两条都发。
+            Notify(SHCNE_CREATE, linkPath);
+            Notify(SHCNE_UPDATEDIR, dir);
+            NotifyAll();
         }
 
         /// <inheritdoc />
         public void Delete(string linkPath)
         {
-            if (File.Exists(linkPath))
+            if (!File.Exists(linkPath))
             {
-                File.Delete(linkPath);
+                return;
             }
+
+            File.Delete(linkPath);
+            Notify(SHCNE_DELETE, linkPath);
+            Notify(SHCNE_UPDATEDIR, Path.GetDirectoryName(linkPath));
         }
 
         /// <inheritdoc />
         public bool Exists(string linkPath)
         {
             return File.Exists(linkPath);
+        }
+
+        private static void Notify(int eventId, string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return;
+            }
+
+            try
+            {
+                SHChangeNotify(eventId, SHCNF_PATH | SHCNF_FLUSH, path, null);
+            }
+            catch (Exception)
+            {
+                // 通知失败不影响安装：外壳迟早会自己发现，最多晚一点显示
+            }
+        }
+
+        /// <summary>再补一条"整体刷新"，覆盖只认 ASSOCCHANGED 的场景。</summary>
+        private static void NotifyAll()
+        {
+            try
+            {
+                SHChangeNotifyIdList(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, IntPtr.Zero, IntPtr.Zero);
+            }
+            catch (Exception)
+            {
+            }
         }
     }
 
@@ -266,6 +325,22 @@ namespace Installer.Core.Platform
                     return Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
                 case SpecialFolderKind.ProgramFiles:
                     return Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+                case SpecialFolderKind.ProgramFilesX86:
+                    {
+                        // 32 位安装器拿到的 ProgramFiles 可能被 WOW64 重定向，
+                        // 这里优先用显式的 (x86) 目录，取不到再退回 ProgramFiles。
+                        var x86 = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
+                        return string.IsNullOrEmpty(x86)
+                            ? Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)
+                            : x86;
+                    }
+
+                case SpecialFolderKind.CommonDesktop:
+                    return Environment.GetFolderPath(Environment.SpecialFolder.CommonDesktopDirectory);
+                case SpecialFolderKind.CommonStartMenu:
+                    return Environment.GetFolderPath(Environment.SpecialFolder.CommonPrograms);
+                case SpecialFolderKind.CommonStartup:
+                    return Environment.GetFolderPath(Environment.SpecialFolder.CommonStartup);
                 case SpecialFolderKind.System:
                     return Environment.GetFolderPath(Environment.SpecialFolder.System);
                 case SpecialFolderKind.Temp:

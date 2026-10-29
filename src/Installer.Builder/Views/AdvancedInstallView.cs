@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Installer.Abstractions.Model;
 using Installer.Abstractions.Platform;
+using Installer.Builder.Presenters;
 
 namespace Installer.Builder.Views
 {
@@ -19,9 +20,6 @@ namespace Installer.Builder.Views
         /// <summary>正在往界面里灌值 —— 期间不响应"切换范围时同步目录"的逻辑。</summary>
         private bool _loading;
 
-        /// <summary>当前清单（切范围时要用产品名算默认目录）。</summary>
-        private InstallerManifest _manifest;
-
         /// <summary>构造。</summary>
         public AdvancedInstallView()
         {
@@ -33,14 +31,18 @@ namespace Installer.Builder.Views
         /// <summary>写回界面。</summary>
         public void Write(InstallerManifest m, ProjectBuildSettings build)
         {
-            _manifest = m;
-
             _loading = true;
             try
             {
                 cboScope.SelectedIndex = string.Equals(m.Scope, InstallScopes.PerMachine,
                     StringComparison.OrdinalIgnoreCase) ? 1 : 0;
-                txtDir.Text = m.DefaultInstallDir ?? string.Empty;
+
+                // 这里显示的是**根目录**，不是最终目录：
+                // 最终目录是「根\厂商\产品」，拼装发生在打包时（Build → InstallPaths.Compose）。
+                // 直接回显最终目录的后果：用户再点一次打包就会变成「...\产品\厂商\产品」。
+                txtDir.Text = InstallPaths.SplitBase(m.DefaultInstallDir,
+                    BuilderPresenter.PickVendorName(m), BuilderPresenter.PickProductName(m)) ?? string.Empty;
+
                 chkAlwaysElevate.Checked = m.AlwaysElevate;
             }
             finally
@@ -59,6 +61,9 @@ namespace Installer.Builder.Views
         public void Read(InstallerManifest m, ProjectBuildSettings build)
         {
             m.Scope = cboScope.SelectedIndex == 1 ? InstallScopes.PerMachine : InstallScopes.PerUser;
+
+            // 注意：存进清单的是**根目录**。最终目录（根\厂商\产品）在打包时算，
+            // 这样改了产品名/厂商名之后目录会自动跟着变，不会留一个旧名字的死路径。
             m.DefaultInstallDir = txtDir.Text.Trim();
             m.AlwaysElevate = chkAlwaysElevate.Checked;
 
@@ -85,6 +90,10 @@ namespace Installer.Builder.Views
         {
             lblScope.Text = text.Get("Advanced.Scope");
             lblDir.Text = text.Get("Advanced.InstallDir");
+
+            // 输入框里填的是**根目录**，最终目录是「根目录\厂商\产品名」——
+            // 这条规则写在占位提示里，用户清空输入框时就能看到。
+            txtDir.PlaceholderText = text.Get("Advanced.InstallDir.Hint");
             lblIcon.Text = text.Get("Advanced.Icon");
             lblCom.Text = text.Get("Advanced.Com");
             lblComHint.Text = text.Get("Advanced.Com.Hint");
@@ -99,10 +108,11 @@ namespace Installer.Builder.Views
         }
 
         /// <summary>
-        /// 切换安装范围时把默认目录换成对应的那一档。
+        /// 切换安装范围时把**根目录**换成对应的那一档
+        /// （<c>%LOCALAPPDATA%\Programs</c> ↔ <c>%ProgramFiles%</c>）。
         ///
-        /// 只在"当前目录正好是另一档的默认值"时才换 —— 用户手填的路径一律不动。
-        /// 不换的话会出现"范围=所有用户、目录还在 %LOCALAPPDATA%"这种自相矛盾的包。
+        /// 只在"当前值正好是另一档的默认根目录"时才换 —— 用户手填的路径一律不动。
+        /// 不换的话会出现"范围=所有用户、根目录还在 %LOCALAPPDATA%"这种自相矛盾的包。
         /// </summary>
         private void SyncDirToScope()
         {
@@ -111,10 +121,9 @@ namespace Installer.Builder.Views
                 return;
             }
 
-            var name = ResolveProductName();
             var allUsers = cboScope.SelectedIndex == 1;
-            var wanted = InstallPaths.Suggest(name, allUsers);
-            var other = InstallPaths.Suggest(name, !allUsers);
+            var wanted = InstallPaths.Root(allUsers);
+            var other = InstallPaths.Root(!allUsers);
             var current = txtDir.Text.Trim();
 
             if (string.IsNullOrWhiteSpace(current) ||
@@ -122,30 +131,6 @@ namespace Installer.Builder.Views
             {
                 txtDir.Text = wanted;
             }
-        }
-
-        /// <summary>取产品名（优先简体中文，其次默认语言，最后取第一个）。</summary>
-        private string ResolveProductName()
-        {
-            var name = _manifest == null ? null : _manifest.Product == null ? null : _manifest.Product.Name;
-            if (name == null || name.Count == 0)
-            {
-                return "我的产品";
-            }
-
-            string value;
-            if (name.TryGetValue("zh-Hans", out value) && !string.IsNullOrWhiteSpace(value))
-            {
-                return value;
-            }
-
-            if (_manifest.DefaultCulture != null && name.TryGetValue(_manifest.DefaultCulture, out value)
-                && !string.IsNullOrWhiteSpace(value))
-            {
-                return value;
-            }
-
-            return name.Values.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v)) ?? "我的产品";
         }
 
         private void PickIcon()

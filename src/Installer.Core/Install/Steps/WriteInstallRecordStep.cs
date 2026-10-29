@@ -49,6 +49,7 @@ namespace Installer.Core.Install
                 SchemaVersion = 1,
                 ProductCode = ctx.Manifest.ProductCode,
                 ProductName = StandardSteps.ProductName(ctx),
+                VendorName = StandardSteps.VendorName(ctx),
                 ProductVersion = ctx.Manifest.Product.Version,
                 Scope = ctx.Manifest.Scope,
                 InstallDir = ctx.InstallDir,
@@ -65,7 +66,7 @@ namespace Installer.Core.Install
                 LegacyKeys = new List<string>(ctx.LegacyRegistryKeys),
                 UninstallKeyPath = InstallEngine.HiveName(StandardSteps.HiveFor(ctx.Manifest)) + "\\" +
                                    StandardSteps.UninstallKeyPath(ctx),
-                UninstallerPath = Path.Combine(ctx.InstallDir, "Uninstall.exe"),
+                UninstallerPath = Path.Combine(ctx.InstallDir, InstallRecord.UninstallerFileName),
                 Com = ComRegistrar.ResolveAll(ctx.InstallDir, ctx.Manifest),
             };
 

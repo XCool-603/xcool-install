@@ -71,11 +71,11 @@ namespace Installer.Core.Install
                 // 不能只写日志就跳过 —— 那样用户装完之后安装目录里根本没有 Uninstall.exe，
                 // 而且界面上看不到任何异常。这里升级成 Issue，让它显式暴露出来。
                 ctx.Log.Warn("找不到安装器自身路径，跳过卸载器部署。");
-                ctx.Log.Error("未能部署卸载器（Uninstall.exe）：找不到安装器自身路径。");
+                ctx.Log.Error("未能部署卸载器（" + InstallRecord.UninstallerFileName + "）：找不到安装器自身路径。");
                 return;
             }
 
-            var dest = Path.Combine(ctx.InstallDir, "Uninstall.exe");
+            var dest = Path.Combine(ctx.InstallDir, InstallRecord.UninstallerFileName);
             var stubLength = ctx.StubLength > 0 ? ctx.StubLength : new FileInfo(source).Length;
 
             if (ctx.DryRun)

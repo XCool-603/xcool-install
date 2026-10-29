@@ -242,7 +242,7 @@ namespace Installer.Builder.Presenters
         /// 取一个**非空**的产品名。
         /// 中英文都可以留空其中一个，所以不能直接取字典里的第一个 —— 那可能正好是空的那个。
         /// </summary>
-        public string PickProductName(InstallerManifest m)
+        public static string PickProductName(InstallerManifest m)
         {
             var name = m == null || m.Product == null ? null : m.Product.Name;
             if (name == null || name.Count == 0)
@@ -261,6 +261,91 @@ namespace Installer.Builder.Presenters
 
             var first = name.Values.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v));
             return first == null ? null : first.Trim();
+        }
+
+        /// <summary>
+        /// 取厂商名（用于安装目录的厂商层级）。没填返回空串 = 不建这一层。
+        /// 厂商只有一个输入框，中英共用同一个值。
+        /// </summary>
+        public static string PickVendorName(InstallerManifest m)
+        {
+            if (m == null || m.Product == null || m.Product.Publisher == null)
+            {
+                return string.Empty;
+            }
+
+            return InstallPaths.SanitizeOrEmpty(InstallPaths.PickText(
+                m.Product.Publisher, m.DefaultCulture, m.DefaultCulture));
+        }
+
+        /// <summary>
+        /// 安装根目录还是不是"新建工程时的那个默认值"。
+        /// 是的话打包时换成按安装范围算出来的根目录；
+        /// 用户改过（哪怕改成了别的公共根，比如 <c>D:\Program Files (x86)</c>）就一律不动 ——
+        /// 那正是"装到 D 盘"这种诉求。
+        /// </summary>
+        public static bool IsDefaultDirPlaceholder(string dir)
+        {
+            if (string.IsNullOrWhiteSpace(dir))
+            {
+                return true;
+            }
+
+            var value = dir.Trim();
+
+            if (string.Equals(value, InstallPaths.Root(false), StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(value, InstallPaths.Root(true), StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            // 老工程（安装目录里直接写了 <占位产品名>）也认
+            return string.Equals(value, InstallPaths.Suggest(InstallPaths.PlaceholderProductName, false),
+                       StringComparison.OrdinalIgnoreCase)
+                   || string.Equals(value, InstallPaths.Suggest(InstallPaths.PlaceholderProductName, true),
+                       StringComparison.OrdinalIgnoreCase);
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // 自动命名：产品名跟随「启动程序」
+        // ─────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// 决定这次要不要用自动推导出来的名字覆盖产品名输入框，返回**要写入的名字**（null = 不动）。
+        ///
+        /// 规则（用户反馈"换了启动程序，产品名不变"之后定的）：
+        /// <list type="number">
+        /// <item>勾着「产品名跟随文件夹名」→ 一律覆盖（用户明确要求跟随）；</item>
+        /// <item>输入框还是空的 → 覆盖；</item>
+        /// <item>输入框里正是**上一次自动填进去的名字** → 覆盖（它本来就是推导出来的，
+        ///       换了启动程序自然要跟着变）；</item>
+        /// <item>其它情况（用户自己敲过、或工程里带了别的名字）→ **一个字符都不碰**。</item>
+        /// </list>
+        /// </summary>
+        /// <param name="current">输入框当前值。</param>
+        /// <param name="lastAuto">上一次自动填入的值（null 表示没有）。</param>
+        /// <param name="suggested">这次推导出来的名字。</param>
+        /// <param name="forceFollow">是否勾了"跟随"复选框。</param>
+        public static string ResolveAutoName(string current, string lastAuto, string suggested, bool forceFollow)
+        {
+            if (string.IsNullOrWhiteSpace(suggested))
+            {
+                return null;
+            }
+
+            if (forceFollow)
+            {
+                return suggested;
+            }
+
+            if (string.IsNullOrWhiteSpace(current))
+            {
+                return suggested;
+            }
+
+            return string.Equals(current.Trim(), (lastAuto ?? string.Empty).Trim(), StringComparison.Ordinal)
+                ? suggested
+                : null;
         }
 
         // ─────────────────────────────────────────────────────────────
@@ -352,12 +437,9 @@ namespace Installer.Builder.Presenters
                 m.EntryPoint = GuessEntryPoint(b.SourceDir);
             }
 
-            // 安装目录没改过就跟着产品名走
-            if (string.IsNullOrWhiteSpace(m.DefaultInstallDir)
-                || m.DefaultInstallDir == @"%LOCALAPPDATA%\Programs\我的产品")
-            {
-                m.DefaultInstallDir = @"%LOCALAPPDATA%\Programs\" + BuilderDocument.Sanitize(PickProductName(m));
-            }
+            // 安装目录：用户填的是**根目录**（Program Files / D:\Program Files (x86)…），
+            // 最终目录按「根\厂商\产品」拼出来 —— 没有厂商就不建厂商那一层。
+            ApplyInstallDirLayout(m);
 
             DateTimeOffset? timestamp = null;
             if (!string.IsNullOrWhiteSpace(b.Timestamp))
@@ -374,11 +456,43 @@ namespace Installer.Builder.Presenters
                 OutputPath = ResolveOutputPath(),
                 IconPath = string.IsNullOrWhiteSpace(b.IconPath) ? null : b.IconPath,
                 SkipIconPatch = string.IsNullOrWhiteSpace(b.IconPath),
+                // 默认要求管理员（用户要求）；工程里显式关掉才退回 asInvoker
+                RequireAdministrator = b.RequireAdministrator ?? true,
                 BuildTimestamp = timestamp,
                 PackerVersion = _buildService.PackerVersion,
             };
 
             return _buildService.Build(options, progress);
+        }
+
+        /// <summary>
+        /// 把清单里的「安装根目录」落成**最终安装目录**：<c>根\厂商\产品</c>（没厂商就不建那一层）。
+        ///
+        /// 以前这里是"把 &lt;产品名&gt; 拼到 %LOCALAPPDATA%\Programs 后面"，于是：
+        ///   · 用户把根目录改成 <c>D:\Program Files (x86)</c> 时，几百个文件直接平铺进去，
+        ///     和别人的软件混在一起，卸载都不敢删（用户反馈"没有产品目录"就是这个）；
+        ///   · 填了厂商也没有厂商层级。
+        ///
+        /// 抽成静态方法是因为**两条打包入口都要用它**：
+        /// 界面上的「生成安装包」( <see cref="Build"/> ) 和给 CI 的 <c>--build</c>。
+        /// 只改一条的话，CI 的产物和用户点出来的产物目录不一样 —— 那种偏差最难查。
+        /// </summary>
+        /// <param name="m">清单。</param>
+        public static void ApplyInstallDirLayout(InstallerManifest m)
+        {
+            if (m == null)
+            {
+                return;
+            }
+
+            var rootDir = m.DefaultInstallDir;
+            if (string.IsNullOrWhiteSpace(rootDir) || IsDefaultDirPlaceholder(rootDir))
+            {
+                rootDir = InstallPaths.Root(string.Equals(m.Scope, InstallScopes.PerMachine,
+                    StringComparison.OrdinalIgnoreCase));
+            }
+
+            m.DefaultInstallDir = InstallPaths.Compose(rootDir, PickVendorName(m), PickProductName(m));
         }
 
         /// <summary>
