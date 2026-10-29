@@ -69,6 +69,15 @@ namespace Installer.UI.Models
 
         /// <summary>已安装目录 —— 更新时**直接写这里**，不再让用户选。</summary>
         public string InstallDir { get; set; }
+
+        /// <summary>
+        /// 已安装产品的名字（从安装记录/卸载键里读到的）。
+        ///
+        /// 用来判断"这是不是同一个产品"：不同产品如果碰巧共用了 productCode，
+        /// 不能把对方当成"已安装的本产品" —— 否则全新安装会被误判成"更新"
+        /// （用户实测：3 个不同产品，装第 2 个时提示"更新"）。
+        /// </summary>
+        public string ProductName { get; set; }
     }
 
     /// <summary>用户在向导里做的选择。</summary>

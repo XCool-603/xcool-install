@@ -556,6 +556,14 @@ namespace Installer.Builder.Presenters
 
             m.InstallRoot = rootDir;
             m.DefaultInstallDir = InstallPaths.Compose(rootDir, vendor, name);
+
+            // 产品标识跟着**启动程序名**走：同名同码（能正常升级），异名异码（不同产品互不干扰）。
+            // 用户要求：相同 exe 名 → 同一个 productCode；不同 exe 名 → 不同 productCode。
+            var code = ProductCodes.FromEntryPoint(m.EntryPoint);
+            if (!string.IsNullOrEmpty(code))
+            {
+                m.ProductCode = code;
+            }
         }
 
         /// <summary>

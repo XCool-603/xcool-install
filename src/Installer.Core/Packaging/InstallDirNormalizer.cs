@@ -49,6 +49,13 @@ namespace Installer.Core.Packaging
 
             manifest.InstallRoot = root;
             manifest.DefaultInstallDir = InstallPaths.Compose(root, vendor, name);
+
+            // 产品标识由启动程序名推导：同名同码（可正常升级），异名异码（不同产品互不干扰）
+            var code = ProductCodes.FromEntryPoint(manifest.EntryPoint);
+            if (!string.IsNullOrEmpty(code))
+            {
+                manifest.ProductCode = code;
+            }
         }
 
         /// <summary>启动程序文件名（去扩展名）；没有入口程序返回 null。</summary>

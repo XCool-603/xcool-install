@@ -465,6 +465,12 @@ $r = Invoke-Cli @('pack', '--project', $m1Project, '--source', $m1Source, '--stu
                   '--out', $m1Setup, '--build-time', $buildTime)
 Check 'M1 包打包成功' ($r.ExitCode -eq 0)
 
+# productCode 现在由**启动程序名**推导（同名同码、异名异码），
+# 所以不能再用工程里写的那个值去断言注册表 —— 从产物里读真实值。
+$r = Invoke-Cli @('inspect', $m1Setup)
+$m1ProductCode = ([regex]::Match($r.Output, '"productCode"\s*:\s*"([^"]+)"')).Groups[1].Value
+Check 'M1 包里有 productCode' ($m1ProductCode -match '^\{[0-9A-Fa-f-]{36}\}$') $m1ProductCode
+
 $m1Result = Join-Path $WorkDir 'm1-install.json'
 $p = Start-Process -FilePath $m1Setup -ArgumentList @('--silent', '--sandbox', $sb, '--result', $m1Result) -Wait -PassThru -NoNewWindow
 Check '安装退出码为 0' ($p.ExitCode -eq 0) "exit=$($p.ExitCode)"
@@ -928,8 +934,10 @@ Check '第二次安装成功' ($p.ExitCode -eq 0)
 $dupKeys = @(Get-UninstallKeys $dupReg)
 Check '重复安装后仍然只有 1 条卸载项' ($dupKeys.Count -eq 1) `
       ("实际 {0} 条：{1}" -f $dupKeys.Count, ($dupKeys -join ', '))
+$r = Invoke-Cli @('inspect', $dupSetup)
+$dupProductCode = ([regex]::Match($r.Output, '"productCode"\s*:\s*"([^"]+)"')).Groups[1].Value
 Check '留下的那条是最后一次安装的 productCode' `
-      ($dupKeys.Count -eq 1 -and $dupKeys[0] -eq '{EEEEEEEE-9999-8888-7777-666666666666}') ($dupKeys -join ', ')
+      ($dupKeys.Count -eq 1 -and $dupKeys[0] -eq $dupProductCode) ($dupKeys -join ', ')
 
 $dupRegJson = Get-Content -LiteralPath $dupReg -Raw -Encoding UTF8 | ConvertFrom-Json
 $uninstallNode = $dupRegJson.($uninstallPrefix + $dupKeys[0])

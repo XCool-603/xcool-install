@@ -1008,6 +1008,7 @@ namespace Installer.Runtime
         private static Installer.UI.Models.InstalledProduct DetectInstalled(
             RuntimeOptions options, InstallerManifest manifest, string installDir)
         {
+            // ① 目标目录里就有安装记录 → 一定是本产品（同一个位置）
             var local = TryReadInstalled(installDir);
             if (local != null)
             {
@@ -1032,16 +1033,32 @@ namespace Installer.Runtime
                         continue;
                     }
 
+                    // ② **必须确认是同一个产品**。
+                    //
+                    // 只按 productCode 找是不够的：用户把同一个工程另存成几个项目时，
+                    // productCode 会被一起复制 —— 装第 2 个产品时就会看到第 1 个的记录，
+                    // 于是"全新安装"被误判成"更新"（用户实测）。
+                    // 判据：卸载键里的 DisplayName 与本次产品名一致（任一语言），
+                    //       或者 InstallLocation 就是我们这次要装的目录。
+                    var displayName = platform.Registry.GetString(hive, sub, "DisplayName");
                     var location = platform.Registry.GetString(hive, sub, "InstallLocation");
-                    if (string.IsNullOrWhiteSpace(location))
+
+                    var sameDir = !string.IsNullOrWhiteSpace(location) && !string.IsNullOrWhiteSpace(installDir)
+                                  && string.Equals(location.TrimEnd('\\'), installDir.TrimEnd('\\'),
+                                      StringComparison.OrdinalIgnoreCase);
+
+                    if (!sameDir && !MatchesProductName(manifest, displayName))
                     {
-                        continue;
+                        continue;   // 同一个 productCode，但是**另一个产品** → 当全新安装
                     }
 
-                    var fromRecord = TryReadInstalled(location);
-                    if (fromRecord != null)
+                    if (!string.IsNullOrWhiteSpace(location))
                     {
-                        return fromRecord;
+                        var fromRecord = TryReadInstalled(location);
+                        if (fromRecord != null)
+                        {
+                            return fromRecord;
+                        }
                     }
 
                     var version = platform.Registry.GetString(hive, sub, "DisplayVersion");
@@ -1051,6 +1068,7 @@ namespace Installer.Runtime
                         {
                             Version = version,
                             InstallDir = location,
+                            ProductName = displayName,
                         };
                     }
                 }
@@ -1061,6 +1079,35 @@ namespace Installer.Runtime
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// 这个显示名是不是本产品的名字（任一语言，忽略大小写与首尾空白）。
+        /// 产品名可能被改过，所以只用于"排除明显是别的产品"。
+        /// </summary>
+        internal static bool MatchesProductName(InstallerManifest manifest, string displayName)
+        {
+            if (manifest == null || manifest.Product == null || manifest.Product.Name == null)
+            {
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(displayName))
+            {
+                return false;
+            }
+
+            var target = displayName.Trim();
+            foreach (var value in manifest.Product.Name.Values)
+            {
+                if (!string.IsNullOrWhiteSpace(value)
+                    && string.Equals(value.Trim(), target, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>读某个目录里的安装记录，转成"已安装产品"。</summary>
@@ -1083,6 +1130,7 @@ namespace Installer.Runtime
                 {
                     Version = record.ProductVersion,
                     InstallDir = string.IsNullOrWhiteSpace(record.InstallDir) ? dir : record.InstallDir,
+                    ProductName = record.ProductName,
                 };
             }
             catch (Exception)

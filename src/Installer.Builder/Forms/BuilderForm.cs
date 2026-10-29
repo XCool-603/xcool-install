@@ -375,9 +375,22 @@ namespace Installer.Builder.Forms
 
         /// <summary>上一次自动填入的产品名，用于判断"这个名字是不是我填的"。</summary>
         private string _autoName;
-        /// <summary>用户选了文件夹 → 产品名跟随**文件夹名**（与复选框文案一致）。</summary>
+        /// <summary>
+        /// 用户选了文件夹 → 产品名跟着**启动程序名**走。
+        ///
+        /// 用户反馈：换了文件夹，产品名变成了文件夹名。原因是"选文件夹"和"自动选启动程序"
+        /// 两个事件先后触发，最后落地的是文件夹名。产品名应该跟启动程序一致
+        /// （安装目录、快捷方式、卸载项都按它来），只有还没有启动程序时才退回文件夹名。
+        /// </summary>
         private void AutoFillProductName(string folder)
         {
+            var entry = folderStep.EntryPoint;
+            if (!string.IsNullOrWhiteSpace(entry))
+            {
+                ApplyAutoName(System.IO.Path.GetFileNameWithoutExtension(entry));
+                return;
+            }
+
             ApplyAutoName(BuilderPresenter.SuggestProductName(folder));
         }
 
@@ -967,6 +980,12 @@ namespace Installer.Builder.Forms
             {
                 _initializing = false;
             }
+
+            // 模拟用户点「更换文件夹」：产品名应跟着**启动程序名**，
+            // 而不是文件夹名（用户反馈：换了文件夹，产品名变成了文件夹名）。
+            AutoFillProductName(folder);
+            lines.Add("nameAfterFolder=" + infoStep.CurrentProductName);
+            lines.Add("entryAfterFolder=" + (folderStep.EntryPoint ?? string.Empty));
 
             var exes = BuilderPresenter.FindExecutables(folder);
             lines.Add("exes=" + exes.Count.ToString(CultureInfo.InvariantCulture));

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Installer.Abstractions.Install;
+using Installer.Abstractions.Model;
 using Installer.Runtime;
 using Xunit;
 
@@ -70,6 +71,50 @@ namespace Installer.Core.Tests
             Assert.Equal(dir, installed.InstallDir);
         }
 
+        [Fact]
+        public void productCode_由启动程序名决定_同名同码异名异码()
+        {
+            // 用户要求：相同 exe 名 → 同一个 productCode；不同 exe 名 → 不同 productCode。
+            var a1 = ProductCodes.FromEntryPoint("ProductA.exe");
+            var a2 = ProductCodes.FromEntryPoint(@"bin\ProductA.exe");
+            var a3 = ProductCodes.FromEntryPoint("producta.exe");     // 大小写不敏感
+            var b = ProductCodes.FromEntryPoint("ProductB.exe");
+
+            Assert.Equal(a1, a2);
+            Assert.Equal(a1, a3);
+            Assert.NotEqual(a1, b);
+
+            Assert.Matches("^\\{[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}\\}$", a1);
+
+            Assert.Null(ProductCodes.FromEntryPoint(null));
+            Assert.Null(ProductCodes.FromEntryPoint("   "));
+        }
+
+        [Fact]
+        public void 同一个_productCode_下的别的产品不算已安装()
+        {
+            // 用户实测：把同一个工程另存成 3 个项目，productCode 被一起复制，
+            // 装第 2 个产品时提示"更新"。修法是**必须确认是同一个产品**。
+            var manifest = new Installer.Abstractions.Model.InstallerManifest
+            {
+                Product = new Installer.Abstractions.Model.ProductInfo
+                {
+                    Name = new Installer.Abstractions.Model.LocalizedText
+                    {
+                        { "zh-Hans", "产品乙" }, { "en", "Product B" },
+                    },
+                },
+            };
+
+            Assert.True(InstallHost.MatchesProductName(manifest, "产品乙"));
+            Assert.True(InstallHost.MatchesProductName(manifest, " Product B "));
+            Assert.True(InstallHost.MatchesProductName(manifest, "product b"));
+
+            // 另一个产品 → 不算本产品
+            Assert.False(InstallHost.MatchesProductName(manifest, "产品甲"));
+            Assert.False(InstallHost.MatchesProductName(manifest, "Product A"));
+            Assert.False(InstallHost.MatchesProductName(manifest, null));
+        }
         [Fact]
         public void 没有安装记录时返回空()
         {

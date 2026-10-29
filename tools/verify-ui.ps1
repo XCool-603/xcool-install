@@ -376,6 +376,12 @@ function Get-Auto($lines, $key) {
 Check ($auto -contains 'AUTONAME-DONE') `
       '产品名自检跑完（没有中途退出）' ($auto -join ' | ')
 Check ((Get-Auto $auto 'autoNameOnLoad') -eq 'True') '新建工程默认打开「产品名跟随」'
+# 用户反馈：点「更换文件夹」后产品名变成了文件夹名 —— 应该跟着**启动程序名**。
+$entryStem = [System.IO.Path]::GetFileNameWithoutExtension((Get-Auto $auto 'entryAfterFolder'))
+Check ($entryStem.Length -gt 0) '自检里记录了自动选中的启动程序' (Get-Auto $auto 'entryAfterFolder')
+Check ((Get-Auto $auto 'nameAfterFolder') -eq $entryStem) `
+      '换文件夹后产品名跟着启动程序名（不是文件夹名）' `
+      ("name=$(Get-Auto $auto 'nameAfterFolder')  exe=$entryStem")
 Check ((Get-Auto $auto 'pickChanged') -eq 'True') `
       '换启动程序 → 产品名跟着变（这条就是用户报的 bug）' `
       ("pickLast=$(Get-Auto $auto 'pickLast')  pickFirst=$(Get-Auto $auto 'pickFirst')")
